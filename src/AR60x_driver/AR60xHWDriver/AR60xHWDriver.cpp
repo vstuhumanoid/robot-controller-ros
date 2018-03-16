@@ -29,7 +29,6 @@ void AR60xHWDriver::initPackets()
 void AR60xHWDriver::robotConnect()
 {
     connection->connectToHost(connectionData.host,
-                              connectionData.sendPort,
                               connectionData.recvPort,
                               connectionData.sendDelay);
 }
@@ -37,7 +36,6 @@ void AR60xHWDriver::robotConnect()
 void AR60xHWDriver::robotDisconnect()
 {
     connection->breakConnection();
-    connection->wait();
 }
 
 void AR60xHWDriver::JointSetSettings(int joint, JointData settings)

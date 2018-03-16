@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <ros/package.h>
+#include <std_msgs/builtin_float.h>
 #include <experimental/filesystem>
 #include <fstream>
 #include <string>
@@ -9,17 +10,26 @@
 using namespace std;
 namespace fs = std::experimental::filesystem;
 
+AR60xHWDriver driver;
+
+void command_callback(const std_msgs::Float32 angle)
+{
+    driver.JointSetPosition(1, (int)(angle.data * 100));
+    driver.JointSetState(1, JointState::TRACE);
+    ROS_INFO("Command: %f", angle);
+}
+
 int main(int argc, char** argv)
 {
-    QString wtf = QString::fromStdString("WTF");
 
     ros::init(argc, argv, "AR60x_driver");
     ros::NodeHandle nh;
 
     ros::Rate rate(1);
 
+
     string path = ros::package::getPath("robot-controller-ros")+"/config.xml";
-    AR60xHWDriver driver;
+
     driver.loadConfig(path);
 
     driver.initPackets();
@@ -34,14 +44,13 @@ int main(int argc, char** argv)
     driver.SupplySetState(PowerData::Supply48V, true);
     rate.sleep();
 
-
+    auto sub = nh.subscribe("command", 1000, command_callback);
 
 
     while(ros::ok())
     {
         auto state = driver.PowerGetSupplyState(PowerData::Supply48V);
-        ROS_DEBUG("Voltage: %f\t Current: %f", state.Voltage, state.Current);
-
+        ROS_INFO("Voltage: %f\t Current: %f", state.Voltage, state.Current);
         ros::spinOnce();
         rate.sleep();
     }

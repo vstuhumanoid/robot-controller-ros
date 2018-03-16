@@ -1,51 +1,35 @@
 #include "UDPConnection.h"
 
-UDPConnection::UDPConnection(QObject *parent) : QThread(parent)
+UDPConnection::UDPConnection()
 {
-    isRunning = false;
-    time = new QTime;
-}
-
-void UDPConnection::run()
-{
-    socket = new QUdpSocket();
-
-    connect(socket, SIGNAL(readyRead()), SLOT(processPendingDatagrams()),Qt::DirectConnection);
-
-    qDebug() << "UDPConnection - binding..." << endl;
-    if (!socket->bind(recvPort, QUdpSocket::ShareAddress))
-        qDebug()<< "UDPConnection - Not Bind!";
-
-    sendTimer = new QTimer;
-    sendTimer->setInterval(sendDelay);
-    connect(sendTimer, SIGNAL(timeout()), SLOT(sendDatagram()), Qt::DirectConnection);
-    sendTimer->start(sendDelay);
-
-    printConnectionState();
-
-    exec();
-
-    qDebug() << "UDPConnection - disconnect..." << endl;
-    disconnect(sendTimer, SIGNAL(timeout()));
-    disconnect(socket, SIGNAL(readyRead()));
-
-    socket->disconnect();
-    socket->close();
-    printConnectionState();
+    socket = NULL;
 
 }
 
-void UDPConnection::connectToHost(std::string host, int sendPort, int recvPort, int delay)
-{
-    this->host = QString::fromStdString( host );
-    this->sendPort = sendPort;
-    this->recvPort = recvPort;
-    this->sendDelay = delay;
 
+void UDPConnection::connectToHost(std::string host,  int sendPort, int delay)
+{
     if(isRunning == false)
     {
+
+        if(socket != NULL)
+            delete socket;
+
+
+        this->host = QString::fromStdString( host );
+        this->sendPort = sendPort;
+        this->sendDelay = delay;
+
+        socket = new QUdpSocket();
+        qDebug() << "UDPConnection - binding..." << endl;
+        if (!socket->bind(10001, QUdpSocket::ShareAddress))
+            qDebug()<< "UDPConnection - Not Bind!";
+
+        printConnectionState();
+
+        update_thread = std::thread(&UDPConnection::thread_func, this);
         isRunning = true;
-        start();
+        update_thread.detach();
     }
 }
 
@@ -54,7 +38,13 @@ void UDPConnection::breakConnection()
     if(isRunning == true)
     {
         isRunning = false;
-        exit();
+
+        update_thread.join();
+
+        socket->disconnect();
+        socket->close();
+
+        printConnectionState();
     }
 }
 
@@ -78,6 +68,17 @@ void UDPConnection::printConnectionState()
     }
 }
 
+
+void UDPConnection::thread_func()
+{
+    while (isRunning)
+    {
+        sendDatagram();
+        receiveDatagram();
+        std::this_thread::sleep_for(std::chrono::milliseconds(sendDelay));
+    }
+}
+
 void UDPConnection::sendDatagram()
 {
     QHostAddress address = QHostAddress(host);
@@ -86,21 +87,16 @@ void UDPConnection::sendDatagram()
     socket->waitForBytesWritten();
     sendLocker->unlock();
 
-    qDebug() << "UDPConnection - sended at " << QTime::currentTime().toString("hh:mm:ss.zzz") << endl;
+    //qDebug() << "UDPConnection - sended at " << QTime::currentTime().toString("hh:mm:ss.zzz") << endl;
 }
 
-void UDPConnection::processPendingDatagrams()
+void UDPConnection::receiveDatagram()
 {
-    while (socket->hasPendingDatagrams())
-    {
-        QByteArray datagram;
-        datagram.resize(socket->pendingDatagramSize());
-        QHostAddress Host;
-        quint16 Port;
+    QByteArray datagram;
+    datagram.resize(socket->pendingDatagramSize());
+    QHostAddress Host;
+    quint16 Port;
 
-        socket->readDatagram(datagram.data(), datagram.size(), &Host, &Port);
-        recvPacket->initFromByteArray( datagram.data() );
-
-        emit dataReady();
-     }
+    socket->readDatagram(datagram.data(), datagram.size(), &Host, &Port);
+    recvPacket->initFromByteArray( datagram.data() );
 }

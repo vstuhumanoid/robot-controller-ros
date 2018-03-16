@@ -13,28 +13,26 @@
 
 #include "RobotPackets/AR60xRecvPacket.h"
 #include "RobotPackets/AR60xSendPacket.h"
+#include <thread>
+#include <chrono>
 
-class UDPConnection : public QThread
+class UDPConnection
 {
-    Q_OBJECT
+
 public:
-    explicit UDPConnection(QObject *parent = 0);
+    UDPConnection();
     ~UDPConnection(){}
 
-    void run();
-    void connectToHost(std::string host, int sendPort, int recvPort, int delay);
+    void connectToHost(std::string host, int sendPort, int delay);
     void breakConnection();
     void initPackets();
 
     void setRecvPacket(AR60xRecvPacket * packet) { recvPacket = packet; }
     void setSendPacket(AR60xSendPacket * packet) { sendPacket = packet; }
 
-signals:
-    void dataReady();
+
 private:
     QUdpSocket *socket;
-    QTimer *sendTimer;
-    QTime *time;
 
     std::mutex *sendLocker;
     std::mutex *recvLocker;
@@ -42,18 +40,20 @@ private:
     QString host;
     int sendPort;
     int sendDelay;
-    int recvPort;
 
     volatile bool isRunning;
 
     AR60xRecvPacket *recvPacket;
     AR60xSendPacket *sendPacket;
 
+    std::thread update_thread;
+
     void printConnectionState();
 
-private slots:
+    void thread_func();
+    void receiveDatagram();
     void sendDatagram();
-    void processPendingDatagrams();
+
 };
 
 #endif // UDPCONNECTION_H
