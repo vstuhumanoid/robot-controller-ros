@@ -1,0 +1,105 @@
+<config>
+	<connection host="192.169.1.10" recvPort="10001" sendDelay="5" sendPort="10001"/>
+    <joints>
+        <joint number="1" name="Стопа Y (R)" channel="1" offset="-114" isReverce="false" isEnable="true">
+            <gains proportional="900" integral="2" derivative="1"/>
+            <limits lowerLimit="-1500" upperLimit="1500"/>
+        </joint>
+        <joint number="2" name="Стопа X (R)" channel="2" offset="-5361" isReverce="false" isEnable="true">
+            <gains proportional="900" integral="2" derivative="1"/>
+            <limits lowerLimit="-4000" upperLimit="8000"/>
+        </joint>
+		<joint number="3" name="Колено (R)" channel="3" offset="-7804" isReverce="false" isEnable="true">
+            <gains proportional="900" integral="2" derivative="1"/>
+            <limits lowerLimit="-10000" upperLimit="700"/>
+        </joint>
+		<joint number="4" name="Бедро X (R)" channel="4" offset="4895" isReverce="true" isEnable="true">
+            <gains proportional="900" integral="2" derivative="1"/>
+            <limits lowerLimit="-1000" upperLimit="7200"/>
+        </joint>
+		<joint number="5" name="Бедро Y (R)" channel="5" offset="193" isReverce="true" isEnable="true">
+            <gains proportional="900" integral="2" derivative="1"/>
+            <limits lowerLimit="-1400" upperLimit="1500"/>
+        </joint>
+		<joint number="6" name="Бедро вращение (R)" channel="6" offset="8208" isReverce="true" isEnable="true">
+            <gains proportional="900" integral="2" derivative="1"/>
+            <limits lowerLimit="-4500" upperLimit="4500"/>
+        </joint>
+		<joint number="7" name="Стопа Y (L)" channel="7" offset="6556" isReverce="true" isEnable="true">
+            <gains proportional="900" integral="2" derivative="1"/>
+            <limits lowerLimit="-1500" upperLimit="1500"/>
+        </joint>
+		<joint number="8" name="Стопа X (L)" channel="8" offset="-870" isReverce="true" isEnable="true">
+            <gains proportional="900" integral="2" derivative="1"/>
+            <limits lowerLimit="-4000" upperLimit="8000"/>
+        </joint>
+		<joint number="9" name="Колено (L)" channel="9" offset="-4930" isReverce="true" isEnable="true">
+            <gains proportional="900" integral="2" derivative="1"/>
+            <limits lowerLimit="-10000" upperLimit="700"/>
+        </joint>
+		<joint number="10" name="Бедро X (L)" channel="10" offset="-4420" isReverce="false" isEnable="true">
+            <gains proportional="900" integral="2" derivative="1"/>
+            <limits lowerLimit="-1000" upperLimit="7200"/>
+        </joint>
+		<joint number="11" name="Бедро Y (L)" channel="11" offset="4218" isReverce="false" isEnable="true">
+            <gains proportional="900" integral="2" derivative="1"/>
+            <limits lowerLimit="-1400" upperLimit="1500"/>
+        </joint>
+		<joint number="12" name="Бедро вращение (L)" channel="12" offset="7664" isReverce="false" isEnable="true">
+            <gains proportional="900" integral="2" derivative="1"/>
+            <limits lowerLimit="-4500" upperLimit="4500"/>
+        </joint>
+		<joint number="19" name="Рука Y (R)" channel="26" offset="17376" isReverce="true" isEnable="false">
+            <gains proportional="600" integral="2" derivative="1"/>
+            <limits lowerLimit="-500" upperLimit="9000"/>
+        </joint>
+		<joint number="20" name="Рука X (R)" channel="27" offset="11443" isReverce="true" isEnable="false">
+            <gains proportional="600" integral="2" derivative="1"/>
+            <limits lowerLimit="-500" upperLimit="9500"/>
+        </joint>
+		<joint number="35" name="Рука Y (L)" channel="36" offset="-16373" isReverce="false" isEnable="false">
+            <gains proportional="600" integral="2" derivative="1"/>
+            <limits lowerLimit="-500" upperLimit="9000"/>
+        </joint>
+		<joint number="36" name="Рука X (L)" channel="37" offset="4025" isReverce="false" isEnable="false">
+            <gains proportional="600" integral="2" derivative="1"/>
+            <limits lowerLimit="-500" upperLimit="9500"/>
+        </joint>
+		<joint number="43" name="Голова вращение" channel="18" offset="487" isReverce="false" isEnable="false">
+            <gains proportional="1000" integral="2" derivative="1"/>
+            <limits lowerLimit="-3500" upperLimit="3500"/>
+        </joint>
+		<joint number="44" name="Голова наклон" channel="20" offset="9097" isReverce="true" isEnable="false">
+            <gains proportional="400" integral="1" derivative="1"/>
+            <limits lowerLimit="-1500" upperLimit="1500"/>
+        </joint>
+		<joint number="45" name="Голова качание" channel="21" offset="2988" isReverce="false" isEnable="false">
+            <gains proportional="400" integral="1" derivative="1"/>
+            <limits lowerLimit="-1000" upperLimit="1000"/>
+        </joint>
+		<joint number="46" name="Шея" channel="22" offset="8437" isReverce="false" isEnable="false">
+            <gains proportional="500" integral="1" derivative="1"/>
+            <limits lowerLimit="-500" upperLimit="1500"/>
+        </joint>
+		<joint number="49" name="Торс" channel="23" offset="-15477" isReverce="false" isEnable="true">
+            <gains proportional="500" integral="1" derivative="1"/>
+            <limits lowerLimit="-2500" upperLimit="2500"/>
+        </joint>
+    </joints>
+	<sensors>
+        <sensor number="1" name="Акселерометр X" channel="14"/>
+        <sensor number="2" name="Акселерометр Y" channel="14"/>
+		<sensor number="3" name="Акселерометр Z" channel="14"/>
+		<sensor number="4" name="Гироскоп X" channel="14"/>
+		<sensor number="5" name="Гироскоп Y" channel="14"/>
+		<sensor number="6" name="Гироскоп Z" channel="14"/>
+		<sensor number="7" name="Давление на левой ноге 0" channel="15"/>
+		<sensor number="8" name="Давление на левой ноге 1" channel="15"/>
+		<sensor number="9" name="Давление на левой ноге 2" channel="15"/>
+		<sensor number="10" name="Давление на левой ноге 3" channel="15"/>
+		<sensor number="11" name="Давление на правой ноге 0" channel="16"/>
+		<sensor number="12" name="Давление на правой ноге 1" channel="16"/>
+		<sensor number="13" name="Давление на правой ноге 2" channel="16"/>
+		<sensor number="14" name="Давление на правой ноге 3" channel="16"/>
+    </sensors>
+</config>
