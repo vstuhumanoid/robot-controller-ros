@@ -90,6 +90,22 @@ JointData AR60xHWDriver::JointGetSettings(int joint)
     return desc.joints[joint];
 }
 
+void AR60xHWDriver::JointSetSettings(std::vector<int> joints, std::vector<JointData> settings)
+{
+    if(joints.size() != settings.size())
+        throw std::invalid_argument("Count of joints and settings must be equal");
+
+    for(int i = 0; i < joints.size(); i++)
+        desc.joints[i] = settings[i];
+}
+
+std::vector<JointData> AR60xHWDriver::JointGetSettings(std::vector<int> joints)
+{
+    std::vector<JointData> data(joints.size());
+    for(int i = 0; i<joints.size(); i++)
+        data[i] = desc.joints[i];
+}
+
 
 // position
 void AR60xHWDriver::JointSetPosition(int joint, int position)
@@ -102,15 +118,54 @@ int AR60xHWDriver::JointGetPosition(int joint)
     return recvPacket->jointGetPosition(joint);
 }
 
+void AR60xHWDriver::JointSetPosition(std::vector<int>& joints, std::vector<int>& position)
+{
+    if(joints.size() != position.size())
+        throw std::invalid_argument("Count of joints and position must be equal");
+
+    for(int i = 0; i < joints.size(); i++)
+        sendpacket->jointSetPosition(joints[i], position[i]);
+}
+
+std::vector<int> AR60xHWDriver::JointGetPosition(std::vector<int>& joints)
+{
+    std::vector<int> positions(joints.size());
+    for(int i = 0; i < joints.size(); i++)
+        positions[i] = recvPacket->jointGetPosition(i);
+
+    return positions;
+}
+
 
 // offset
 void AR60xHWDriver::JointSetOffset(int joint, int offset)
 {
+    //TODO: Use only desc, package read from desc
     desc.joints[joint].offset = offset;
     sendpacket->jointSetOffset(joint, offset);
 }
 
-// TODO: JointGetOffset
+
+int AR60xHWDriver::JointGetOffset(int joint)
+{
+    return desc.joints[joint].offset;
+}
+
+void AR60xHWDriver::JointSetOffset(std::vector<int> joints, std::vector<int> offset)
+{
+    if(joints.size() != offset.size())
+        throw std::invalid_argument("Count of joints and offset must be equal");
+
+    for(int i = 0; i < joints.size(); i++)
+        desc.joints[i].offset = offset[i];
+}
+
+std::vector<int> AR60xHWDriver::JointGetOffset(std::vector<int> joints)
+{
+    std::vector<int> offsets(joints.size());
+    for(int i = 0; i < joints.size(); i++)
+        offsets[i] = desc.joints[i].offset;
+}
 
 
 // reverse
@@ -122,6 +177,16 @@ void AR60xHWDriver::JointSetReverce(int joint, bool isReverce)
 bool AR60xHWDriver::JointGetReverce(int joint)
 {
     return desc.joints[joint].isReverce;
+}
+
+void AR60xHWDriver::JointSetReverce(std::vector<int> joints, std::vector<int> isReverce)
+{
+    throw std::runtime_error("Not implemented");
+}
+
+std::vector<bool> AR60xHWDriver::JointGetReverce(std::vector<int> joints)
+{
+    throw std::runtime_error("Not implemented");
 }
 
 
@@ -140,6 +205,16 @@ JointData::PIDGains AR60xHWDriver::JointGetPIDGains(int joint)
     return desc.joints[joint].gains;
 }
 
+void AR60xHWDriver::JointSetPIDGains(std::vector<int> joints, std::vector<JointData::PIDGains> gains)
+{
+    throw std::runtime_error("Not implemented");
+}
+
+std::vector<JointData::PIDGains> AR60xHWDriver::JointGetPIDGains(std::vector<int> joints)
+{
+    throw std::runtime_error("Not implemented");
+}
+
 
 // limits
 void AR60xHWDriver::JointSetLimits(int joint, JointData::JointLimits limits)
@@ -155,6 +230,16 @@ JointData::JointLimits AR60xHWDriver::JointGetLimits(int joint)
     return desc.joints.at(joint).limits;
 }
 
+void AR60xHWDriver::JointSetLimits(std::vector<int> joints, std::vector<JointData::JointLimits> limits)
+{
+    throw std::runtime_error("Not implemented");
+}
+
+std::vector<JointData::JointLimits> AR60xHWDriver::JointGetLimits(std::vector<int> joints)
+{
+    throw std::runtime_error("Not implemented");
+}
+
 
 // enable
 void AR60xHWDriver::JointSetEnable(int joint, bool isEnable)
@@ -167,6 +252,15 @@ bool AR60xHWDriver::JointGetEnable(int joint)
     return desc.joints.at(joint).isEnable;
 }
 
+void AR60xHWDriver::JointSetEnable(std::vector<int> joints, std::vector<bool> isEnable)
+{
+    throw std::runtime_error("Not implemented");
+}
+
+std::vector<bool> AR60xHWDriver::JointGetEnable(std::vector<int> joints)
+{
+    throw std::runtime_error("Not implemented");
+}
 
 // state
 void AR60xHWDriver::JointSetState(int joint, JointState::JointStates state)
@@ -178,6 +272,16 @@ void AR60xHWDriver::JointSetState(int joint, JointState::JointStates state)
 JointState AR60xHWDriver::JointGetState(int joint)
 {
     //return recvPacket->jointGetState(joint);
+}
+
+void AR60xHWDriver::JointSetState(std::vector<int> joints, std::vector<JointState::JointStates> state)
+{
+    throw std::runtime_error("Not implemented");
+}
+
+std::vector<JointState> AR60xHWDriver::JointGetState(std::vector<int> joints)
+{
+    throw std::runtime_error("Not implemented");
 }
 
 // ------------------------------ power control -----------------------------------------

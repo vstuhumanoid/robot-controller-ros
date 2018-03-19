@@ -2,23 +2,20 @@
 #define AR60XHWDRIVER_H
 
 #include "RobotDescription/AR60xDescription.h"
-
 #include "RobotPackets/AR60xRecvPacket.h"
 #include "RobotPackets/AR60xSendPacket.h"
-
 #include "HardwareInterfaces/IAR60xJointControl.h"
 #include "HardwareInterfaces/IAR60xJointState.h"
 #include "HardwareInterfaces/IAR60xPowerControl.h"
 #include "HardwareInterfaces/IAR60xSensorState.h"
-
-
 #include "XMLSerializer.h"
-
 #include "UDPConnection.h"
 
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include <exception>
 
 
 class AR60xHWDriver :
@@ -54,32 +51,51 @@ public:
     void robotConnect();
     void robotDisconnect();
 
-    // Joint control interface
+    // ------------------------------- Joint control interface ---------------------------------------------------------
+
     void JointSetSettings(int joint, JointData settings) override;
     JointData JointGetSettings(int joint) override;
+    void JointSetSettings(std::vector<int> joints, std::vector<JointData> settings);
+    std::vector<JointData> JointGetSettings(std::vector<int> joints);
 
     void JointSetPosition(int joint, int position) override;
     int JointGetPosition(int joint) override;
+    void JointSetPosition(std::vector<int>& joints, std::vector<int>& position);
+    std::vector<int> JointGetPosition(std::vector<int>& joints);
 
     void JointSetOffset(int joint, int offset) override;
+    int JointGetOffset(int joint);
+    void JointSetOffset(std::vector<int> joints, std::vector<int> offset);
+    std::vector<int> JointGetOffset(std::vector<int> joints);
 
     void JointSetReverce(int joint, bool isReverce) override;
     bool JointGetReverce(int joint) override;
+    void JointSetReverce(std::vector<int> joints, std::vector<int> isReverce);
+    std::vector<bool> JointGetReverce(std::vector<int> joints);
 
     void JointSetPIDGains(int joint, JointData::PIDGains gains) override;
     JointData::PIDGains JointGetPIDGains(int joint) override;
+    void JointSetPIDGains(std::vector<int> joints, std::vector<JointData::PIDGains> gains);
+    std::vector<JointData::PIDGains> JointGetPIDGains(std::vector<int> joints);
 
     void JointSetLimits(int joint, JointData::JointLimits limits) override;
     JointData::JointLimits JointGetLimits(int joint) override;
+    void JointSetLimits(std::vector<int> joints, std::vector<JointData::JointLimits> limits);
+    std::vector<JointData::JointLimits> JointGetLimits(std::vector<int> joints);
 
     void JointSetEnable(int joint, bool isEnable) override;
     bool JointGetEnable(int joint) override;
+    void JointSetEnable(std::vector<int> joints, std::vector<bool> isEnable);
+    std::vector<bool> JointGetEnable(std::vector<int> joints);
 
     void JointSetState(int joint, JointState::JointStates state) override;
     JointState JointGetState(int joint) override;
+    void JointSetState(std::vector<int> joints, std::vector<JointState::JointStates> state);
+    std::vector<JointState> JointGetState(std::vector<int> joints);
 
 
-    // Power control interface
+    // ------------------------------- Power control interface ---------------------------------------------------------
+
     /**
      * Get voltage and current of specific joint
      * @param joint Joint's number
@@ -109,7 +125,8 @@ public:
     bool SupplyGetOnOff(PowerData::PowerSupplies supply) override;
 
 
-    // Sensors
+    // -------------------------------------- Sensors -------- ---------------------------------------------------------
+
     SensorState SensorGetState(int sensor) override;
 
     AR60xDescription *getRobotDesc();
