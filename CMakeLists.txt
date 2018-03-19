@@ -36,12 +36,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(AR60x_driver  src/AR60x_driver/main.cpp)
-target_include_directories(AR60x_driver PUBLIC src/AR60x_driver)
-add_subdirectory(src/AR60x_driver/AR60xHWDriver)
-target_link_libraries(AR60x_driver
-    ${catkin_LIBRARIES}
-    AR60xHwDriver)
 
-add_executable(wtf  src/wtf.cpp)
-target_link_libraries(wtf ${catkin_LIBRARIES})
+add_subdirectory(src/AR60xHWDriver)
+add_subdirectory(src/AR60x_driver)

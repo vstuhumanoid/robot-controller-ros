@@ -1,5 +1,5 @@
 #pragma once
-#include "../DataTypes/PowerData.h"
+#include <DataTypes/PowerData.h>
 
 class IAR60xPowerControl
 {

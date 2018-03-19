@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <ros/package.h>
 #include <std_msgs/builtin_float.h>
-#include <AR60xHWDriver/AR60xHWDriver.h>
+#include <AR60xHWDriver.h>
 
 using namespace std;
 
