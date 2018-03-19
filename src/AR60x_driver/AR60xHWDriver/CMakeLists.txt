@@ -19,9 +19,15 @@ add_library(AR60xHwDriver
         DataTypes/SensorState.cpp
         RobotDescription/AR60xDescription.cpp
         RobotPackets/AR60xRecvPacket.cpp
-        RobotPackets/AR60xSendPacket.cpp)
+        RobotPackets/AR60xSendPacket.cpp
+        HardwareInterfaces/IAR60xJointControl.h
+        HardwareInterfaces/IAR60xJointState.h
+        HardwareInterfaces/IAR60xPowerControl.h
+        HardwareInterfaces/IAR60xSensorState.h
+        HardwareInterfaces/IAR60xSensorState.h)
 
-target_include_directories(AR60xHwDriver PRIVATE  ${catkin_INCLUDE_DIRS})
+target_include_directories(AR60xHwDriver PRIVATE
+        ${catkin_INCLUDE_DIRS})
 
 target_link_libraries(AR60xHwDriver
         ${Qt5Core_LIBRARIES}

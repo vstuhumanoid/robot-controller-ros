@@ -1,37 +1,74 @@
 #include "AR60xHWDriver.h"
 
 
-AR60xHWDriver::AR60xHWDriver()
+AR60xHWDriver::AR60xHWDriver(size_t max_recv_packet_size) :
+    sendpacket(nullptr),
+    recvPacket(nullptr),
+    connection(nullptr)
 {
-    desc = new AR60xDescription();
+    max_recv_packet_size_ = max_recv_packet_size;
 }
 
-bool AR60xHWDriver::loadConfig(std::string fileName)
+AR60xHWDriver::AR60xHWDriver(std::string config_filename, size_t max_recv_packet_size) : AR60xHWDriver(max_recv_packet_size)
 {
-    XMLSerializer *serializer = new XMLSerializer();
-    return serializer->deserialize(fileName, desc, &connectionData);
-    //return deserialize(fileName);
+    loadConfig(config_filename);
 }
 
-void AR60xHWDriver::initPackets()
+AR60xHWDriver::~AR60xHWDriver()
 {
-    sendpacket = new AR60xSendPacket(desc);
-    recvPacket = new AR60xRecvPacket(desc);
+    if(sendpacket)
+    {
+        delete[] sendpacket;
+        sendpacket = nullptr;
+    }
+
+    if(recvPacket)
+    {
+        delete[] recvPacket;
+        recvPacket = nullptr;
+    }
+
+    if(connection)
+    {
+        delete[] connection;
+        connection = nullptr;
+    }
+}
+
+void AR60xHWDriver::loadConfig(std::string fileName)
+{
+    XMLSerializer serializer;
+    if(!serializer.deserialize(fileName, &desc, &connectionData))
+    {
+        ROS_ERROR("Config parsing error");
+        throw std::runtime_error("Config parsing error");
+    }
+
+    init_packets();
+}
+
+bool AR60xHWDriver::saveConfig(std::string fileName)
+{
+    XMLSerializer serializer;
+    return serializer.serialize(fileName, &desc, &connectionData);
+}
+
+void AR60xHWDriver::init_packets()
+{
+    sendpacket = new AR60xSendPacket(&desc);
+    recvPacket = new AR60xRecvPacket(&desc);
 
     // TODO: Max receive packet size
-    connection = new UDPConnection(4096);
-
-    connection->setRecvPacket(recvPacket);
-    connection->setSendPacket(sendpacket);
-
-    connection->initPackets();
+    connection = new UDPConnection(*sendpacket, *recvPacket, connectionData.sendDelay, max_recv_packet_size_);
 }
+
+
+// ------------------------------ connection --------------------------------------------
+
 
 void AR60xHWDriver::robotConnect()
 {
-    connection->connectToHost(connectionData.host,
-                              connectionData.recvPort,
-                              connectionData.sendDelay);
+    connection->connectToHost(connectionData.host, connectionData.recvPort);
 }
 
 void AR60xHWDriver::robotDisconnect()
@@ -39,58 +76,102 @@ void AR60xHWDriver::robotDisconnect()
     connection->breakConnection();
 }
 
+
+// ------------------------------ joints ------------------------------------------------
+
+// settings
 void AR60xHWDriver::JointSetSettings(int joint, JointData settings)
 {
-    desc->joints.at(joint) = settings;
+    desc.joints[joint] = settings;
 }
 
+JointData AR60xHWDriver::JointGetSettings(int joint)
+{
+    return desc.joints[joint];
+}
+
+
+// position
 void AR60xHWDriver::JointSetPosition(int joint, int position)
 {
     sendpacket->jointSetPosition(joint, position);
 }
 
+int AR60xHWDriver::JointGetPosition(int joint)
+{
+    return recvPacket->jointGetPosition(joint);
+}
+
+
+// offset
 void AR60xHWDriver::JointSetOffset(int joint, int offset)
 {
-    desc->joints.at(joint).offset = offset;
+    desc.joints[joint].offset = offset;
     sendpacket->jointSetOffset(joint, offset);
 }
 
+// TODO: JointGetOffset
+
+
+// reverse
 void AR60xHWDriver::JointSetReverce(int joint, bool isReverce)
 {
-    desc->joints.at(joint).isReverce = isReverce;
+    desc.joints[joint].isReverce = isReverce;
 }
 
+bool AR60xHWDriver::JointGetReverce(int joint)
+{
+    return desc.joints[joint].isReverce;
+}
+
+
+// PID
 void AR60xHWDriver::JointSetPIDGains(int joint, JointData::PIDGains gains)
 {
+    //TODO: Add to config later
     sendpacket->jointSetPGain(joint, gains.proportional);
     sendpacket->jointSetIGain(joint, gains.integral);
     sendpacket->jointSetDGain(joint, gains.derivative);
 }
 
+JointData::PIDGains AR60xHWDriver::JointGetPIDGains(int joint)
+{
+    //TODO: Read real pids from robot?
+    return desc.joints[joint].gains;
+}
+
+
+// limits
 void AR60xHWDriver::JointSetLimits(int joint, JointData::JointLimits limits)
 {
+    desc.joints[joint].limits = limits;
     sendpacket->jointSetLowerLimit(joint, limits.lowerLimit);
     sendpacket->jointSetUpperLimit(joint, limits.upperLimit);
 }
 
-void AR60xHWDriver::JointSetEnable(int joint, bool isEnable)
+// TODO: Удалить JointSettings перенсти вместо него JointInformation!!!!!
+JointData::JointLimits AR60xHWDriver::JointGetLimits(int joint)
 {
-    desc->joints.at(joint).isEnable = isEnable;
+    return desc.joints.at(joint).limits;
 }
 
+
+// enable
+void AR60xHWDriver::JointSetEnable(int joint, bool isEnable)
+{
+    desc.joints.at(joint).isEnable = isEnable;
+}
+
+bool AR60xHWDriver::JointGetEnable(int joint)
+{
+    return desc.joints.at(joint).isEnable;
+}
+
+
+// state
 void AR60xHWDriver::JointSetState(int joint, JointState::JointStates state)
 {
     sendpacket->jointSetState(joint, state);
-}
-
-JointData AR60xHWDriver::JointGetSettings(int joint)
-{
-    return desc->joints.at(joint);
-}
-
-int AR60xHWDriver::JointGetPosition(int joint)
-{
-    return recvPacket->jointGetPosition(joint);
 }
 
 //TODO: проверить!!!!
@@ -99,10 +180,7 @@ JointState AR60xHWDriver::JointGetState(int joint)
     //return recvPacket->jointGetState(joint);
 }
 
-bool AR60xHWDriver::JointGetReverce(int joint)
-{
-    return desc->joints.at(joint).isReverce;
-}
+// ------------------------------ power control -----------------------------------------
 
 PowerState::PowerSupplyState AR60xHWDriver::JointGetSupplyState(int joint)
 {
@@ -110,40 +188,6 @@ PowerState::PowerSupplyState AR60xHWDriver::JointGetSupplyState(int joint)
     state.Voltage = recvPacket->jointGetVoltage(joint);
     state.Current = recvPacket->jointGetCurrent(joint);
     return state;
-}
-
-//TODO: Удалить JointSettings перенсти вместо него JointInformation!!!!!
-JointData::JointLimits AR60xHWDriver::JointGetLimits(int joint)
-{
-    return desc->joints.at(joint).limits;
-}
-
-bool AR60xHWDriver::JointGetEnable(int joint)
-{
-    return desc->joints.at(joint).isEnable;
-}
-
-JointData::PIDGains AR60xHWDriver::JointGetPIDGains(int joint)
-{
-    return desc->joints.at(joint).gains;
-}
-
-void AR60xHWDriver::PowerSetSettings(PowerData settings)
-{
-
-}
-
-void AR60xHWDriver::SupplySetState(PowerData::PowerSupplies supply, bool onOffState)
-{
-    if(onOffState)
-        sendpacket->supplySetOn(supply);
-    else
-        sendpacket->supplySetOff(supply);
-}
-
-bool AR60xHWDriver::PowerGetOnOff(PowerData::PowerSupplies supply)
-{
-    //TODO: нет метода в recvpacket
 }
 
 PowerState::PowerSupplyState AR60xHWDriver::PowerGetSupplyState(PowerData::PowerSupplies supply)
@@ -154,78 +198,31 @@ PowerState::PowerSupplyState AR60xHWDriver::PowerGetSupplyState(PowerData::Power
     return state;
 }
 
+void AR60xHWDriver::SupplySetOnOff(PowerData::PowerSupplies supply, bool onOffState)
+{
+    if(onOffState)
+        sendpacket->supplySetOn(supply);
+    else
+        sendpacket->supplySetOff(supply);
+}
+
+bool AR60xHWDriver::SupplyGetOnOff(PowerData::PowerSupplies supply)
+{
+    //TODO: нет метода в recvpacket
+}
+
+// ------------------------------ sensors -----------------------------------------------
+
 SensorState AR60xHWDriver::SensorGetState(int sensor)
 {
+    //TODO: Get sensors values
     //return recvPacket->sensorGetValue(sensor);
 }
 
+
+
 AR60xDescription *AR60xHWDriver::getRobotDesc()
 {
-    return desc;
+    return &desc;
 }
 
-bool AR60xHWDriver::saveConfig(std::string fileName)
-{
-//    JointData joint;
-//    joint.channel = 2;
-//    joint.isEnable = false;
-//    joint.isReverce = false;
-//    joint.name = "joint 1";
-//    joint.offset = 34455;
-//    joint.number = 1;
-
-//    JointData::PIDGains gates;
-//    gates.derivative = 5;
-//    gates.integral = 6;
-//    gates.proportional = 1200;
-
-//    joint.gains = gates;
-
-//    JointData::JointLimits limits;
-//    limits.lowerLimit = -1300;
-//    limits.upperLimit = 1500;
-
-//    joint.limits = limits;
-
-//    desc->joints[1] = joint;
-
-//    JointData joint2;
-
-//    joint2.number = 2;
-
-//    joint2.channel = 2;
-//    joint2.isEnable = false;
-//    joint2.isReverce = false;
-//    joint2.name = "joint 2";
-//    joint2.offset = 34455;
-
-//    gates.derivative = 5;
-//    gates.integral = 6;
-//    gates.proportional = 1200;
-
-//    joint2.gains = gates;
-
-//    limits.lowerLimit = -1300;
-//    limits.upperLimit = 1500;
-
-//    joint2.limits = limits;
-
-//    desc->joints[2] = joint2;
-
-//    SensorData sensor1;
-//    sensor1.number = 1;
-//    sensor1.name = "Датчик скорости";
-//    sensor1.channel = 1;
-
-//    SensorData sensor2;
-//    sensor2.number = 2;
-//    sensor2.name = "Датчик давления";
-//    sensor2.channel = 2;
-
-//    desc->sensors[1] = sensor1;
-//    desc->sensors[2] = sensor2;
-
-    XMLser = new XMLSerializer();
-    return XMLser->serialize(fileName, desc, &connectionData);
-    //return serialize(fileName);
-}

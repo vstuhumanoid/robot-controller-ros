@@ -9,8 +9,8 @@
 #include "HardwareInterfaces/IAR60xJointControl.h"
 #include "HardwareInterfaces/IAR60xJointState.h"
 #include "HardwareInterfaces/IAR60xPowerControl.h"
-#include "HardwareInterfaces/IAR60xPowerState.h"
 #include "HardwareInterfaces/IAR60xSensorState.h"
+
 
 #include "XMLSerializer.h"
 
@@ -20,31 +20,35 @@
 #include <fstream>
 #include <sstream>
 
-#include <QFile>
-#include <QJsonArray>
 
 class AR60xHWDriver :
         IAR60xJointControl,
         IAR60xJointState,
         IAR60xPowerControl,
-        IAR60xPowerState,
         IAR60xSensorState
 {
-private:
-    AR60xDescription * desc;
-
-    UDPConnection *connection;
-    AR60xRecvPacket *recvPacket;
-    AR60xSendPacket *sendpacket;
-
-    XMLSerializer * XMLser;
-
-    ConnectionData connectionData;
 public:
-    AR60xHWDriver();
+
+    /**
+     * Create new AR60x driver
+     * @param max_recv_packet_size Maximum size of receive buffer (bytes)
+     */
+    AR60xHWDriver(size_t max_recv_packet_size);
+
+    /**
+     * Create new AR60x driver
+     * @param config_filename Path to the robot's config file
+     * @param max_recv_packet_size Maximum size of receive buffer (bytes)
+     */
+    AR60xHWDriver(std::string config_filename, size_t max_recv_packet_size);
+    ~AR60xHWDriver();
+
+    /**
+     * Load robot's config file
+     * @param fileName Path to the robot's config file
+     */
+    void loadConfig(std::string fileName);
     bool saveConfig(std::string fileName);
-    bool loadConfig(std::string fileName);
-    void initPackets();
 
     // interfaces
     void robotConnect();
@@ -76,15 +80,52 @@ public:
 
 
     // Power control interface
+    /**
+     * Get voltage and current of specific joint
+     * @param joint Joint's number
+     * @return Joint's parameters
+     */
     PowerState::PowerSupplyState JointGetSupplyState(int joint) override;
-    PowerState::PowerSupplyState PowerGetSupplyState(PowerData::PowerSupplies supply) override;
-    void PowerSetSettings(PowerData settings) override;
-    void SupplySetState(PowerData::PowerSupplies supply, bool onOffState) override;
-    bool PowerGetOnOff(PowerData::PowerSupplies supply) override;
 
+    /**
+     * Get voltage and current of specific supply source (48v, 12v etc)
+     * @param supply Selected supply
+     * @return Supply's parameters
+     */
+    PowerState::PowerSupplyState PowerGetSupplyState(PowerData::PowerSupplies supply) override;
+
+    /**
+     * Set supply source on/off
+     * @param supply Selected supply
+     * @param onOffState On or off
+     */
+    void SupplySetOnOff(PowerData::PowerSupplies supply, bool onOffState) override;
+
+    /**
+     * Get supply state (on/off)
+     * @param supply Selected supply
+     * @return on or off
+     */
+    bool SupplyGetOnOff(PowerData::PowerSupplies supply) override;
+
+
+    // Sensors
     SensorState SensorGetState(int sensor) override;
 
     AR60xDescription *getRobotDesc();
+
+
+private:
+    void init_packets();
+
+    AR60xDescription desc;
+
+    UDPConnection *connection;
+    AR60xRecvPacket *recvPacket;
+    AR60xSendPacket *sendpacket;
+
+    ConnectionData connectionData;
+    size_t max_recv_packet_size_;
 
 };
 

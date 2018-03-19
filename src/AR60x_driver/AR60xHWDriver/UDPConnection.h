@@ -20,15 +20,31 @@ class UDPConnection
 {
 
 public:
-    UDPConnection(size_t max_recv_buffer_size);
+
+    /**
+     * Create new connection object
+     * @param sendPacket Reference to the send packet structure
+     * @param recvPacket Referenct to the recv packet structure
+     * @param delay Sending loop delay (ms)
+     * @param max_recv_buffer_size  maximum size of receive buffer (bytes)
+     */
+    UDPConnection(AR60xSendPacket& sendPacket,
+                  AR60xRecvPacket& recvPacket,
+                  uint32_t delay,
+                  size_t max_recv_buffer_size);
     ~UDPConnection();
 
-    void connectToHost(std::string host, unsigned short sendPort, int delay);
-    void breakConnection();
-    void initPackets();
+    /**
+     * Connect to remote host and start communication thread
+     * @param robot_address Robot's IP-address
+     * @param robot_port Robots' port
+     */
+    void connectToHost(std::string robot_address, uint16_t robot_port);
 
-    void setRecvPacket(AR60xRecvPacket * packet) { recv_packet_ = packet; }
-    void setSendPacket(AR60xSendPacket * packet) { send_packet_ = packet; }
+    /**
+     * Disconnect from remote host and stop communication thread
+     */
+    void breakConnection();
 
 
 private:
@@ -41,7 +57,6 @@ private:
     int send_delay_;
 
     // connection
-    ip::udp::endpoint robot_endpoint_;
     io_service io_service_;
     ip::udp::socket socket_;
 
@@ -49,8 +64,8 @@ private:
     volatile bool is_running_;
 
     // packages
-    AR60xRecvPacket *recv_packet_;
-    AR60xSendPacket *send_packet_;
+    AR60xRecvPacket& recv_packet_;
+    AR60xSendPacket& send_packet_;
     uint8_t* recv_buffer_;
     size_t max_recv_buffer_size_;
 

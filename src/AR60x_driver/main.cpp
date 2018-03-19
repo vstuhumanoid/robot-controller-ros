@@ -5,7 +5,7 @@
 
 using namespace std;
 
-AR60xHWDriver driver;
+AR60xHWDriver driver(4096);
 
 void command_callback(const std_msgs::Float32 angle)
 {
@@ -24,19 +24,16 @@ int main(int argc, char** argv)
 
 
     string path = ros::package::getPath("robot-controller-ros") + "/config.xml";
-
     driver.loadConfig(path);
-
-    driver.initPackets();
     driver.robotConnect();
 
-    driver.SupplySetState(PowerData::Supply12V, true);
+    driver.SupplySetOnOff(PowerData::Supply12V, true);
     rate.sleep();
-    driver.SupplySetState(PowerData::Supply6V1, true);
-    driver.SupplySetState(PowerData::Supply6V2, true);
-    driver.SupplySetState(PowerData::Supply8V1, true);
-    driver.SupplySetState(PowerData::Supply8V2, true);
-    driver.SupplySetState(PowerData::Supply48V, true);
+    driver.SupplySetOnOff(PowerData::Supply6V1, true);
+    driver.SupplySetOnOff(PowerData::Supply6V2, true);
+    driver.SupplySetOnOff(PowerData::Supply8V1, true);
+    driver.SupplySetOnOff(PowerData::Supply8V2, true);
+    driver.SupplySetOnOff(PowerData::Supply48V, true);
     rate.sleep();
 
     auto sub = nh.subscribe("command", 1000, command_callback);
