@@ -18,7 +18,8 @@ void AR60xHWDriver::initPackets()
     sendpacket = new AR60xSendPacket(desc);
     recvPacket = new AR60xRecvPacket(desc);
 
-    connection = new UDPConnection();
+    // TODO: Max receive packet size
+    connection = new UDPConnection(4096);
 
     connection->setRecvPacket(recvPacket);
     connection->setSendPacket(sendpacket);

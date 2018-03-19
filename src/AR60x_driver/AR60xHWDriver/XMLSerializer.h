@@ -1,7 +1,7 @@
 #ifndef XMLSERIALIZER_H
 #define XMLSERIALIZER_H
 
-#include "Libs/TinyXML2/tinyxml2.h"
+#include <tinyxml2.h>
 #include "RobotDescription/AR60xDescription.h"
 #include "DataTypes/ConnectionData.h"
 #include <string>

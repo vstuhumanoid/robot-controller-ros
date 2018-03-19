@@ -28,7 +28,7 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
     const char* host = connection->Attribute("host");
     connectionData.host = std::string(host);
     connection->QueryAttribute("recvPort", &connectionData.recvPort);
-    connection->QueryAttribute("sendDelay", &connectionData.sendDelay);
+    connection->QueryAttribute("send_delay_", &connectionData.sendDelay);
     connection->QueryAttribute("sendPort", &connectionData.sendPort);
 
     joints = root->FirstChildElement("joints");
@@ -101,7 +101,7 @@ bool XMLSerializer::serialize(std::string fileName, AR60xDescription * desc, Con
     XMLElement *connectionData = document.NewElement("connection");
     connectionData->SetAttribute("host", conn->host.c_str() );
     connectionData->SetAttribute("recvPort", conn->recvPort);
-    connectionData->SetAttribute("sendDelay", conn->sendDelay);
+    connectionData->SetAttribute("send_delay_", conn->sendDelay);
     connectionData->SetAttribute("sendPort", conn->sendPort);
     root->InsertEndChild(connectionData);
 

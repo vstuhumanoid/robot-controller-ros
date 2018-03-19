@@ -1,102 +1,134 @@
+#include <asio/ip/udp.hpp>
 #include "UDPConnection.h"
 
-UDPConnection::UDPConnection()
+UDPConnection::UDPConnection(size_t max_recv_buffer_size)
+    :io_service_(),
+     socket_(io_service_)
 {
-    socket = NULL;
+    // create receive buffers
+    max_recv_buffer_size_ = max_recv_buffer_size;
+    recv_buffer_ = new uint8_t[max_recv_buffer_size_];
+
+    // bind socket to local ephemerial port
+    // TODO: Maybe robot expects fixed port
+    try
+    {
+        socket_.open(ip::udp::v4());
+    }
+    catch(const std::runtime_error& er)
+    {
+        ROS_ERROR("Unable to bind socket");
+        ROS_ERROR_STREAM(er.what());
+    }
+}
+
+UDPConnection::~UDPConnection()
+{
+    delete[] recv_buffer_;
+    recv_buffer_ = nullptr;
 
 }
 
 
-void UDPConnection::connectToHost(std::string host,  int sendPort, int delay)
+void UDPConnection::connectToHost(std::string host, unsigned short sendPort, int delay)
 {
-    if(isRunning == false)
+    if (!is_running_)
     {
+        this->send_delay_ = delay;
 
-        if(socket != NULL)
-            delete socket;
+        // Connect to robot.
+        // Connection is used just to use send instead send_to later.
+        // It's bit faster
+        // TODO: Check endpoint is correct
+        // TODO: Return value or exception when error
+        try
+        {
+            auto robot_endpoint_ = ip::udp::endpoint(ip::address::from_string(host), sendPort);
+            socket_.connect(robot_endpoint_);
+        }
+        catch(const std::runtime_error& er)
+        {
+            ROS_ERROR("Unable to connect to robot");
+            ROS_ERROR_STREAM(er.what());
+            return;
+        }
 
-
-        this->host = QString::fromStdString( host );
-        this->sendPort = sendPort;
-        this->sendDelay = delay;
-
-        socket = new QUdpSocket();
-        qDebug() << "UDPConnection - binding..." << endl;
-        if (!socket->bind(10001, QUdpSocket::ShareAddress))
-            qDebug()<< "UDPConnection - Not Bind!";
-
-        printConnectionState();
+        ROS_INFO_STREAM("Connected to " << host << ":" <<  sendPort);
 
         update_thread = std::thread(&UDPConnection::thread_func, this);
-        isRunning = true;
+        is_running_ = true;
         update_thread.detach();
+
+        ROS_INFO("Connection thread started with perioud %dms", this->send_delay_);
+    }
+    else
+    {
+        ROS_WARN("Already connected");
     }
 }
 
 void UDPConnection::breakConnection()
 {
-    if(isRunning == true)
+    if(is_running_)
     {
-        isRunning = false;
-
+        ROS_INFO("Stopping...");
+        is_running_ = false;
         update_thread.join();
-
-        socket->disconnect();
-        socket->close();
-
-        printConnectionState();
+        socket_.close();
+        ROS_INFO("Stopped & disconnected");
     }
 }
 
 void UDPConnection::initPackets()
 {
-    recvLocker = recvPacket->getMutex();
-    sendLocker = sendPacket->getMutex();
-    sendPacket->init();
-    recvPacket->initFromByteArray(sendPacket->getByteArray());
-}
-
-void UDPConnection::printConnectionState()
-{
-    if (socket->state() == QUdpSocket::BoundState)
-    {
-        qDebug() << "UDPConnection - bounded";
-    }
-    else
-    {
-        qDebug() << "UDPConnection - unbounded";
-    }
+    recvLocker = recv_packet_->getMutex();
+    sendLocker = send_packet_->getMutex();
+    send_packet_->init();
+    recv_packet_->initFromByteArray(send_packet_->getByteArray());
 }
 
 
 void UDPConnection::thread_func()
 {
-    while (isRunning)
+    while (is_running_)
     {
-        sendDatagram();
-        receiveDatagram();
-        std::this_thread::sleep_for(std::chrono::milliseconds(sendDelay));
+        send_datagram();
+        receive_datagram();
+        std::this_thread::sleep_for(std::chrono::milliseconds(send_delay_));
     }
 }
 
-void UDPConnection::sendDatagram()
+void UDPConnection::send_datagram()
 {
-    QHostAddress address = QHostAddress(host);
     sendLocker->lock();
-    socket->writeDatagram(sendPacket->getByteArray(), sendPacket->getSize() * sizeof(char), address, sendPort);
-    socket->waitForBytesWritten();
-    sendLocker->unlock();
 
-    //qDebug() << "UDPConnection - sended at " << QTime::currentTime().toString("hh:mm:ss.zzz") << endl;
+    try
+    {
+        socket_.send(buffer(send_packet_->getByteArray(), send_packet_->getSize() * sizeof(char)));
+    }
+    catch(const std::runtime_error& er)
+    {
+        ROS_ERROR("Sending error");
+        ROS_ERROR_STREAM(er.what());
+    }
+
+
+    sendLocker->unlock();
 }
 
-void UDPConnection::receiveDatagram()
+void UDPConnection::receive_datagram()
 {
-    QByteArray datagram;
-    datagram.resize(socket->pendingDatagramSize());
-    QHostAddress Host;
-    quint16 Port;
+    // TODO: Lock?
 
-    socket->readDatagram(datagram.data(), datagram.size(), &Host, &Port);
-    recvPacket->initFromByteArray( datagram.data() );
+    try
+    {
+        socket_.receive(buffer(recv_buffer_, max_recv_buffer_size_));
+    }
+    catch(const std::runtime_error& er)
+    {
+        ROS_ERROR("Receiving error");
+        ROS_ERROR_STREAM(er.what());
+    }
+
+    recv_packet_->initFromByteArray((const char*)recv_buffer_);
 }

@@ -17,16 +17,14 @@ find_package(catkin REQUIRED COMPONENTS
   roslib
 )
 
-find_package (Qt5Core)
-find_package (Qt5Network)
 
 ###################################
 ## catkin specific configuration ##
 ###################################
 catkin_package(
-  INCLUDE_DIRS include
+#  INCLUDE_DIRS include
 #  LIBRARIES robot-controller-ros
-  CATKIN_DEPENDS roscpp sensor_msgs std_msgs roslib
+#  CATKIN_DEPENDS roscpp sensor_msgs std_msgs roslib
 #  DEPENDS system_lib
 )
 
@@ -38,29 +36,12 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-#aux_source_directory(src/AR60x_driver AR60X_DRIVER_SOURCES)
-add_executable(AR60x_driver
-        src/AR60x_driver/main.cpp
-        src/AR60x_driver/AR60xHWDriver/AR60xHWDriver.cpp
-        src/AR60x_driver/AR60xHWDriver/XMLSerializer.cpp
-        src/AR60x_driver/AR60xHWDriver/UDPConnection.cpp
-        src/AR60x_driver/AR60xHWDriver/DataTypes/ConnectionData.cpp
-        src/AR60x_driver/AR60xHWDriver/DataTypes/JointData.cpp
-        src/AR60x_driver/AR60xHWDriver/DataTypes/JointState.cpp
-        src/AR60x_driver/AR60xHWDriver/DataTypes/PowerData.cpp
-        src/AR60x_driver/AR60xHWDriver/DataTypes/PowerState.cpp
-        src/AR60x_driver/AR60xHWDriver/DataTypes/SensorData.cpp
-        src/AR60x_driver/AR60xHWDriver/DataTypes/SensorState.cpp
-        src/AR60x_driver/AR60xHWDriver/Libs/TinyXML2/tinyxml2.cpp
-        src/AR60x_driver/AR60xHWDriver/RobotDescription/AR60xDescription.cpp
-        src/AR60x_driver/AR60xHWDriver/RobotPackets/AR60xRecvPacket.cpp
-        src/AR60x_driver/AR60xHWDriver/RobotPackets/AR60xSendPacket.cpp)
-
-target_include_directories(AR60x_driver PUBLIC
-                               ${Qt5Core_INCLUDE_DIRS}
-                               ${Qt5Network_INCLUDE_DIRS})
-
+add_executable(AR60x_driver  src/AR60x_driver/main.cpp)
+target_include_directories(AR60x_driver PUBLIC src/AR60x_driver)
+add_subdirectory(src/AR60x_driver/AR60xHWDriver)
 target_link_libraries(AR60x_driver
-                          ${catkin_LIBRARIES}
-                          ${Qt5Core_LIBRARIES}
-                          ${Qt5Network_LIBRARIES})
+    ${catkin_LIBRARIES}
+    AR60xHwDriver)
+
+add_executable(wtf  src/wtf.cpp)
+target_link_libraries(wtf ${catkin_LIBRARIES})

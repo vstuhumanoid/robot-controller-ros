@@ -1,14 +1,9 @@
 #include <ros/ros.h>
 #include <ros/package.h>
 #include <std_msgs/builtin_float.h>
-#include <experimental/filesystem>
-#include <fstream>
-#include <string>
-#include "AR60xHWDriver/AR60xHWDriver.h"
-#include <QString>
+#include <AR60xHWDriver/AR60xHWDriver.h>
 
 using namespace std;
-namespace fs = std::experimental::filesystem;
 
 AR60xHWDriver driver;
 
@@ -16,7 +11,7 @@ void command_callback(const std_msgs::Float32 angle)
 {
     driver.JointSetPosition(1, (int)(angle.data * 100));
     driver.JointSetState(1, JointState::TRACE);
-    ROS_INFO("Command: %f", angle);
+    ROS_INFO("Command: %f", angle.data);
 }
 
 int main(int argc, char** argv)
@@ -28,7 +23,7 @@ int main(int argc, char** argv)
     ros::Rate rate(1);
 
 
-    string path = ros::package::getPath("robot-controller-ros")+"/config.xml";
+    string path = ros::package::getPath("robot-controller-ros") + "/config.xml";
 
     driver.loadConfig(path);
 
