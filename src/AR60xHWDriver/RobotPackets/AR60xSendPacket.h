@@ -2,44 +2,34 @@
 #define AR60XSENDPACKET_H
 
 #include "AR60xPacketsDefinitions.h"
-#include "../DataTypes/JointState.h"
-#include "../RobotDescription/AR60xDescription.h"
+#include "BasePacket.h"
+#include <DataTypes/JointState.h>
+#include <RobotDescription/AR60xDescription.h>
 
 #include <iostream>
 #include <map>
 #include <mutex>
 #include <stdlib.h>
+#include <cstring>
 
-class AR60xSendPacket
+class AR60xSendPacket : public BasePacket
 {
 public:
     AR60xSendPacket(AR60xDescription *robotDesc);
 
-    void initFromByteArray( unsigned char bytes[] );
-    void init(void);
-    const char *getByteArray();
-    int getSize(){ return packetSize; }
-    std::mutex *getMutex();
-
-    void jointSetPosition( short number, short value );
-    void jointSetOffset( short number, short value );
-    void jointSetPGain( short number, short value );
-    void jointSetIGain( short number, short value );
-    void jointSetDGain( short number, short value );
-    void jointSetLowerLimit( short number, short value );
-    void jointSetUpperLimit( short number, short value );
-    void jointSetState( short number , JointState::JointStates state );
-
+    void jointSetPosition(uint8_t number, double value);
+    void jointSetOffset(uint8_t number, double value);
+    void jointSetPIDGains(uint8_t number, JointData::PIDGains gains);
+    void jointSetLowerLimit(uint8_t number, double value);
+    void jointSetUpperLimit(uint8_t number, double value);
+    void jointSetState(uint8_t number , JointState::JointStates state );
     void supplySetOn( PowerData::PowerSupplies supply );
     void supplySetOff( PowerData::PowerSupplies supply );
-
 private:
-    AR60xDescription * desc;
 
-    char byteArray [packetSize];
-    std::mutex locker;
+    void write_int16(uint16_t address, int16_t value);
+    short angle_to_uint16(double angle);
 
-    void writeInt16(uint16_t address, int16_t value);
 };
 
 #endif // AR60XSENDPACKET_H

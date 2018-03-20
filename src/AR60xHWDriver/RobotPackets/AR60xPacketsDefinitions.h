@@ -42,18 +42,18 @@ static std::map<int ,int> sensorsMap =
     {14, SensorUch3Address}
 };
 
-const uint16_t DeviceNumberAddress =  0;
-
-const uint16_t JointStateAddress =     1;
-const uint16_t JointPositionAddress =     2;
-const uint16_t JointVoltageAddress =   4;
-const uint16_t JointCurrentAddress =   6;
-const uint16_t JointOffsetAddress  =    6;
-const uint16_t JointPGainAddress =    8;
-const uint16_t JointIGaneAddress =    10;
-const uint16_t JointDGainAddress =    4;
-const uint16_t JointLowerLimitAddress = 12;
-const uint16_t JointUpperLimitAddress = 14;
+// Joint's properties shit in joint package
+const uint8_t DeviceNumberAddress =    0;
+const uint8_t JointStateAddress =      1;
+const uint8_t JointPositionAddress =   2;
+const uint8_t JointVoltageAddress =    4;
+const uint8_t JointCurrentAddress =    6;
+const uint8_t JointOffsetAddress  =    6;
+const uint8_t JointPGainAddress =      8;
+const uint8_t JointIGaneAddress =      10;
+const uint8_t JointDGainAddress =      4;
+const uint8_t JointLowerLimitAddress = 12;
+const uint8_t JointUpperLimitAddress = 14;
 
 const uint16_t PowerDataAddress = 1408;
 

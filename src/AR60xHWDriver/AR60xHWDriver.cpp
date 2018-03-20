@@ -80,17 +80,17 @@ void AR60xHWDriver::robotDisconnect()
 // ------------------------------ joints ------------------------------------------------
 
 // settings
-void AR60xHWDriver::JointSetSettings(int joint, JointData settings)
+void AR60xHWDriver::JointSetSettings(uint8_t joint, JointData settings)
 {
     desc.joints[joint] = settings;
 }
 
-JointData AR60xHWDriver::JointGetSettings(int joint)
+JointData AR60xHWDriver::JointGetSettings(uint8_t joint)
 {
     return desc.joints[joint];
 }
 
-void AR60xHWDriver::JointSetSettings(std::vector<int> joints, std::vector<JointData> settings)
+void AR60xHWDriver::JointSetSettings(std::vector<uint8_t> joints, std::vector<JointData> settings)
 {
     if(joints.size() != settings.size())
         throw std::invalid_argument("Count of joints and settings must be equal");
@@ -99,7 +99,7 @@ void AR60xHWDriver::JointSetSettings(std::vector<int> joints, std::vector<JointD
         desc.joints[joints[i]] = settings[i];
 }
 
-std::vector<JointData> AR60xHWDriver::JointGetSettings(std::vector<int> joints)
+std::vector<JointData> AR60xHWDriver::JointGetSettings(std::vector<uint8_t> joints)
 {
     std::vector<JointData> data(joints.size());
     for(int i = 0; i<joints.size(); i++)
@@ -108,17 +108,17 @@ std::vector<JointData> AR60xHWDriver::JointGetSettings(std::vector<int> joints)
 
 
 // position
-void AR60xHWDriver::JointSetPosition(int joint, int position)
+void AR60xHWDriver::JointSetPosition(uint8_t joint, double position)
 {
     sendpacket->jointSetPosition(joint, position);
 }
 
-int AR60xHWDriver::JointGetPosition(int joint)
+double AR60xHWDriver::JointGetPosition(uint8_t joint)
 {
     return recvPacket->jointGetPosition(joint);
 }
 
-void AR60xHWDriver::JointSetPosition(std::vector<int>& joints, std::vector<int>& position)
+void AR60xHWDriver::JointSetPosition(std::vector<uint8_t>& joints, std::vector<double>& position)
 {
     if(joints.size() != position.size())
         throw std::invalid_argument("Count of joints and position must be equal");
@@ -127,9 +127,9 @@ void AR60xHWDriver::JointSetPosition(std::vector<int>& joints, std::vector<int>&
         sendpacket->jointSetPosition(joints[i], position[i]);
 }
 
-std::vector<int> AR60xHWDriver::JointGetPosition(std::vector<int>& joints)
+std::vector<double> AR60xHWDriver::JointGetPosition(std::vector<uint8_t>& joints)
 {
-    std::vector<int> positions(joints.size());
+    std::vector<double> positions(joints.size());
     for(int i = 0; i < joints.size(); i++)
         positions[i] = recvPacket->jointGetPosition(joints[i]);
 
@@ -138,31 +138,33 @@ std::vector<int> AR60xHWDriver::JointGetPosition(std::vector<int>& joints)
 
 
 // offset
-void AR60xHWDriver::JointSetOffset(int joint, int offset)
+void AR60xHWDriver::JointSetOffset(uint8_t joint, double offset)
 {
-    //TODO: Use only desc, package read from desc
     desc.joints[joint].offset = offset;
     sendpacket->jointSetOffset(joint, offset);
 }
 
 
-int AR60xHWDriver::JointGetOffset(int joint)
+double AR60xHWDriver::JointGetOffset(uint8_t joint)
 {
     return desc.joints[joint].offset;
 }
 
-void AR60xHWDriver::JointSetOffset(std::vector<int> joints, std::vector<int> offset)
+void AR60xHWDriver::JointSetOffset(std::vector<uint8_t> joints, std::vector<double> offset)
 {
     if(joints.size() != offset.size())
         throw std::invalid_argument("Count of joints and offset must be equal");
 
     for(int i = 0; i < joints.size(); i++)
+    {
+        sendpacket->jointSetOffset(joints[i], offset[i]);
         desc.joints[joints[i]].offset = offset[i];
+    }
 }
 
-std::vector<int> AR60xHWDriver::JointGetOffset(std::vector<int> joints)
+std::vector<double> AR60xHWDriver::JointGetOffset(std::vector<uint8_t> joints)
 {
-    std::vector<int> offsets(joints.size());
+    std::vector<double> offsets(joints.size());
     for(int i = 0; i < joints.size(); i++)
         offsets[i] = desc.joints[joints[i]].offset;
 
@@ -171,17 +173,17 @@ std::vector<int> AR60xHWDriver::JointGetOffset(std::vector<int> joints)
 
 
 // reverse
-void AR60xHWDriver::JointSetReverce(int joint, bool isReverce)
+void AR60xHWDriver::JointSetReverce(uint8_t joint, bool isReverce)
 {
     desc.joints[joint].isReverse = isReverce;
 }
 
-bool AR60xHWDriver::JointGetReverce(int joint)
+bool AR60xHWDriver::JointGetReverce(uint8_t joint)
 {
     return desc.joints[joint].isReverse;
 }
 
-void AR60xHWDriver::JointSetReverce(std::vector<int> joints, std::vector<bool> isReverse)
+void AR60xHWDriver::JointSetReverce(std::vector<uint8_t> joints, std::vector<bool> isReverse)
 {
     if(joints.size() != isReverse.size())
         throw std::invalid_argument("Count of joints and isReverse must be equal");
@@ -191,7 +193,7 @@ void AR60xHWDriver::JointSetReverce(std::vector<int> joints, std::vector<bool> i
 
 }
 
-std::vector<bool> AR60xHWDriver::JointGetReverce(std::vector<int> joints)
+std::vector<bool> AR60xHWDriver::JointGetReverce(std::vector<uint8_t> joints)
 {
     std::vector<bool> isReverse(joints.size());
     for(int i = 0; i<joints.size(); i++)
@@ -202,37 +204,31 @@ std::vector<bool> AR60xHWDriver::JointGetReverce(std::vector<int> joints)
 
 
 // PID
-void AR60xHWDriver::JointSetPIDGains(int joint, JointData::PIDGains gains)
+void AR60xHWDriver::JointSetPIDGains(uint8_t joint, JointData::PIDGains gains)
 {
-    //TODO: Use only desc, package read from desc
-    //TODO: Read all struct from packet
-    sendpacket->jointSetPGain(joint, gains.proportional);
-    sendpacket->jointSetIGain(joint, gains.integral);
-    sendpacket->jointSetDGain(joint, gains.derivative);
+    //TODO: Write to desc
+    sendpacket->jointSetPIDGains(joint, gains);
 }
 
-JointData::PIDGains AR60xHWDriver::JointGetPIDGains(int joint)
+JointData::PIDGains AR60xHWDriver::JointGetPIDGains(uint8_t joint)
 {
     //TODO: Read real pids from robot?
     return desc.joints[joint].gains;
 }
 
-void AR60xHWDriver::JointSetPIDGains(std::vector<int> joints, std::vector<JointData::PIDGains> gains)
+void AR60xHWDriver::JointSetPIDGains(std::vector<uint8_t> joints, std::vector<JointData::PIDGains> gains)
 {
     if (joints.size() != gains.size())
         throw std::invalid_argument("Count of joints and gains must be equal");
 
     for (int i = 0; i < joints.size(); i++)
     {
-        //TODO: Use only desc, package read from desc
-        //TODO: Read all struct from packet
-        sendpacket->jointSetPGain(joints[i], gains[i].proportional);
-        sendpacket->jointSetIGain(joints[i], gains[i].integral);
-        sendpacket->jointSetDGain(joints[i], gains[i].derivative);
+        //TODO: Write to desc
+        sendpacket->jointSetPIDGains(joints[i], gains[i]);
     }
 }
 
-std::vector<JointData::PIDGains> AR60xHWDriver::JointGetPIDGains(std::vector<int> joints)
+std::vector<JointData::PIDGains> AR60xHWDriver::JointGetPIDGains(std::vector<uint8_t> joints)
 {
     std::vector<JointData::PIDGains> pids(joints.size());
     for(int i = 0; i<joints.size(); i++)
@@ -243,35 +239,33 @@ std::vector<JointData::PIDGains> AR60xHWDriver::JointGetPIDGains(std::vector<int
 
 
 // limits
-void AR60xHWDriver::JointSetLimits(int joint, JointData::JointLimits limits)
+void AR60xHWDriver::JointSetLimits(uint8_t joint, JointData::JointLimits limits)
 {
-    //TODO: Use only desc, package read from desc
     desc.joints[joint].limits = limits;
     sendpacket->jointSetLowerLimit(joint, limits.lowerLimit);
     sendpacket->jointSetUpperLimit(joint, limits.upperLimit);
 }
 
 // TODO: Удалить JointSettings перенсти вместо него JointInformation!!!!!
-JointData::JointLimits AR60xHWDriver::JointGetLimits(int joint)
+JointData::JointLimits AR60xHWDriver::JointGetLimits(uint8_t joint)
 {
     return desc.joints[joint].limits;
 }
 
-void AR60xHWDriver::JointSetLimits(std::vector<int> joints, std::vector<JointData::JointLimits> limits)
+void AR60xHWDriver::JointSetLimits(std::vector<uint8_t> joints, std::vector<JointData::JointLimits> limits)
 {
     if(joints.size() != limits.size())
         throw std::invalid_argument("Count of joints and limits must be equal");
 
     for(int i = 0; i<joints.size(); i++)
     {
-        //TODO: Use only desc, package read from desc
         desc.joints[joints[i]].limits = limits[i];
         sendpacket->jointSetLowerLimit(joints[i], limits[i].lowerLimit);
         sendpacket->jointSetUpperLimit(joints[i], limits[i].upperLimit);
     }
 }
 
-std::vector<JointData::JointLimits> AR60xHWDriver::JointGetLimits(std::vector<int> joints)
+std::vector<JointData::JointLimits> AR60xHWDriver::JointGetLimits(std::vector<uint8_t> joints)
 {
     std::vector<JointData::JointLimits> limits(joints.size());
     for(int i = 0; i<joints.size(); i++)
@@ -282,17 +276,17 @@ std::vector<JointData::JointLimits> AR60xHWDriver::JointGetLimits(std::vector<in
 
 
 // enable
-void AR60xHWDriver::JointSetEnable(int joint, bool isEnable)
+void AR60xHWDriver::JointSetEnable(uint8_t joint, bool isEnable)
 {
     desc.joints[joint].isEnable = isEnable;
 }
 
-bool AR60xHWDriver::JointGetEnable(int joint)
+bool AR60xHWDriver::JointGetEnable(uint8_t joint)
 {
     return desc.joints[joint].isEnable;
 }
 
-void AR60xHWDriver::JointSetEnable(std::vector<int> joints, std::vector<bool> isEnable)
+void AR60xHWDriver::JointSetEnable(std::vector<uint8_t> joints, std::vector<bool> isEnable)
 {
     if(joints.size() != isEnable.size())
         throw std::invalid_argument("Count of joints and isEnable must be equal");
@@ -301,7 +295,7 @@ void AR60xHWDriver::JointSetEnable(std::vector<int> joints, std::vector<bool> is
         desc.joints[joints[i]].isEnable = isEnable[i];
 }
 
-std::vector<bool> AR60xHWDriver::JointGetEnable(std::vector<int> joints)
+std::vector<bool> AR60xHWDriver::JointGetEnable(std::vector<uint8_t> joints)
 {
     std::vector<bool> isEnable(joints.size());
     for(int i = 0; i < joints.size(); i++)
@@ -311,19 +305,19 @@ std::vector<bool> AR60xHWDriver::JointGetEnable(std::vector<int> joints)
 }
 
 // state
-void AR60xHWDriver::JointSetState(int joint, JointState::JointStates state)
+void AR60xHWDriver::JointSetState(uint8_t joint, JointState::JointStates state)
 {
     sendpacket->jointSetState(joint, state);
 }
 
 //TODO: проверить!!!!
-JointState AR60xHWDriver::JointGetState(int joint)
+JointState AR60xHWDriver::JointGetState(uint8_t joint)
 {
     //return recvPacket->jointGetState(joint);
     throw std::runtime_error("Not implemented");
 }
 
-void AR60xHWDriver::JointSetState(std::vector<int> joints, std::vector<JointState::JointStates> state)
+void AR60xHWDriver::JointSetState(std::vector<uint8_t> joints, std::vector<JointState::JointStates> state)
 {
     if(joints.size() != state.size())
         throw std::invalid_argument("Count of joints and state must be equal");
@@ -332,7 +326,7 @@ void AR60xHWDriver::JointSetState(std::vector<int> joints, std::vector<JointStat
         sendpacket->jointSetState(joints[i], state[i]);
 }
 
-std::vector<JointState> AR60xHWDriver::JointGetState(std::vector<int> joints)
+std::vector<JointState> AR60xHWDriver::JointGetState(std::vector<uint8_t> joints)
 {
     std::vector<JointState> states(joints.size());
     for(int  i = 0; i<joints.size(); i++)

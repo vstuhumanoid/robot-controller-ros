@@ -12,12 +12,6 @@ UDPConnection::UDPConnection(AR60xSendPacket& sendPacket,
 {
     this->send_delay_ = delay;
 
-    // Init packets
-    recvLocker = recv_packet_.getMutex();
-    sendLocker = send_packet_.getMutex();
-    send_packet_.init();
-    recv_packet_.initFromByteArray(send_packet_.getByteArray());
-
     // create receive buffers
     max_recv_buffer_size_ = max_recv_buffer_size;
     recv_buffer_ = new uint8_t[max_recv_buffer_size_];

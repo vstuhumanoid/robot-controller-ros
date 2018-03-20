@@ -4,43 +4,35 @@
 #include <iostream>
 #include <map>
 #include <mutex>
-#include <stdlib.h>
+#include <cstdint>
 
+#include "BasePacket.h"
 #include "AR60xPacketsDefinitions.h"
-#include "../RobotDescription/AR60xDescription.h"
+#include <RobotDescription/AR60xDescription.h>
 
-class AR60xRecvPacket
+class AR60xRecvPacket : public BasePacket
 {
 public:
     AR60xRecvPacket(AR60xDescription *robotDesc);
 
-    void initFromByteArray( const char bytes[] );
+    double jointGetPosition(uint8_t number);
+    JointData::PIDGains jointGetPIDGains(uint8_t number);
 
-    short sensorGetValue( short number );
+    double jointGetLowerLimit(uint8_t number);
+    double jointGetUpperLimit(uint8_t number);
 
-    short jointGetCurrent( short number );
-    short jointGetVoltage( short number );
-    short jointGetPosition( short number );
-    short jointGetPGain( short number );
-    short jointGetIGain( short number );
-    short jointGetState( short number );
-    short jointGetLowerLimit( short number );
-    short jointGetUpperLimit( short number );
-
+    short jointGetCurrent(uint8_t number);
+    short jointGetVoltage(uint8_t number);
     float supplyGetVoltage(PowerData::PowerSupplies supply);
     float supplyGetCurrent(PowerData::PowerSupplies supply);
 
-    const char *getByteArray();
-    std::mutex *getMutex();
+    short sensorGetValue( short number );
 
 private:
-    AR60xDescription * desc;
 
-    char byteArray [packetSize];
-    std::mutex locker;
-
-    int16_t readInt16(uint16_t address);
-    float readFloat(uint16_t address);
+    int16_t read_int16(uint16_t address);
+    float read_float(uint16_t address);
+    double uint16_to_angle(uint16_t angle);
 };
 
 #endif // AR60XRECVPACKET_H

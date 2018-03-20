@@ -6,33 +6,36 @@
 class JointData
 {
 public:
+
+    /**
+     * PID-controller gains
+     */
+    struct PIDGains
+    {
+        uint16_t proportional;
+        uint16_t integral;
+        uint16_t derivative;
+    };
+
+    /**
+     * Joint's angle limits
+     */
+    struct JointLimits
+    {
+        double lowerLimit;
+        double upperLimit;
+    };
+
     JointData();
 
-    int number;        // Номер узла
-    std::string name;  // Имя узла
-
-    int channel;            // Номер канала в пакете управления
-
-    struct PIDGains         // Структура регулятора
-    {
-        int proportional;
-        int integral;
-        int derivative;
-    };
-
-    PIDGains gains;         // Коэффициенты регулирования
-
-    struct JointLimits      // Структура пределов
-    {
-        int lowerLimit;
-        int upperLimit;
-    };
-
-    JointLimits limits;     // Пределы
-
-    int offset;             // Смещение абсолютного положения
-    bool isReverse;         // Реверсировать углы
-    bool isEnable;          // Задействовать узел
+    uint8_t number;         // Joint number
+    uint8_t channel;        // Joint channel in package (shift in package)
+    std::string name;       // Joint name
+    PIDGains gains;         // PID-controller gains
+    JointLimits limits;     // Angle limits
+    double offset;          // Initial position
+    bool isReverse;         // Shoulde reverse angles
+    bool isEnable;          // Enable the joint
 };
 
 #endif // JOINTDATA_H

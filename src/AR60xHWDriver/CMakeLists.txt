@@ -20,6 +20,7 @@ add_library(${PROJECT_NAME} STATIC
         DataTypes/SensorData.cpp
         DataTypes/SensorState.cpp
         RobotDescription/AR60xDescription.cpp
+        RobotPackets/BasePacket.cpp
         RobotPackets/AR60xRecvPacket.cpp
         RobotPackets/AR60xSendPacket.cpp
         HardwareInterfaces/IAR60xJointControl.h

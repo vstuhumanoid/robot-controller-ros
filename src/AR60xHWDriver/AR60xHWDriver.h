@@ -51,45 +51,45 @@ public:
 
     // ------------------------------- Joint control interface ---------------------------------------------------------
 
-    void JointSetSettings(int joint, JointData settings) override;
-    JointData JointGetSettings(int joint) override;
-    void JointSetSettings(std::vector<int> joints, std::vector<JointData> settings) override ;
-    std::vector<JointData> JointGetSettings(std::vector<int> joints) override ;
+    void JointSetSettings(uint8_t joint, JointData settings) override;
+    JointData JointGetSettings(uint8_t joint) override;
+    void JointSetSettings(std::vector<uint8_t> joints, std::vector<JointData> settings) override ;
+    std::vector<JointData> JointGetSettings(std::vector<uint8_t> joints) override ;
 
-    void JointSetPosition(int joint, int position) override;
-    int JointGetPosition(int joint) override;
-    void JointSetPosition(std::vector<int>& joints, std::vector<int>& position) override ;
-    std::vector<int> JointGetPosition(std::vector<int>& joints) override ;
+    void JointSetPosition(uint8_t joint, double position) override;
+    double JointGetPosition(uint8_t joint) override;
+    void JointSetPosition(std::vector<uint8_t>& joints, std::vector<double>& position) override ;
+    std::vector<double> JointGetPosition(std::vector<uint8_t>& joints) override ;
 
-    void JointSetOffset(int joint, int offset) override;
-    int JointGetOffset(int joint) override;
-    void JointSetOffset(std::vector<int> joints, std::vector<int> offset) override ;
-    std::vector<int> JointGetOffset(std::vector<int> joints) override ;
+    void JointSetOffset(uint8_t joint, double offset) override;
+    double JointGetOffset(uint8_t joint) override;
+    void JointSetOffset(std::vector<uint8_t> joints, std::vector<double> offset) override ;
+    std::vector<double> JointGetOffset(std::vector<uint8_t> joints) override ;
 
-    void JointSetReverce(int joint, bool isReverce) override;
-    bool JointGetReverce(int joint) override;
-    void JointSetReverce(std::vector<int> joints, std::vector<bool> isReverse) override ;
-    std::vector<bool> JointGetReverce(std::vector<int> joints) override ;
+    void JointSetReverce(uint8_t joint, bool isReverce) override;
+    bool JointGetReverce(uint8_t joint) override;
+    void JointSetReverce(std::vector<uint8_t> joints, std::vector<bool> isReverse) override ;
+    std::vector<bool> JointGetReverce(std::vector<uint8_t> joints) override ;
 
-    void JointSetPIDGains(int joint, JointData::PIDGains gains) override;
-    JointData::PIDGains JointGetPIDGains(int joint) override;
-    void JointSetPIDGains(std::vector<int> joints, std::vector<JointData::PIDGains> gains) override ;
-    std::vector<JointData::PIDGains> JointGetPIDGains(std::vector<int> joints) override ;
+    void JointSetPIDGains(uint8_t joint, JointData::PIDGains gains) override;
+    JointData::PIDGains JointGetPIDGains(uint8_t joint) override;
+    void JointSetPIDGains(std::vector<uint8_t> joints, std::vector<JointData::PIDGains> gains) override ;
+    std::vector<JointData::PIDGains> JointGetPIDGains(std::vector<uint8_t> joints) override ;
 
-    void JointSetLimits(int joint, JointData::JointLimits limits) override;
-    JointData::JointLimits JointGetLimits(int joint) override;
-    void JointSetLimits(std::vector<int> joints, std::vector<JointData::JointLimits> limits) override ;
-    std::vector<JointData::JointLimits> JointGetLimits(std::vector<int> joints) override ;
+    void JointSetLimits(uint8_t joint, JointData::JointLimits limits) override;
+    JointData::JointLimits JointGetLimits(uint8_t joint) override;
+    void JointSetLimits(std::vector<uint8_t> joints, std::vector<JointData::JointLimits> limits) override ;
+    std::vector<JointData::JointLimits> JointGetLimits(std::vector<uint8_t> joints) override ;
 
-    void JointSetEnable(int joint, bool isEnable) override;
-    bool JointGetEnable(int joint) override;
-    void JointSetEnable(std::vector<int> joints, std::vector<bool> isEnable) override ;
-    std::vector<bool> JointGetEnable(std::vector<int> joints) override ;
+    void JointSetEnable(uint8_t joint, bool isEnable) override;
+    bool JointGetEnable(uint8_t joint) override;
+    void JointSetEnable(std::vector<uint8_t> joints, std::vector<bool> isEnable) override ;
+    std::vector<bool> JointGetEnable(std::vector<uint8_t> joints) override ;
 
-    void JointSetState(int joint, JointState::JointStates state) override;
-    JointState JointGetState(int joint) override;
-    void JointSetState(std::vector<int> joints, std::vector<JointState::JointStates> state) override ;
-    std::vector<JointState> JointGetState(std::vector<int> joints) override ;
+    void JointSetState(uint8_t joint, JointState::JointStates state) override;
+    JointState JointGetState(uint8_t joint) override;
+    void JointSetState(std::vector<uint8_t> joints, std::vector<JointState::JointStates> state) override ;
+    std::vector<JointState> JointGetState(std::vector<uint8_t> joints) override ;
 
 
     // ------------------------------- Power control interface ---------------------------------------------------------

@@ -9,7 +9,7 @@ void AR60xRecvPacket::initFromByteArray(const char bytes[])
 {
     locker.lock();
     for(int i = 0; i < packetSize; i++)
-        byteArray[i] = bytes[i];
+        byte_array_[i] = bytes[i];
     locker.unlock();
 }
 
@@ -17,46 +17,35 @@ short AR60xRecvPacket::sensorGetValue(short number)
 {
     locker.lock();
     int channel = desc->sensors.at(number).channel;
-    int16_t value = readInt16(channel * 16 + sensorsMap.at(number));
+    int16_t value = read_int16(channel * 16 + sensorsMap.at(number));
     locker.unlock();
     return value;
 }
 
-int16_t AR60xRecvPacket::readInt16(uint16_t address)
-{
-    int16_t value = (byteArray[address + 1] << 8) + (BYTE)byteArray[address];
-    return value;
-}
 
-float AR60xRecvPacket::readFloat(uint16_t address)
-{
-    float value = static_cast<float>((byteArray[address + 1] << 8) + (BYTE)byteArray[address]);
-    return value;
-}
-
-short AR60xRecvPacket::jointGetCurrent(short number)
+short AR60xRecvPacket::jointGetCurrent(uint8_t number)
 {
     locker.lock();
     int channel = desc->joints.at(number).channel;
-    int16_t value = readInt16(channel * 16 + JointCurrentAddress);
+    int16_t value = read_int16(channel * 16 + JointCurrentAddress);
     locker.unlock();
     return value;
 }
 
-short AR60xRecvPacket::jointGetVoltage(short number)
+short AR60xRecvPacket::jointGetVoltage(uint8_t number)
 {
     locker.lock();
     int channel = desc->joints.at(number).channel;
-    int16_t value = readInt16(channel * 16 + JointVoltageAddress);
+    int16_t value = read_int16(channel * 16 + JointVoltageAddress);
     locker.unlock();
     return value;
 }
 
-short AR60xRecvPacket::jointGetPosition(short number)
+double AR60xRecvPacket::jointGetPosition(uint8_t number)
 {
     locker.lock();
     int channel = desc->joints.at(number).channel;
-    int16_t value = readInt16(channel * 16 + JointPositionAddress);
+    int16_t value = read_int16(channel * 16 + JointPositionAddress);
     locker.unlock();
     return value;
 }
@@ -65,7 +54,7 @@ short AR60xRecvPacket::jointGetPGain(short number)
 {
     locker.lock();
     int channel = desc->joints.at(number).channel;
-    int16_t value = readInt16(channel * 16 + JointPGainAddress);
+    int16_t value = read_int16(channel * 16 + JointPGainAddress);
     locker.unlock();
     return value;
 }
@@ -74,7 +63,7 @@ short AR60xRecvPacket::jointGetIGain(short number)
 {
     locker.lock();
     int channel = desc->joints.at(number).channel;
-    int16_t value = readInt16(channel * 16 + JointIGaneAddress);
+    int16_t value = read_int16(channel * 16 + JointIGaneAddress);
     locker.unlock();
     return value;
 }
@@ -84,33 +73,33 @@ short AR60xRecvPacket::jointGetState(short number)
 {
     locker.lock();
     int channel = desc->joints.at(number).channel;
-    int16_t value = readInt16(channel * 16 + JointStateAddress);
+    int16_t value = read_int16(channel * 16 + JointStateAddress);
     locker.unlock();
     return value;
 }
 
-short AR60xRecvPacket::jointGetLowerLimit(short number)
+double AR60xRecvPacket::jointGetLowerLimit(uint8_t number)
 {
     int16_t value;
     locker.lock();
     int channel = desc->joints.at(number).channel;
     if(desc->joints.at(number).isReverse)
-        value = -1 * readInt16(channel * 16 + JointUpperLimitAddress);
+        value = -1 * read_int16(channel * 16 + JointUpperLimitAddress);
     else
-        value = readInt16(channel * 16 + JointLowerLimitAddress);
+        value = read_int16(channel * 16 + JointLowerLimitAddress);
     locker.unlock();
     return value;
 }
 
-short AR60xRecvPacket::jointGetUpperLimit(short number)
+double AR60xRecvPacket::jointGetUpperLimit(uint8_t number)
 {
     int16_t value;
     locker.lock();
     int channel = desc->joints.at(number).channel;
     if(desc->joints.at(number).isReverse)
-        value = -1 * readInt16(channel * 16 + JointLowerLimitAddress);
+        value = -1 * read_int16(channel * 16 + JointLowerLimitAddress);
     else
-        value = readInt16(channel * 16 + JointUpperLimitAddress);
+        value = read_int16(channel * 16 + JointUpperLimitAddress);
     locker.unlock();
     return value;
 }
@@ -119,7 +108,7 @@ float AR60xRecvPacket::supplyGetVoltage(PowerData::PowerSupplies supply)
 {
    locker.lock();
    int address = powerStateMap.at(supply).SupplyVoltageAddress;
-   float value = readFloat(address) / 1000;
+   float value = read_float(address) / 1000;
    if(address == Supply48VoltageAddress) value *= 10;
    locker.unlock();
    return value;
@@ -129,22 +118,28 @@ float AR60xRecvPacket::supplyGetCurrent(PowerData::PowerSupplies supply)
 {
     locker.lock();
     int address = powerStateMap.at(supply).SupplyCurrentAddress;
-    float value = readFloat(address) / 1000;
+    float value = read_float(address) / 1000;
     if(address == Supply48CurrentAddress) value *= 10;
     locker.unlock();
     return value;
 }
 
-const char *AR60xRecvPacket::getByteArray()
+
+int16_t AR60xRecvPacket::read_int16(uint16_t address)
 {
-    return byteArray;
+    int16_t value = (byte_array_[address + 1] << 8) + (BYTE)byte_array_[address];
+    return value;
 }
 
-std::mutex *AR60xRecvPacket::getMutex()
+float AR60xRecvPacket::read_float(uint16_t address)
 {
-    return &locker;
+    float value = static_cast<float>((byte_array_[address + 1] << 8) + (BYTE)byte_array_[address]);
+    return value;
 }
 
-
+double AR60xRecvPacket::uint16_to_angle(uint16_t angle)
+{
+    return angle / 100.0;
+}
 
 

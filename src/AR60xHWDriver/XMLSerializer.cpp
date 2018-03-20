@@ -38,21 +38,28 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
 
     while(jointData != nullptr)
     {
-        //int number;
-        //eResult = jointData->QueryAttribute("number", &number);
-        //if(eResult != XML_SUCCESS) return;
+        // FUCK TinyXML BECOUSE IN DOESN'T SUPPORT STDINT
 
         JointData joint;
-        jointData->QueryAttribute("number", &joint.number);
-        const char* name = jointData->Attribute("name");
-        joint.name = std::string(name);
-        jointData->QueryAttribute("channel", &joint.channel);
+
+        int number;
+        jointData->QueryAttribute("number", &number);
+        joint.number = number;
+
+        joint.name = std::string(jointData->Attribute("name")); //TODO: Does it allocate string inside parser?
+
+        int channel;
+        jointData->QueryAttribute("channel", &channel);
+        joint.channel = channel;
 
         XMLElement *jointGains = jointData->FirstChildElement("gains");
-
-        jointGains->QueryAttribute("proportional", &joint.gains.proportional);
-        jointGains->QueryAttribute("integral", &joint.gains.integral);
-        jointGains->QueryAttribute("derivative", &joint.gains.derivative);
+        int gain;
+        jointGains->QueryAttribute("proportional", &gain);
+        joint.gains.proportional = gain;
+        jointGains->QueryAttribute("integral", &gain);
+        joint.gains.integral = gain;
+        jointGains->QueryAttribute("derivative", &gain);
+        joint.gains.derivative = gain;
 
         XMLElement *jointLimits = jointData->FirstChildElement("limits");
 
