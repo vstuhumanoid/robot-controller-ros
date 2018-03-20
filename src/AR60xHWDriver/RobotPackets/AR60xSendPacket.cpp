@@ -51,7 +51,7 @@ void AR60xSendPacket::jointSetPosition(short number, short value)
 {
     short lowerLimit = desc->joints.at(number).limits.lowerLimit;
     short upperLimit = desc->joints.at(number).limits.upperLimit;
-    bool isReverce = desc->joints.at(number).isReverce;
+    bool isReverce = desc->joints.at(number).isReverse;
     short channel = desc->joints.at(number).channel;
 
     if(value < lowerLimit)
@@ -104,7 +104,7 @@ void AR60xSendPacket::jointSetLowerLimit(short number, short value)
 {
     locker.lock();
     short channel = desc->joints.at(number).channel;
-    bool isReverce = desc->joints.at(number).isReverce;
+    bool isReverce = desc->joints.at(number).isReverse;
     if(isReverce)
         writeInt16(channel * 16 + JointUpperLimitAddress, -1 * value);
     else
@@ -116,7 +116,7 @@ void AR60xSendPacket::jointSetUpperLimit(short number, short value)
 {
     locker.lock();
     short channel = desc->joints.at(number).channel;
-    bool isReverce = desc->joints.at(number).isReverce;
+    bool isReverce = desc->joints.at(number).isReverse;
     if(isReverce)
         writeInt16(channel * 16 + JointLowerLimitAddress, -1 * value);
     else

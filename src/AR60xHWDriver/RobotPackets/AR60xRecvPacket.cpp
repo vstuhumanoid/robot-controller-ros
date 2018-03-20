@@ -94,7 +94,7 @@ short AR60xRecvPacket::jointGetLowerLimit(short number)
     int16_t value;
     locker.lock();
     int channel = desc->joints.at(number).channel;
-    if(desc->joints.at(number).isReverce)
+    if(desc->joints.at(number).isReverse)
         value = -1 * readInt16(channel * 16 + JointUpperLimitAddress);
     else
         value = readInt16(channel * 16 + JointLowerLimitAddress);
@@ -107,7 +107,7 @@ short AR60xRecvPacket::jointGetUpperLimit(short number)
     int16_t value;
     locker.lock();
     int channel = desc->joints.at(number).channel;
-    if(desc->joints.at(number).isReverce)
+    if(desc->joints.at(number).isReverse)
         value = -1 * readInt16(channel * 16 + JointLowerLimitAddress);
     else
         value = readInt16(channel * 16 + JointUpperLimitAddress);

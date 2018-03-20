@@ -31,7 +31,7 @@ public:
     JointLimits limits;     // Пределы
 
     int offset;             // Смещение абсолютного положения
-    bool isReverce;         // Реверсировать углы
+    bool isReverse;         // Реверсировать углы
     bool isEnable;          // Задействовать узел
 };
 

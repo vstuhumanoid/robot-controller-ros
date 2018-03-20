@@ -1,87 +1,87 @@
 <config>
 	<connection host="192.169.1.10" recvPort="10001" send_delay_="5" sendPort="10001"/>
     <joints>
-        <joint number="1" name="Стопа Y (R)" channel="1" offset="-114" isReverce="false" isEnable="true">
+        <joint number="1" name="Стопа Y (R)" channel="1" offset="-114" isReverse="false" isEnable="true">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-1500" upperLimit="1500"/>
         </joint>
-        <joint number="2" name="Стопа X (R)" channel="2" offset="-5361" isReverce="false" isEnable="true">
+        <joint number="2" name="Стопа X (R)" channel="2" offset="-5361" isReverse="false" isEnable="true">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-4000" upperLimit="8000"/>
         </joint>
-		<joint number="3" name="Колено (R)" channel="3" offset="-7804" isReverce="false" isEnable="true">
+		<joint number="3" name="Колено (R)" channel="3" offset="-7804" isReverse="false" isEnable="true">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-10000" upperLimit="700"/>
         </joint>
-		<joint number="4" name="Бедро X (R)" channel="4" offset="4895" isReverce="true" isEnable="true">
+		<joint number="4" name="Бедро X (R)" channel="4" offset="4895" isReverse="true" isEnable="true">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-1000" upperLimit="7200"/>
         </joint>
-		<joint number="5" name="Бедро Y (R)" channel="5" offset="193" isReverce="true" isEnable="true">
+		<joint number="5" name="Бедро Y (R)" channel="5" offset="193" isReverse="true" isEnable="true">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-1400" upperLimit="1500"/>
         </joint>
-		<joint number="6" name="Бедро вращение (R)" channel="6" offset="8208" isReverce="true" isEnable="true">
+		<joint number="6" name="Бедро вращение (R)" channel="6" offset="8208" isReverse="true" isEnable="true">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-4500" upperLimit="4500"/>
         </joint>
-		<joint number="7" name="Стопа Y (L)" channel="7" offset="6556" isReverce="true" isEnable="true">
+		<joint number="7" name="Стопа Y (L)" channel="7" offset="6556" isReverse="true" isEnable="true">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-1500" upperLimit="1500"/>
         </joint>
-		<joint number="8" name="Стопа X (L)" channel="8" offset="-870" isReverce="true" isEnable="true">
+		<joint number="8" name="Стопа X (L)" channel="8" offset="-870" isReverse="true" isEnable="true">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-4000" upperLimit="8000"/>
         </joint>
-		<joint number="9" name="Колено (L)" channel="9" offset="-4930" isReverce="true" isEnable="true">
+		<joint number="9" name="Колено (L)" channel="9" offset="-4930" isReverse="true" isEnable="true">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-10000" upperLimit="700"/>
         </joint>
-		<joint number="10" name="Бедро X (L)" channel="10" offset="-4420" isReverce="false" isEnable="true">
+		<joint number="10" name="Бедро X (L)" channel="10" offset="-4420" isReverse="false" isEnable="true">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-1000" upperLimit="7200"/>
         </joint>
-		<joint number="11" name="Бедро Y (L)" channel="11" offset="4218" isReverce="false" isEnable="true">
+		<joint number="11" name="Бедро Y (L)" channel="11" offset="4218" isReverse="false" isEnable="true">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-1400" upperLimit="1500"/>
         </joint>
-		<joint number="12" name="Бедро вращение (L)" channel="12" offset="7664" isReverce="false" isEnable="true">
+		<joint number="12" name="Бедро вращение (L)" channel="12" offset="7664" isReverse="false" isEnable="true">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-4500" upperLimit="4500"/>
         </joint>
-		<joint number="19" name="Рука Y (R)" channel="26" offset="17376" isReverce="true" isEnable="false">
+		<joint number="19" name="Рука Y (R)" channel="26" offset="17376" isReverse="true" isEnable="false">
             <gains proportional="600" integral="2" derivative="1"/>
             <limits lowerLimit="-500" upperLimit="9000"/>
         </joint>
-		<joint number="20" name="Рука X (R)" channel="27" offset="11443" isReverce="true" isEnable="false">
+		<joint number="20" name="Рука X (R)" channel="27" offset="11443" isReverse="true" isEnable="false">
             <gains proportional="600" integral="2" derivative="1"/>
             <limits lowerLimit="-500" upperLimit="9500"/>
         </joint>
-		<joint number="35" name="Рука Y (L)" channel="36" offset="-16373" isReverce="false" isEnable="false">
+		<joint number="35" name="Рука Y (L)" channel="36" offset="-16373" isReverse="false" isEnable="false">
             <gains proportional="600" integral="2" derivative="1"/>
             <limits lowerLimit="-500" upperLimit="9000"/>
         </joint>
-		<joint number="36" name="Рука X (L)" channel="37" offset="4025" isReverce="false" isEnable="false">
+		<joint number="36" name="Рука X (L)" channel="37" offset="4025" isReverse="false" isEnable="false">
             <gains proportional="600" integral="2" derivative="1"/>
             <limits lowerLimit="-500" upperLimit="9500"/>
         </joint>
-		<joint number="43" name="Голова вращение" channel="18" offset="487" isReverce="false" isEnable="false">
+		<joint number="43" name="Голова вращение" channel="18" offset="487" isReverse="false" isEnable="false">
             <gains proportional="1000" integral="2" derivative="1"/>
             <limits lowerLimit="-3500" upperLimit="3500"/>
         </joint>
-		<joint number="44" name="Голова наклон" channel="20" offset="9097" isReverce="true" isEnable="false">
+		<joint number="44" name="Голова наклон" channel="20" offset="9097" isReverse="true" isEnable="false">
             <gains proportional="400" integral="1" derivative="1"/>
             <limits lowerLimit="-1500" upperLimit="1500"/>
         </joint>
-		<joint number="45" name="Голова качание" channel="21" offset="2988" isReverce="false" isEnable="false">
+		<joint number="45" name="Голова качание" channel="21" offset="2988" isReverse="false" isEnable="false">
             <gains proportional="400" integral="1" derivative="1"/>
             <limits lowerLimit="-1000" upperLimit="1000"/>
         </joint>
-		<joint number="46" name="Шея" channel="22" offset="8437" isReverce="false" isEnable="false">
+		<joint number="46" name="Шея" channel="22" offset="8437" isReverse="false" isEnable="false">
             <gains proportional="500" integral="1" derivative="1"/>
             <limits lowerLimit="-500" upperLimit="1500"/>
         </joint>
-		<joint number="49" name="Торс" channel="23" offset="-15477" isReverce="false" isEnable="true">
+		<joint number="49" name="Торс" channel="23" offset="-15477" isReverse="false" isEnable="true">
             <gains proportional="500" integral="1" derivative="1"/>
             <limits lowerLimit="-2500" upperLimit="2500"/>
         </joint>

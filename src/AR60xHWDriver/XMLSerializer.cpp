@@ -60,7 +60,7 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
         jointLimits->QueryAttribute("upperLimit", &joint.limits.upperLimit);
 
         jointData->QueryAttribute("offset", &joint.offset);
-        jointData->QueryAttribute("isReverce", &joint.isReverce);
+        jointData->QueryAttribute("isReverse", &joint.isReverse);
         jointData->QueryAttribute("isEnable", &joint.isEnable);
 
         jointsMap[joint.number] = joint;
@@ -128,7 +128,7 @@ bool XMLSerializer::serialize(std::string fileName, AR60xDescription * desc, Con
         jointData->InsertEndChild(jointLimits);
 
         jointData->SetAttribute("offset", joint.offset);
-        jointData->SetAttribute("isReverce", joint.isReverce);
+        jointData->SetAttribute("isReverse", joint.isReverse);
         jointData->SetAttribute("isEnable", joint.isEnable);
 
         joints->InsertEndChild(jointData);
