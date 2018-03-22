@@ -1,0 +1,8 @@
+//
+// Created by user on 22.03.18.
+//
+
+#ifndef ROBOT_CONTROLLER_ROS_LEGSDATA_H
+#define ROBOT_CONTROLLER_ROS_LEGSDATA_H
+
+#endif //ROBOT_CONTROLLER_ROS_LEGSDATA_H
