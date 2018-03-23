@@ -1,15 +1,14 @@
 #include "AR60xHWDriver.h"
 
 
-AR60xHWDriver::AR60xHWDriver(size_t max_recv_packet_size) :
+AR60xHWDriver::AR60xHWDriver():
     sendpacket(nullptr),
     recvPacket(nullptr),
     connection(nullptr)
 {
-    max_recv_packet_size_ = max_recv_packet_size;
 }
 
-AR60xHWDriver::AR60xHWDriver(std::string config_filename, size_t max_recv_packet_size) : AR60xHWDriver(max_recv_packet_size)
+AR60xHWDriver::AR60xHWDriver(std::string config_filename) : AR60xHWDriver()
 {
     loadConfig(config_filename);
 }
@@ -55,10 +54,9 @@ bool AR60xHWDriver::saveConfig(std::string fileName)
 
 void AR60xHWDriver::init_packets()
 {
-    sendpacket = new AR60xSendPacket(&desc);
-    recvPacket = new AR60xRecvPacket(&desc);
-
-    // TODO: Max receive packet size
+    sendpacket = new AR60xSendPacket(desc);
+    recvPacket = new AR60xRecvPacket(desc);
+    recvPacket->initFromByteArray(sendpacket->getByteArray());
     connection = new UDPConnection(*sendpacket, *recvPacket, connectionData.sendDelay, max_recv_packet_size_);
 }
 
@@ -305,7 +303,7 @@ std::vector<bool> AR60xHWDriver::JointGetEnable(std::vector<uint8_t> joints)
 }
 
 // state
-void AR60xHWDriver::JointSetState(uint8_t joint, JointState::JointStates state)
+void AR60xHWDriver::JointSetState(uint8_t joint, JointState state)
 {
     sendpacket->jointSetState(joint, state);
 }
@@ -313,11 +311,10 @@ void AR60xHWDriver::JointSetState(uint8_t joint, JointState::JointStates state)
 //TODO: проверить!!!!
 JointState AR60xHWDriver::JointGetState(uint8_t joint)
 {
-    //return recvPacket->jointGetState(joint);
-    throw std::runtime_error("Not implemented");
+    return recvPacket->jointGetState(joint);
 }
 
-void AR60xHWDriver::JointSetState(std::vector<uint8_t> joints, std::vector<JointState::JointStates> state)
+void AR60xHWDriver::JointSetState(std::vector<uint8_t> joints, std::vector<JointState> state)
 {
     if(joints.size() != state.size())
         throw std::invalid_argument("Count of joints and state must be equal");
@@ -330,30 +327,21 @@ std::vector<JointState> AR60xHWDriver::JointGetState(std::vector<uint8_t> joints
 {
     std::vector<JointState> states(joints.size());
     for(int  i = 0; i<joints.size(); i++)
-    {
-        //TODO: Read joint state
-        throw std::runtime_error("Not implemented");
-    }
+        states[i] = recvPacket->jointGetState(joints[i]);
 
     return states;
 }
 
 // ------------------------------ power control -----------------------------------------
 
-PowerState::PowerSupplyState AR60xHWDriver::JointGetSupplyState(int joint)
+PowerState::PowerSupplyState AR60xHWDriver::JointGetSupplyState(uint8_t joint)
 {
-    PowerState::PowerSupplyState state;
-    state.Voltage = recvPacket->jointGetVoltage(joint);
-    state.Current = recvPacket->jointGetCurrent(joint);
-    return state;
+    return recvPacket->jointGetSupplyState(joint);
 }
 
 PowerState::PowerSupplyState AR60xHWDriver::PowerGetSupplyState(PowerData::PowerSupplies supply)
 {
-    PowerState::PowerSupplyState state;
-    state.Voltage = recvPacket->supplyGetVoltage(supply);
-    state.Current = recvPacket->supplyGetCurrent(supply);
-    return state;
+    return recvPacket->supplyGetState(supply);
 }
 
 void AR60xHWDriver::SupplySetOnOff(PowerData::PowerSupplies supply, bool onOffState)
@@ -369,14 +357,22 @@ bool AR60xHWDriver::SupplyGetOnOff(PowerData::PowerSupplies supply)
     //TODO: нет метода в recvpacket
 }
 
-// ------------------------------ sensors -----------------------------------------------
+// ------------------------------ sensorGroups -----------------------------------------------
 
-SensorState AR60xHWDriver::SensorGetState(int sensor)
+double AR60xHWDriver::SensorGetState(int sensor)
 {
-    //TODO: Get sensors values
-    //return recvPacket->sensorGetValue(sensor);
+    return recvPacket->sensorGetValue(sensor);
 }
 
+SensorImuState AR60xHWDriver::SensorGetImu()
+{
+    return recvPacket->sensorGetImu();
+}
+
+SensorFeetState AR60xHWDriver::SensorGetFeet()
+{
+    return recvPacket->sensorGetFeet();
+}
 
 
 AR60xDescription *AR60xHWDriver::getRobotDesc()

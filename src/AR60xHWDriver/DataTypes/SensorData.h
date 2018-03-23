@@ -3,13 +3,18 @@
 
 #include <string>
 
-class SensorData
+/**
+ * Sensor config
+ */
+struct SensorData
 {
-public:
-    SensorData();
-
-    int number;            // Номер датчика
-    std::string name;      // Имя датчика
+    /**
+     * Sensor number - special sensor identifier in
+     * package
+     */
+    uint8_t number;
+    double offset;
+    std::string name;
 };
 
 #endif // SENSORDATA_H

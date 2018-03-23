@@ -5,12 +5,17 @@
 
 using namespace std;
 
-AR60xHWDriver driver(4096);
+AR60xHWDriver driver;
 
 void command_callback(const std_msgs::Float32 angle)
 {
     driver.JointSetPosition(1, (int)(angle.data * 100));
-    driver.JointSetState(1, JointState::TRACE);
+
+    JointState state;
+    state.state = JointState::MotorState::TRACE;
+    state.controlType = JointState::ControlType::POSITION_CONTROl;
+    driver.JointSetState(1, state);
+
     ROS_INFO("Command: %f", angle.data);
 }
 
@@ -21,7 +26,6 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
 
     ros::Rate rate(1);
-
 
     string path = ros::package::getPath("robot-controller-ros") + "/config.xml";
     driver.loadConfig(path);
@@ -36,7 +40,7 @@ int main(int argc, char** argv)
     driver.SupplySetOnOff(PowerData::Supply48V, true);
     rate.sleep();
 
-    auto sub = nh.subscribe("command", 1000, command_callback);
+    //auto sub = nh.subscribe("command", 1000, command_callback);
 
 
     while(ros::ok())

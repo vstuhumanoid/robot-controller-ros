@@ -4,10 +4,10 @@ AR60xRecvPacket::AR60xRecvPacket(AR60xDescription& robotDesc) : BasePacket(robot
 {
 }
 
-void AR60xRecvPacket::initFromByteArray(const char bytes[])
+
+void AR60xRecvPacket::initFromByteArray(const uint8_t *bytes)
 {
-    for(int i = 0; i < packetSize; i++)
-        byte_array_[i] = bytes[i];
+    memcpy(byte_array_, bytes, packetSize);
 }
 
 
@@ -35,7 +35,7 @@ JointData::PIDGains AR60xRecvPacket::jointGetPIDGains(uint8_t number)
     return desc_.joints[number].gains;
 }
 
-JointState AR60xRecvPacket::jointGetState(short number)
+JointState AR60xRecvPacket::jointGetState(uint8_t number)
 {
     JointState state;
 
@@ -115,19 +115,45 @@ float AR60xRecvPacket::supplyGetCurrent(PowerData::PowerSupplies supply)
 
 double AR60xRecvPacket::sensorGetValue(short number)
 {
-    int channel = desc_.sensors.at(number).channel;
+    //TODO: Invalid. Number - sensor, not group
+    int channel = desc_.sensorGroups[number].channel;
     int16_t value = read_int16(channel * 16 + sensorsMap.at(number));
     return value / 100;
 }
 
-ImuData AR60xRecvPacket::sensorGetImu()
+SensorImuState AR60xRecvPacket::sensorGetImu()
 {
+    SensorImuState data;
+    uint8_t channel = desc_.sensorGroups[ImuGroupId].channel;
+    data.accX = read_int16(channel * 16 + SensorAccXOffset) / 100.0;
+    data.accY = read_int16(channel * 16 + SensorAccYOffset) / 100.0;
+    data.accZ = read_int16(channel * 16 + SensorAccZOffset) / 100.0;
+    data.yaw = read_int16(channel * 16 + SensorYawOffset) / 100.0;
+    data.pitch = read_int16(channel * 16 + SensorPitchOffset) / 100.0;
+    data.roll = read_int16(channel * 16 + SensorRollOffset) / 100.0;
 
+    return  data;
 }
 
-LegsData AR60xRecvPacket::sensorGetLegs()
+SensorFeetState AR60xRecvPacket::sensorGetFeet()
 {
+    SensorFeetState data;
+    data.left = sensorGetFoot(LeftFootGroupId);
+    data.right = sensorGetFoot(RightFootGroupId);
+    return data;
+}
 
+SensorFeetState::FootData AR60xRecvPacket::sensorGetFoot(uint8_t groupId)
+{
+    SensorFeetState::FootData data;
+    uint8_t channel = desc_.sensorGroups[groupId].channel;
+    data.uch0 = read_int16(channel * 16 + SensorUch0Offset) / 100.0;
+    data.uch1 = read_int16(channel * 16 + SensorUch1Offset) / 100.0;
+    data.uch2 = read_int16(channel * 16 + SensorUch2Offset) / 100.0;
+    data.uch3 = read_int16(channel * 16 + SensorUch3Offset) / 100.0;
+    //TODO: Add moments
+
+    return data;
 }
 
 

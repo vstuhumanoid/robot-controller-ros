@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../DataTypes/SensorState.h"
-
 class IAR60xSensorState
 {
 public:
-    virtual SensorState SensorGetState(int sensor) = 0;
+    virtual double SensorGetState(int sensor) = 0;
+    virtual SensorImuState SensorGetImu() = 0;
+    virtual SensorFeetState SensorGetFeet() = 0;
 };
 

@@ -86,31 +86,28 @@
             <limits lowerLimit="-2500" upperLimit="2500"/>
         </joint>
     </joints>
-	<sensors>
-        <group id="1" name="Аккселерометр" channel="14">
-            <sensor number="1" name="X"/>
-            <sensor number="2" name="Y"/>
-            <sensor number="3" name="Z"/>
+	<sensorGroups>
+        <group id="1" name="Аккселерометр"  channel="14">
+            <sensor number="1" name="AccX" offset="0"/>
+            <sensor number="2" name="AccY" offset="0"/>
+            <sensor number="3" name="AccZ" offset="0"/>
+            <sensor number="4" name="GyroX" offset="0"/>
+            <sensor number="5" name="GyroY" offset="0"/>
+            <sensor number="6" name="GyroZ" offset="0"/>
         </group>
 
-        <group id="2" name="Гироскоп" channel="14">
-            <sensor number="4" name="X"/>
-            <sensor number="5" name="Y"/>
-            <sensor number="6" name="Z"/>
+        <group id="2" name="Давление на левой ноге" channel="15">
+            <sensor number="7" name="0" offset="0"/>
+            <sensor number="8" name="1" offset="0"/>
+            <sensor number="9" name="2" offset="0"/>
+            <sensor number="10" name="3" offset="0"/>
         </group>
 
-        <group id="3" name="Давление на левой ноге" channel="14">
-            <sensor number="7" name="0"/>
-            <sensor number="8" name="1"/>
-            <sensor number="9" name="2"/>
-            <sensor number="10" name="3"/>
+        <group id="3" name="Давление на правой ноге" channel="16">
+            <sensor number="11" name="0" offset="0"/>
+            <sensor number="12" name="1" offset="0"/>
+            <sensor number="13" name="2" offset="0"/>
+            <sensor number="14" name="3" offset="0"/>
         </group>
-
-        <group id="4" name="Давление на правой ноге" channel="14">
-            <sensor number="11" name="0"/>
-            <sensor number="12" name="1"/>
-            <sensor number="13" name="2"/>
-            <sensor number="14" name="3"/>
-        </group>
-    </sensors>
+    </sensorGroups>
 </config>

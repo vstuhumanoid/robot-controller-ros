@@ -13,12 +13,14 @@ add_library(${PROJECT_NAME} STATIC
         XMLSerializer.cpp
         UDPConnection.cpp
         DataTypes/ConnectionData.h
-        DataTypes/ImuData.h
+        DataTypes/SensorImuState.h
         DataTypes/JointData.h
         DataTypes/JointState.h
-        DataTypes/LegsData.h
+        DataTypes/SensorFeetState.h
         DataTypes/PowerData.h
         DataTypes/PowerState.h
+        DataTypes/SensorData.h
+        DataTypes/SensorsGroupData.h
         RobotDescription/AR60xDescription.cpp
         RobotPackets/BasePacket.cpp
         RobotPackets/AR60xRecvPacket.cpp

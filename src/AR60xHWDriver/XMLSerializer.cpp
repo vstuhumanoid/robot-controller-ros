@@ -68,29 +68,38 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
         jointData = jointData->NextSiblingElement("joint");
     }
 
-    XMLElement* sensors = root->FirstChildElement("sensors");
+    XMLElement* sensors = root->FirstChildElement("sensorGroups");
     XMLElement* sensorsGroupData = sensors->FirstChildElement("group");
 
-    std::map <int, SensorsGroup> sensorsMap;
+    std::map <int, SensorsGroupData> sensorsMap;
 
     while(sensorsGroupData != nullptr)
     {
-        SensorsGroup sensorsGroup;
+        SensorsGroupData sensorsGroup;
         sensorsGroupData->QueryAttribute("id", &sensorsGroup.id);
         sensorsGroup.name = sensorsGroupData->Attribute("name");
-        sensorsGroupData->QueryAttribute("channel", &sensorsGroup.channel);
+        int channel;
+        sensorsGroupData->QueryAttribute("channel", &channel);
+        sensorsGroup.channel = channel;
 
         XMLElement* sensorData = sensorsGroupData->FirstChildElement("sensor");
         while(sensorData != nullptr)
         {
             SensorData sensor;
             sensor.name = sensorData->Attribute("name");
-            sensorData->QueryAttribute("number", &sensor.number);
+            int number;
+            sensorData->QueryAttribute("number", &number);
+            sensor.number = number;
+            sensorData->QueryAttribute("offset", &sensor.offset);
+
+            sensorData = sensorData->NextSiblingElement("sensor");
         }
+
+        sensorsGroupData = sensorsGroupData->NextSiblingElement("group");
     }
 
     desc->joints = jointsMap;
-    desc->sensors = sensorsMap;
+    desc->sensorGroups = sensorsMap;
     *conn = connectionData;
 
     return true;
@@ -139,9 +148,9 @@ bool XMLSerializer::serialize(std::string fileName, AR60xDescription * desc, Con
     }
 
     root->InsertEndChild(joints);
-    XMLElement *sensors = document.NewElement("sensors");
+    XMLElement *sensors = document.NewElement("sensorGroups");
 
-    for(auto group: desc->sensors)
+    for(auto group: desc->sensorGroups)
     {
         XMLElement *sensorGroup = document.NewElement("group");
         sensorGroup->SetAttribute("id", group.second.id);
@@ -153,6 +162,7 @@ bool XMLSerializer::serialize(std::string fileName, AR60xDescription * desc, Con
             XMLElement* sensorData = document.NewElement("sensor");
             sensorData->SetAttribute("number", sensor.number);
             sensorData->SetAttribute("name", sensor.name.c_str());
+            sensorData->SetAttribute("offset", sensor.offset);
             sensorGroup->InsertEndChild(sensorData);
         }
 

@@ -12,11 +12,20 @@
 /**
  * Group of same sensors config
  */
-struct SensorsGroup
+struct SensorsGroupData
 {
     int id;
     std::string name;
-    int channel;
+
+    /**
+     * Channel - address of sensor sub-packet in
+     * all packet
+     */
+    uint8_t channel;
+
+    /**
+     * List of sensors in group
+     */
     std::vector<SensorData> sensors;
 };
 

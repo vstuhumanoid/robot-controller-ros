@@ -126,5 +126,5 @@ void UDPConnection::receive_datagram()
         ROS_ERROR_STREAM(er.what());
     }
 
-    recv_packet_.initFromByteArray((const char*)recv_buffer_);
+    recv_packet_.initFromByteArray(recv_buffer_);
 }

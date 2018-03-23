@@ -26,16 +26,14 @@ public:
 
     /**
      * Create new AR60x driver
-     * @param max_recv_packet_size Maximum size of receive buffer (bytes)
      */
-    AR60xHWDriver(size_t max_recv_packet_size);
+    AR60xHWDriver();
 
     /**
      * Create new AR60x driver
      * @param config_filename Path to the robot's config file
-     * @param max_recv_packet_size Maximum size of receive buffer (bytes)
      */
-    AR60xHWDriver(std::string config_filename, size_t max_recv_packet_size);
+    AR60xHWDriver(std::string config_filename);
     ~AR60xHWDriver();
 
     /**
@@ -43,6 +41,12 @@ public:
      * @param fileName Path to the robot's config file
      */
     void loadConfig(std::string fileName);
+
+    /**
+     * Save robot's config to file
+     * @param fileName Path to the config file
+     * @return Success
+     */
     bool saveConfig(std::string fileName);
 
     // interfaces
@@ -86,9 +90,9 @@ public:
     void JointSetEnable(std::vector<uint8_t> joints, std::vector<bool> isEnable) override ;
     std::vector<bool> JointGetEnable(std::vector<uint8_t> joints) override ;
 
-    void JointSetState(uint8_t joint, JointState::JointStates state) override;
+    void JointSetState(uint8_t joint, JointState state) override;
     JointState JointGetState(uint8_t joint) override;
-    void JointSetState(std::vector<uint8_t> joints, std::vector<JointState::JointStates> state) override ;
+    void JointSetState(std::vector<uint8_t> joints, std::vector<JointState> state) override ;
     std::vector<JointState> JointGetState(std::vector<uint8_t> joints) override ;
 
 
@@ -99,7 +103,7 @@ public:
      * @param joint Joint's number
      * @return Joint's parameters
      */
-    PowerState::PowerSupplyState JointGetSupplyState(int joint) override;
+    PowerState::PowerSupplyState JointGetSupplyState(uint8_t joint) override;
 
     /**
      * Get voltage and current of specific supply source (48v, 12v etc)
@@ -125,7 +129,9 @@ public:
 
     // -------------------------------------- Sensors -------- ---------------------------------------------------------
 
-    SensorState SensorGetState(int sensor) override;
+    double SensorGetState(int sensor) override;
+    SensorImuState SensorGetImu() override ;
+    SensorFeetState SensorGetFeet() override ;
 
     AR60xDescription *getRobotDesc();
 

@@ -2,6 +2,27 @@
 
 AR60xSendPacket::AR60xSendPacket(AR60xDescription& robotDesc) : BasePacket(robotDesc)
 {
+    memset(byte_array_, packetSize, 0);
+
+    for (auto &it : desc_.joints)
+    {
+        JointData joint = it.second;
+        write_int16(joint.channel * 16, joint.number);
+        jointSetPIDGains(joint.number, joint.gains);
+        jointSetOffset(joint.number, joint.offset);
+
+        jointSetLowerLimit(joint.number, joint.limits.lowerLimit);
+        jointSetUpperLimit(joint.number, joint.limits.upperLimit);
+
+        JointState state;
+        state.state = JointState::MotorState::STOP;
+        state.controlType = JointState::ControlType::POSITION_CONTROl;
+        jointSetState(joint.number, state);
+    }
+
+    for(auto& sensorGroup: desc_.sensorGroups)
+        for(auto& sensor: sensorGroup.second.sensors)
+            sensorSetOffset(sensorGroup.second.id, sensor.number, sensor.offset);
 }
 
 
@@ -104,6 +125,37 @@ void AR60xSendPacket::supplySetOn(PowerData::PowerSupplies supply)
     byte_array_[PowerDataAddress + 1] |= 1 << supply;
 }
 
+void AR60xSendPacket::sensorSetOffset(uint8_t groupId, uint8_t number, double value)
+{
+    uint8_t channel = desc_.sensorGroups[groupId].channel;
+    write_int16(channel * 16 + sensorsMap[number], value * 100);
+}
+
+void AR60xSendPacket::sensorSetImuOffset(SensorImuState data)
+{
+    uint8_t channel = desc_.sensorGroups[ImuGroupId].channel;
+    write_int16(channel * 16 + SensorAccXOffset, data.accX * 100);
+    write_int16(channel * 16 + SensorAccYOffset, data.accY * 100);
+    write_int16(channel * 16 + SensorAccZOffset, data.accZ * 100);
+    write_int16(channel * 16 + SensorYawOffset, data.yaw * 100);
+    write_int16(channel * 16 + SensorPitchOffset, data.pitch * 100);
+    write_int16(channel * 16 + SensorRollOffset, data.roll * 100);
+}
+
+void AR60xSendPacket::sensorSetFeetOffset(SensorFeetState data)
+{
+    sensorSetFootOffset(data.left, LeftFootGroupId);
+    sensorSetFootOffset(data.right, RightFootGroupId);
+}
+
+void AR60xSendPacket::sensorSetFootOffset(SensorFeetState::FootData data, uint8_t groupId)
+{
+    uint8_t channel = desc_.sensorGroups[groupId].channel;
+    write_int16(channel * 16 + SensorUch0Offset, data.uch0 * 100);
+    write_int16(channel * 16 + SensorUch1Offset, data.uch1 * 100);
+    write_int16(channel * 16 + SensorUch2Offset, data.uch2 * 100);
+    write_int16(channel * 16 + SensorUch3Offset, data.uch3 * 100);
+}
 
 void AR60xSendPacket::write_int16(uint16_t address, int16_t value)
 {

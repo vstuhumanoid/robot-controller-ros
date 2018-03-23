@@ -10,30 +10,31 @@
 #include "AR60xPacketsDefinitions.h"
 #include <RobotDescription/AR60xDescription.h>
 #include <DataTypes/JointState.h>
-#include <DataTypes/ImuData.h>
-#include <DataTypes/LegsData.h>
+#include <DataTypes/SensorImuState.h>
+#include <DataTypes/SensorFeetState.h>
 
 class AR60xRecvPacket : public BasePacket
 {
 public:
     AR60xRecvPacket(AR60xDescription& robotDesc);
-    void initFromByteArray(const char bytes[]);
+    void initFromByteArray(const uint8_t *bytes);
 
     double jointGetPosition(uint8_t number);
     JointData::PIDGains jointGetPIDGains(uint8_t number);
-    JointState jointGetState(short number);
+    JointState jointGetState(uint8_t number);
     double jointGetLowerLimit(uint8_t number);
     double jointGetUpperLimit(uint8_t number);
     PowerState::PowerSupplyState jointGetSupplyState(uint8_t number);
     PowerState::PowerSupplyState supplyGetState(PowerData::PowerSupplies supply);
 
     double sensorGetValue( short number );
-    ImuData sensorGetImu();
-    LegsData sensorGetLegs();
+    SensorImuState sensorGetImu();
+    SensorFeetState sensorGetFeet();
 
 private:
     float supplyGetVoltage(PowerData::PowerSupplies supply);
     float supplyGetCurrent(PowerData::PowerSupplies supply);
+    SensorFeetState::FootData sensorGetFoot(uint8_t groupId);
 
     int16_t read_int16(uint16_t address);
     float read_float(uint16_t address);

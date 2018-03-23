@@ -11,21 +11,26 @@ typedef unsigned char BYTE;
 const uint16_t packetSize  = 1472;
 const uint16_t countChannels = 71;
 
-//----------------------------------------------------------------------------------------------------------------------
+///////////////////////////////////////// SENSORS //////////////////////////////////////////////////////////////////////
+
+// sensor groups ids
+const uint8_t ImuGroupId = 1;
+const uint8_t LeftFootGroupId = 2;
+const uint8_t RightFootGroupId = 3;
 
 // bit offset in sensors' packet
 const uint16_t SensorYawOffset = 2;
 const uint16_t SensorPitchOffset = 4;
 const uint16_t SensorRollOffset = 6;
 
+const uint16_t SensorAccXOffset = 8;
+const uint16_t SensorAccYOffset = 10;
+const uint16_t SensorAccZOffset = 12;
+
 const uint16_t SensorUch0Offset = 8;
 const uint16_t SensorUch1Offset = 10;
 const uint16_t SensorUch2Offset = 12;
 const uint16_t SensorUch3Offset = 14;
-
-const uint16_t SensorAccXOffset = 8;
-const uint16_t SensorAccYOffset = 10;
-const uint16_t SensorAccZOffset = 12;
 
 static std::map<int ,int> sensorsMap =
 {
@@ -45,7 +50,7 @@ static std::map<int ,int> sensorsMap =
     {14, SensorUch3Offset}
 };
 
-//----------------------------------------------------------------------------------------------------------------------
+/////////////////////////////////////// JOINTS /////////////////////////////////////////////////////////////////////////
 
 // Joint's properties offset in joint package
 // Common (Send & Receive)
@@ -65,7 +70,7 @@ const uint8_t JointOffsetAddress  =    6;
 const uint8_t JointVoltageAddress =    4;
 const uint8_t JointCurrentAddress =    6;
 
-//----------------------------------------------------------------------------------------------------------------------
+/////////////////////////////////// POWER //////////////////////////////////////////////////////////////////////////////
 
 const uint16_t PowerDataAddress = 1408;
 

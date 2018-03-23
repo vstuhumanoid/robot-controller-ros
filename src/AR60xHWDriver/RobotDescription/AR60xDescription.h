@@ -3,7 +3,7 @@
 
 #include <map>
 #include <DataTypes/JointData.h>
-#include <DataTypes/SensorsGroup.h>
+#include <DataTypes/SensorsGroupData.h>
 
 
 /**
@@ -15,7 +15,7 @@ public:
 
     AR60xDescription();
 
-    std::map<int, SensorsGroup> sensors;
+    std::map<int, SensorsGroupData> sensorGroups;
     std::map<int, JointData> joints;
 };
 
