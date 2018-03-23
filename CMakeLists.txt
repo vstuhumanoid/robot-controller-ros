@@ -23,6 +23,7 @@ add_message_files(
         FILES
         supply_state.msg
         robot_supply_state.msg
+        joint_supply_state.msg
 )
 
 generate_messages(

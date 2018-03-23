@@ -159,14 +159,15 @@ SensorFeetState::FootData AR60xRecvPacket::sensorGetFoot(uint8_t groupId)
 
 int16_t AR60xRecvPacket::read_int16(uint16_t address)
 {
-    int16_t value = (byte_array_[address + 1] << 8) + (BYTE)byte_array_[address];
-    return value;
+    //int16_t value =  (byte_array_[address + 1] << 8) + (BYTE)byte_array_[address];
+    return  *((int16_t*)(byte_array_ + address));
 }
 
 float AR60xRecvPacket::read_float(uint16_t address)
+
 {
-    float value = static_cast<float>((byte_array_[address + 1] << 8) + (BYTE)byte_array_[address]);
-    return value;
+    //float value = static_cast<float>((byte_array_[address + 1] << 8) + (BYTE)byte_array_[address]);
+    return *((float*)(byte_array_ + address));
 }
 
 double AR60xRecvPacket::uint16_to_angle(uint16_t angle)

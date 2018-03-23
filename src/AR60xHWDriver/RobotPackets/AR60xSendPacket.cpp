@@ -2,7 +2,7 @@
 
 AR60xSendPacket::AR60xSendPacket(AR60xDescription& robotDesc) : BasePacket(robotDesc)
 {
-    memset(byte_array_, packetSize, 0);
+    memset(byte_array_, 0, packetSize);
 
     for (auto &it : desc_.joints)
     {
