@@ -3,24 +3,25 @@
 
 UDPConnection::UDPConnection(AR60xSendPacket& sendPacket,
                              AR60xRecvPacket& recvPacket,
-                             uint32_t delay,
-                             size_t max_recv_buffer_size)
+                             std::mutex& sendLocker,
+                             std::mutex& recvLocker,
+                             uint16_t localPort,
+                             uint32_t delay)
     :io_service_(),
     socket_(io_service_),
     send_packet_(sendPacket),
-    recv_packet_(recvPacket)
+    recv_packet_(recvPacket),
+    recv_locker_(recvLocker),
+    send_locker_(sendLocker)
 {
     this->send_delay_ = delay;
-
-    // create receive buffers
-    max_recv_buffer_size_ = max_recv_buffer_size;
-    recv_buffer_ = new uint8_t[max_recv_buffer_size_];
 
     // bind socket to local ephemerial port
     // TODO: Maybe robot expects fixed port
     try
     {
         socket_.open(ip::udp::v4());
+        socket_.bind(ip::udp::endpoint(ip::udp::v4(), localPort));
     }
     catch(const std::runtime_error& er)
     {
@@ -31,8 +32,7 @@ UDPConnection::UDPConnection(AR60xSendPacket& sendPacket,
 
 UDPConnection::~UDPConnection()
 {
-    delete[] recv_buffer_;
-    recv_buffer_ = nullptr;
+    breakConnection();
 }
 
 
@@ -96,11 +96,12 @@ void UDPConnection::thread_func()
 
 void UDPConnection::send_datagram()
 {
-    sendLocker->lock();
+    send_locker_.lock();
 
     try
     {
-        socket_.send(buffer(send_packet_.getByteArray(), send_packet_.getSize() * sizeof(char)));
+        //TODO: Handle errors and disconnection
+        size_t sended = socket_.send(buffer(send_packet_.getByteArray(), send_packet_.getSize() * sizeof(char)));
     }
     catch(const std::runtime_error& er)
     {
@@ -109,16 +110,17 @@ void UDPConnection::send_datagram()
     }
 
 
-    sendLocker->unlock();
+    send_locker_.unlock();
 }
 
 void UDPConnection::receive_datagram()
 {
-    // TODO: Lock?
+    recv_locker_.lock();
 
     try
     {
-        socket_.receive(buffer(recv_buffer_, max_recv_buffer_size_));
+        //TODO: Handle errors and disconnection
+        size_t received = socket_.receive(buffer(recv_packet_.getByteArray(), packetSize));
     }
     catch(const std::runtime_error& er)
     {
@@ -126,5 +128,5 @@ void UDPConnection::receive_datagram()
         ROS_ERROR_STREAM(er.what());
     }
 
-    recv_packet_.initFromByteArray(recv_buffer_);
+    recv_locker_.unlock();
 }

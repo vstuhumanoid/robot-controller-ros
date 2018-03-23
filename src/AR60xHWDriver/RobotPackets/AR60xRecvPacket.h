@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <map>
-#include <mutex>
 #include <cstdint>
 
 #include "BasePacket.h"

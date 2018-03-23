@@ -9,14 +9,41 @@ AR60xHWDriver driver;
 
 void command_callback(const std_msgs::Float32 angle)
 {
-    driver.JointSetPosition(1, (int)(angle.data * 100));
-
-    JointState state;
-    state.state = JointState::MotorState::TRACE;
-    state.controlType = JointState::ControlType::POSITION_CONTROl;
-    driver.JointSetState(1, state);
+    driver.JointSetPosition(10, (int)(angle.data));
 
     ROS_INFO("Command: %f", angle.data);
+}
+
+void powerOn()
+{
+    driver.SupplySetOnOff(PowerData::Supply12V, true);
+    ros::Duration(0.5).sleep();
+    driver.SupplySetOnOff(PowerData::Supply48V, true);
+    ros::Duration(0.5).sleep();
+    driver.SupplySetOnOff(PowerData::Supply8V1, true);
+    ros::Duration(0.5).sleep();
+    driver.SupplySetOnOff(PowerData::Supply8V2, true);
+    ros::Duration(0.5).sleep();
+    driver.SupplySetOnOff(PowerData::Supply6V1, true);
+    ros::Duration(0.5).sleep();
+    driver.SupplySetOnOff(PowerData::Supply6V2, true);
+    ros::Duration(0.5).sleep();
+}
+
+void powerOff()
+{
+    driver.SupplySetOnOff(PowerData::Supply6V1, false);
+    ros::Duration(0.5).sleep();
+    driver.SupplySetOnOff(PowerData::Supply6V2, false);
+    ros::Duration(0.5).sleep();
+    driver.SupplySetOnOff(PowerData::Supply8V1, false);
+    ros::Duration(0.5).sleep();
+    driver.SupplySetOnOff(PowerData::Supply8V2, false);
+    ros::Duration(0.5).sleep();
+    driver.SupplySetOnOff(PowerData::Supply48V, false);
+    ros::Duration(0.5).sleep();
+    driver.SupplySetOnOff(PowerData::Supply12V, false);
+    ros::Duration(0.5).sleep();
 }
 
 int main(int argc, char** argv)
@@ -27,30 +54,41 @@ int main(int argc, char** argv)
 
     ros::Rate rate(1);
 
-    string path = ros::package::getPath("robot-controller-ros") + "/config.xml";
+    string path = ros::package::getPath("robot-controller-ros") + "/config_new.xml";
     driver.loadConfig(path);
     driver.robotConnect();
 
-    driver.SupplySetOnOff(PowerData::Supply12V, true);
-    rate.sleep();
-    driver.SupplySetOnOff(PowerData::Supply6V1, true);
-    driver.SupplySetOnOff(PowerData::Supply6V2, true);
-    driver.SupplySetOnOff(PowerData::Supply8V1, true);
-    driver.SupplySetOnOff(PowerData::Supply8V2, true);
-    driver.SupplySetOnOff(PowerData::Supply48V, true);
-    rate.sleep();
+    powerOn();
 
-    //auto sub = nh.subscribe("command", 1000, command_callback);
+    ROS_INFO("Set start pose");
+    driver.SetStartPose();
+    ros::Duration(1).sleep();
+
+    auto sub = nh.subscribe("command", 1000, command_callback);
 
 
     while(ros::ok())
     {
         auto state = driver.PowerGetSupplyState(PowerData::Supply48V);
         ROS_INFO("Voltage: %f\t Current: %f", state.Voltage, state.Current);
+        state = driver.PowerGetSupplyState(PowerData::Supply12V);
+        ROS_INFO("Voltage: %f\t Current: %f", state.Voltage, state.Current);
+        state = driver.PowerGetSupplyState(PowerData::Supply8V1);
+        ROS_INFO("Voltage: %f\t Current: %f", state.Voltage, state.Current);
+        state = driver.PowerGetSupplyState(PowerData::Supply8V2);
+        ROS_INFO("Voltage: %f\t Current: %f", state.Voltage, state.Current);
+        state = driver.PowerGetSupplyState(PowerData::Supply6V1);
+        ROS_INFO("Voltage: %f\t Current: %f", state.Voltage, state.Current);
+        state = driver.PowerGetSupplyState(PowerData::Supply6V2);
+        ROS_INFO("Voltage: %f\t Current: %f", state.Voltage, state.Current);
+        std::cout<<endl;
+
+
         ros::spinOnce();
         rate.sleep();
     }
 
+    powerOff();
 
     return 0;
 }

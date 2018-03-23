@@ -1,5 +1,5 @@
 <config>
-	<connection host="192.169.1.10" recvPort="10001" send_delay_="5" sendPort="10001"/>
+	<connection host="192.169.1.10" robotPort="10001" sendDelay="5" localPort="10001"/>
     <joints>
         <joint number="1" name="Стопа Y (R)" channel="1" offset="-114" isReverse="false" isEnable="true">
             <gains proportional="900" integral="2" derivative="1"/>

@@ -5,13 +5,10 @@ find_package(catkin REQUIRED COMPONENTS
         cmake_modules)
 find_package(TinyXML2 REQUIRED)
 
-find_package (Qt5Core REQUIRED)
-find_package (Qt5Network REQUIRED)
-
 add_library(${PROJECT_NAME} STATIC
         AR60xHWDriver.cpp
-        XMLSerializer.cpp
-        UDPConnection.cpp
+        XMLSerializer/XMLSerializer.cpp
+        UDPConnection/UDPConnection.cpp
         DataTypes/ConnectionData.h
         DataTypes/SensorImuState.h
         DataTypes/JointData.h
@@ -32,8 +29,6 @@ add_library(${PROJECT_NAME} STATIC
 
 
 target_link_libraries(${PROJECT_NAME}
-        ${Qt5Core_LIBRARIES}
-        ${Qt5Network_LIBRARIES}
         ${catkin_LIBRARIES}
         ${TinyXML2_LIBRARIES})
 

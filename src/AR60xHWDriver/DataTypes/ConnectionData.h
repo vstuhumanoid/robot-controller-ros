@@ -6,8 +6,8 @@
 struct ConnectionData
 {
     std::string host;
-    int sendPort;
-    int recvPort;
+    int localPort;
+    int robotPort;
     int sendDelay;
 };
 

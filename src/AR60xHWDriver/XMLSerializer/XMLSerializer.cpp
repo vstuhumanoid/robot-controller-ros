@@ -20,9 +20,9 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
     ConnectionData connectionData;
     const char* host = connection->Attribute("host");
     connectionData.host = std::string(host);
-    connection->QueryAttribute("recvPort", &connectionData.recvPort);
-    connection->QueryAttribute("send_delay_", &connectionData.sendDelay);
-    connection->QueryAttribute("sendPort", &connectionData.sendPort);
+    connection->QueryAttribute("robotPort", &connectionData.robotPort);
+    connection->QueryAttribute("sendDelay", &connectionData.sendDelay);
+    connection->QueryAttribute("localPort", &connectionData.localPort);
 
     XMLElement* joints = root->FirstChildElement("joints");
     XMLElement* jointData = joints->FirstChildElement("joint");
@@ -68,8 +68,8 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
         jointData = jointData->NextSiblingElement("joint");
     }
 
-    XMLElement* sensors = root->FirstChildElement("sensorGroups");
-    XMLElement* sensorsGroupData = sensors->FirstChildElement("group");
+    XMLElement* sensorsGroupsData = root->FirstChildElement("sensorGroups");
+    XMLElement* sensorsGroupData = sensorsGroupsData->FirstChildElement("group");
 
     std::map <int, SensorsGroupData> sensorsMap;
 
@@ -92,9 +92,11 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
             sensor.number = number;
             sensorData->QueryAttribute("offset", &sensor.offset);
 
+            sensorsGroup.sensors.push_back(sensor);
             sensorData = sensorData->NextSiblingElement("sensor");
         }
 
+        sensorsMap[sensorsGroup.id] = sensorsGroup;
         sensorsGroupData = sensorsGroupData->NextSiblingElement("group");
     }
 
@@ -112,9 +114,9 @@ bool XMLSerializer::serialize(std::string fileName, AR60xDescription * desc, Con
 
     XMLElement *connectionData = document.NewElement("connection");
     connectionData->SetAttribute("host", conn->host.c_str() );
-    connectionData->SetAttribute("recvPort", conn->recvPort);
+    connectionData->SetAttribute("robotPort", conn->robotPort);
     connectionData->SetAttribute("send_delay_", conn->sendDelay);
-    connectionData->SetAttribute("sendPort", conn->sendPort);
+    connectionData->SetAttribute("localPort", conn->localPort);
     root->InsertEndChild(connectionData);
 
     XMLElement *joints = document.NewElement("joints");
@@ -148,7 +150,7 @@ bool XMLSerializer::serialize(std::string fileName, AR60xDescription * desc, Con
     }
 
     root->InsertEndChild(joints);
-    XMLElement *sensors = document.NewElement("sensorGroups");
+    XMLElement *sensorsGroups = document.NewElement("sensorGroups");
 
     for(auto group: desc->sensorGroups)
     {
@@ -166,10 +168,10 @@ bool XMLSerializer::serialize(std::string fileName, AR60xDescription * desc, Con
             sensorGroup->InsertEndChild(sensorData);
         }
 
-        sensors->InsertEndChild(sensorGroup);
+        sensorsGroups->InsertEndChild(sensorGroup);
     }
 
-    root->InsertEndChild(sensors);
+    root->InsertEndChild(sensorsGroups);
     document.InsertEndChild(root);
 
     XMLError eResult = document.SaveFile(fileName.c_str());

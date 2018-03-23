@@ -30,7 +30,7 @@ void AR60xSendPacket::jointSetPosition(uint8_t number, double value)
 {
     double lowerLimit = desc_.joints[number].limits.lowerLimit;
     double upperLimit = desc_.joints[number].limits.upperLimit;
-    double isReverse = desc_.joints[number].isReverse;
+    bool isReverse = desc_.joints[number].isReverse;
     uint8_t channel = desc_.joints[number].channel;
 
     if(value < lowerLimit)

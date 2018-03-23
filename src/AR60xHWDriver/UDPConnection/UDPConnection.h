@@ -25,13 +25,17 @@ public:
      * Create new connection object
      * @param sendPacket Reference to the send packet structure
      * @param recvPacket Referenct to the recv packet structure
+     * @param recvLocker Mutex for receiving
+     * @param sendLocker Mutex for sending
+     * @param localPort port socket is binding to
      * @param delay Sending loop delay (ms)
-     * @param max_recv_buffer_size  maximum size of receive buffer (bytes)
      */
     UDPConnection(AR60xSendPacket& sendPacket,
                   AR60xRecvPacket& recvPacket,
-                  uint32_t delay,
-                  size_t max_recv_buffer_size);
+                  std::mutex& sendLocker,
+                  std::mutex& recvLocker,
+                  uint16_t localPort,
+                  uint32_t delay);
     ~UDPConnection();
 
     /**
@@ -50,8 +54,8 @@ public:
 private:
 
     // send & recv packages sync
-    std::mutex *sendLocker;
-    std::mutex *recvLocker;
+    std::mutex& send_locker_;
+    std::mutex& recv_locker_;
 
     // send loop delay
     int send_delay_;
@@ -66,8 +70,6 @@ private:
     // packages
     AR60xRecvPacket& recv_packet_;
     AR60xSendPacket& send_packet_;
-    uint8_t* recv_buffer_;
-    size_t max_recv_buffer_size_;
 
     // sending & receiving thread
     std::thread update_thread;

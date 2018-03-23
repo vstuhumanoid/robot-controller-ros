@@ -7,14 +7,15 @@
 #include "HardwareInterfaces/IAR60xJointControl.h"
 #include "HardwareInterfaces/IAR60xPowerControl.h"
 #include "HardwareInterfaces/IAR60xSensorState.h"
-#include "XMLSerializer.h"
-#include "UDPConnection.h"
+#include "XMLSerializer/XMLSerializer.h"
+#include "UDPConnection/UDPConnection.h"
 
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <exception>
+#include <mutex>
 
 
 class AR60xHWDriver :
@@ -55,6 +56,8 @@ public:
 
     // ------------------------------- Joint control interface ---------------------------------------------------------
 
+    void SetStartPose();
+
     void JointSetSettings(uint8_t joint, JointData settings) override;
     JointData JointGetSettings(uint8_t joint) override;
     void JointSetSettings(std::vector<uint8_t> joints, std::vector<JointData> settings) override ;
@@ -90,7 +93,9 @@ public:
     void JointSetEnable(std::vector<uint8_t> joints, std::vector<bool> isEnable) override ;
     std::vector<bool> JointGetEnable(std::vector<uint8_t> joints) override ;
 
-    void JointSetState(uint8_t joint, JointState state) override;
+    void JointSetState(uint8_t joint,
+                       JointState::MotorState motorState,
+                       JointState::ControlType controlType = JointState::ControlType::POSITION_CONTROl) override;
     JointState JointGetState(uint8_t joint) override;
     void JointSetState(std::vector<uint8_t> joints, std::vector<JointState> state) override ;
     std::vector<JointState> JointGetState(std::vector<uint8_t> joints) override ;
@@ -137,16 +142,22 @@ public:
 
 
 private:
+
+#define RECV_GUARD std::lock_guard<std::mutex> guard(recv_mutex_)
+#define SEND_GUARD std::lock_guard<std::mutex> guard(send_mutex_)
+
     void init_packets();
 
     AR60xDescription desc;
 
-    UDPConnection *connection;
-    AR60xRecvPacket *recvPacket;
-    AR60xSendPacket *sendpacket;
+    UDPConnection *connection_;
+    AR60xRecvPacket *recv_packet_;
+    AR60xSendPacket *sendpacket_;
 
     ConnectionData connectionData;
     size_t max_recv_packet_size_;
+
+    std::mutex send_mutex_, recv_mutex_;
 
 };
 

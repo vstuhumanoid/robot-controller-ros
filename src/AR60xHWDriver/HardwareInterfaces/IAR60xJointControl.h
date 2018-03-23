@@ -43,7 +43,9 @@ public:
     virtual void JointSetEnable(std::vector<uint8_t> joints, std::vector<bool> isEnable) = 0;
     virtual std::vector<bool> JointGetEnable(std::vector<uint8_t> joints) = 0;
 
-    virtual void JointSetState(uint8_t joint, JointState state) = 0;
+    virtual void JointSetState(uint8_t joint,
+                       JointState::MotorState state,
+                       JointState::ControlType controlType = JointState::ControlType::POSITION_CONTROl) = 0;
     virtual JointState JointGetState(uint8_t joint) = 0;
     virtual void JointSetState(std::vector<uint8_t> joints, std::vector<JointState> state) = 0;
     virtual std::vector<JointState> JointGetState(std::vector<uint8_t> joints) = 0;

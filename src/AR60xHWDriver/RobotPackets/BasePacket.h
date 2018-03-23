@@ -10,7 +10,7 @@ class BasePacket
 {
 public:
     BasePacket(AR60xDescription& desc) : desc_(desc) {}
-    const uint8_t * getByteArray() { return byte_array_; }
+    uint8_t * getByteArray() { return byte_array_; }
     int getSize(){ return packetSize; }
 
 protected:
