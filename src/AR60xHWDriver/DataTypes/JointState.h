@@ -3,24 +3,27 @@
 
 #include "PowerState.h"
 
-class JointState
+struct JointState
 {
-public:
-
-	// Состояние узлов (моторов)
-    enum JointStates
+	/**
+	 * Motor state
+	 */
+    enum MotorState
 	{
-		BRAKE, // мотор обесточен, муфта заблокирована
-		STOP, // мотор включен, муфта разблокированна
-		RELAX, // мотор обесточен, мефта разблокированна
-		TRACE // мотор управляется углом
-	};
+		BRAKE,   // мотор обесточен, муфта заблокирована
+		STOP,    // мотор включен, муфта разблокированна
+		RELAX,   // мотор обесточен, мефта разблокированна
+		TRACE    // мотор управляется углом
+	} state;
 
-    JointStates state;
-    PowerState::PowerSupplyState supplyState;
+	enum ControlType
+	{
+		POSITION_CONTROl,
+		TORQUE_CONTROL
+	} controlType;
 
-	JointState();
-	~JointState();
+    bool isBeyondLowerLimit;
+	bool isBeyondUpperLimit;
 };
 
 #endif // JOINTSTATE_H

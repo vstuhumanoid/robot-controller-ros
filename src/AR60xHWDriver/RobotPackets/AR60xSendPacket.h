@@ -15,14 +15,14 @@
 class AR60xSendPacket : public BasePacket
 {
 public:
-    AR60xSendPacket(AR60xDescription *robotDesc);
+    AR60xSendPacket(AR60xDescription& robotDesc);
 
     void jointSetPosition(uint8_t number, double value);
     void jointSetOffset(uint8_t number, double value);
     void jointSetPIDGains(uint8_t number, JointData::PIDGains gains);
     void jointSetLowerLimit(uint8_t number, double value);
     void jointSetUpperLimit(uint8_t number, double value);
-    void jointSetState(uint8_t number , JointState::JointStates state );
+    void jointSetState(uint8_t number, JointState state );
     void supplySetOn( PowerData::PowerSupplies supply );
     void supplySetOff( PowerData::PowerSupplies supply );
 private:

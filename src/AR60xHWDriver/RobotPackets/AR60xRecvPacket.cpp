@@ -1,127 +1,133 @@
 #include "AR60xRecvPacket.h"
 
-AR60xRecvPacket::AR60xRecvPacket(AR60xDescription *robotDesc)
+AR60xRecvPacket::AR60xRecvPacket(AR60xDescription& robotDesc) : BasePacket(robotDesc)
 {
-    desc = robotDesc;
 }
 
 void AR60xRecvPacket::initFromByteArray(const char bytes[])
 {
-    locker.lock();
     for(int i = 0; i < packetSize; i++)
         byte_array_[i] = bytes[i];
-    locker.unlock();
-}
-
-short AR60xRecvPacket::sensorGetValue(short number)
-{
-    locker.lock();
-    int channel = desc->sensors.at(number).channel;
-    int16_t value = read_int16(channel * 16 + sensorsMap.at(number));
-    locker.unlock();
-    return value;
 }
 
 
-short AR60xRecvPacket::jointGetCurrent(uint8_t number)
+PowerState::PowerSupplyState AR60xRecvPacket::jointGetSupplyState(uint8_t number)
 {
-    locker.lock();
-    int channel = desc->joints.at(number).channel;
-    int16_t value = read_int16(channel * 16 + JointCurrentAddress);
-    locker.unlock();
-    return value;
-}
-
-short AR60xRecvPacket::jointGetVoltage(uint8_t number)
-{
-    locker.lock();
-    int channel = desc->joints.at(number).channel;
-    int16_t value = read_int16(channel * 16 + JointVoltageAddress);
-    locker.unlock();
-    return value;
+    PowerState::PowerSupplyState state;
+    int channel = desc_.joints[number].channel;
+    state.Current = read_int16(channel * 16 + JointCurrentAddress) / 1000.0f;
+    state.Voltage = read_int16(channel * 16 + JointVoltageAddress) / 1000.0f;
+    return state;
 }
 
 double AR60xRecvPacket::jointGetPosition(uint8_t number)
 {
-    locker.lock();
-    int channel = desc->joints.at(number).channel;
+    int channel = desc_.joints.at(number).channel;
     int16_t value = read_int16(channel * 16 + JointPositionAddress);
-    locker.unlock();
     return value;
 }
 
-short AR60xRecvPacket::jointGetPGain(short number)
+JointData::PIDGains AR60xRecvPacket::jointGetPIDGains(uint8_t number)
 {
-    locker.lock();
-    int channel = desc->joints.at(number).channel;
-    int16_t value = read_int16(channel * 16 + JointPGainAddress);
-    locker.unlock();
-    return value;
+    // Can read from robot only P and I gains, but D can be read only
+    // from desc.
+    // Fuck AT, just return from description
+    return desc_.joints[number].gains;
 }
 
-short AR60xRecvPacket::jointGetIGain(short number)
+JointState AR60xRecvPacket::jointGetState(short number)
 {
-    locker.lock();
-    int channel = desc->joints.at(number).channel;
-    int16_t value = read_int16(channel * 16 + JointIGaneAddress);
-    locker.unlock();
-    return value;
-}
+    JointState state;
 
-// TODO : возвращать не в short!!!
-short AR60xRecvPacket::jointGetState(short number)
-{
-    locker.lock();
-    int channel = desc->joints.at(number).channel;
-    int16_t value = read_int16(channel * 16 + JointStateAddress);
-    locker.unlock();
-    return value;
+    int channel = desc_.joints.at(number).channel;
+    uint8_t value = byte_array_[channel * 16 + JointStateAddress];
+    uint8_t status_mask = value & 0b11;
+
+    if(status_mask == 0b00)
+        state.state = JointState::BRAKE;
+    else if(status_mask == 0b01)
+        state.state = JointState::STOP;
+    else if(status_mask == 0b10)
+        state.state = JointState::RELAX;
+    else if(status_mask == 0b11)
+        state.state = JointState::TRACE;
+
+    state.isBeyondLowerLimit = value & (1 << 4);
+    state.isBeyondUpperLimit = value & (1 << 5);
+    state.controlType = (value & (1<<7)) ? JointState::POSITION_CONTROl : JointState::TORQUE_CONTROL;
+
+    return state;
 }
 
 double AR60xRecvPacket::jointGetLowerLimit(uint8_t number)
 {
     int16_t value;
-    locker.lock();
-    int channel = desc->joints.at(number).channel;
-    if(desc->joints.at(number).isReverse)
-        value = -1 * read_int16(channel * 16 + JointUpperLimitAddress);
+    
+    int channel = desc_.joints.at(number).channel;
+    if(desc_.joints.at(number).isReverse)
+        value = -read_int16(channel * 16 + JointUpperLimitAddress);
     else
         value = read_int16(channel * 16 + JointLowerLimitAddress);
-    locker.unlock();
-    return value;
+    
+    return  uint16_to_angle(value);
 }
 
 double AR60xRecvPacket::jointGetUpperLimit(uint8_t number)
 {
     int16_t value;
-    locker.lock();
-    int channel = desc->joints.at(number).channel;
-    if(desc->joints.at(number).isReverse)
-        value = -1 * read_int16(channel * 16 + JointLowerLimitAddress);
+    
+    int channel = desc_.joints.at(number).channel;
+    if(desc_.joints.at(number).isReverse)
+        value = -read_int16(channel * 16 + JointLowerLimitAddress);
     else
         value = read_int16(channel * 16 + JointUpperLimitAddress);
-    locker.unlock();
-    return value;
+    
+    return uint16_to_angle(value);
+}
+
+PowerState::PowerSupplyState AR60xRecvPacket::supplyGetState(PowerData::PowerSupplies supply)
+{
+    PowerState::PowerSupplyState state;
+    state.Voltage = supplyGetVoltage(supply);
+    state.Current = supplyGetCurrent(supply);
+    return state;
 }
 
 float AR60xRecvPacket::supplyGetVoltage(PowerData::PowerSupplies supply)
 {
-   locker.lock();
+   
    int address = powerStateMap.at(supply).SupplyVoltageAddress;
    float value = read_float(address) / 1000;
    if(address == Supply48VoltageAddress) value *= 10;
-   locker.unlock();
+   
    return value;
 }
 
 float AR60xRecvPacket::supplyGetCurrent(PowerData::PowerSupplies supply)
 {
-    locker.lock();
+    
     int address = powerStateMap.at(supply).SupplyCurrentAddress;
     float value = read_float(address) / 1000;
     if(address == Supply48CurrentAddress) value *= 10;
-    locker.unlock();
+    
     return value;
+}
+
+double AR60xRecvPacket::sensorGetValue(short number)
+{
+    int channel = desc_.sensors.at(number).channel;
+    int16_t value = read_int16(channel * 16 + sensorsMap.at(number));
+    return value / 100;
+}
+
+ImuData AR60xRecvPacket::sensorGetImu()
+{
+
+}
+
+LegsData AR60xRecvPacket::sensorGetLegs()
+{
+
 }
 
 

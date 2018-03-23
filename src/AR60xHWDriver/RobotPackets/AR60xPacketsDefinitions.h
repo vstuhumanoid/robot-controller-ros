@@ -11,49 +11,61 @@ typedef unsigned char BYTE;
 const uint16_t packetSize  = 1472;
 const uint16_t countChannels = 71;
 
-const uint16_t SensorYawAddress = 2;
-const uint16_t SensorPitchAddress = 4;
-const uint16_t SensorRollAddress = 6;
+//----------------------------------------------------------------------------------------------------------------------
 
-const uint16_t SensorUch0Address = 8;
-const uint16_t SensorUch1Address = 10;
-const uint16_t SensorUch2Address = 12;
-const uint16_t SensorUch3Address = 14;
+// bit offset in sensors' packet
+const uint16_t SensorYawOffset = 2;
+const uint16_t SensorPitchOffset = 4;
+const uint16_t SensorRollOffset = 6;
 
-const uint16_t SensorTxAddress = 8;
-const uint16_t SensorTyAddress = 10;
-const uint16_t SensorFzAddress = 12;
+const uint16_t SensorUch0Offset = 8;
+const uint16_t SensorUch1Offset = 10;
+const uint16_t SensorUch2Offset = 12;
+const uint16_t SensorUch3Offset = 14;
+
+const uint16_t SensorAccXOffset = 8;
+const uint16_t SensorAccYOffset = 10;
+const uint16_t SensorAccZOffset = 12;
 
 static std::map<int ,int> sensorsMap =
 {
-    {1, SensorYawAddress},
-    {2, SensorPitchAddress},
-    {3, SensorRollAddress},
-    {4, SensorTxAddress},
-    {5, SensorTyAddress},
-    {6, SensorFzAddress},
-    {7, SensorUch0Address},
-    {8, SensorUch1Address},
-    {9, SensorUch2Address},
-    {10, SensorUch3Address},
-    {11, SensorUch0Address},
-    {12, SensorUch1Address},
-    {13, SensorUch2Address},
-    {14, SensorUch3Address}
+    {1, SensorYawOffset},
+    {2, SensorPitchOffset},
+    {3, SensorRollOffset},
+    {4, SensorAccXOffset},
+    {5, SensorAccYOffset},
+    {6, SensorAccZOffset},
+    {7, SensorUch0Offset},
+    {8, SensorUch1Offset},
+    {9, SensorUch2Offset},
+    {10, SensorUch3Offset},
+    {11, SensorUch0Offset},
+    {12, SensorUch1Offset},
+    {13, SensorUch2Offset},
+    {14, SensorUch3Offset}
 };
 
-// Joint's properties shit in joint package
+//----------------------------------------------------------------------------------------------------------------------
+
+// Joint's properties offset in joint package
+// Common (Send & Receive)
 const uint8_t DeviceNumberAddress =    0;
 const uint8_t JointStateAddress =      1;
 const uint8_t JointPositionAddress =   2;
-const uint8_t JointVoltageAddress =    4;
-const uint8_t JointCurrentAddress =    6;
-const uint8_t JointOffsetAddress  =    6;
 const uint8_t JointPGainAddress =      8;
-const uint8_t JointIGaneAddress =      10;
-const uint8_t JointDGainAddress =      4;
+const uint8_t JointIGainAddress =      10;
 const uint8_t JointLowerLimitAddress = 12;
 const uint8_t JointUpperLimitAddress = 14;
+
+// Send packet
+const uint8_t JointDGainAddress =      4;
+const uint8_t JointOffsetAddress  =    6;
+
+// Receive packet
+const uint8_t JointVoltageAddress =    4;
+const uint8_t JointCurrentAddress =    6;
+
+//----------------------------------------------------------------------------------------------------------------------
 
 const uint16_t PowerDataAddress = 1408;
 

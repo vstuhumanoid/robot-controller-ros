@@ -3,10 +3,8 @@
 
 #include <string>
 
-class JointData
+struct JointData
 {
-public:
-
     /**
      * PID-controller gains
      */
@@ -25,8 +23,6 @@ public:
         double lowerLimit;
         double upperLimit;
     };
-
-    JointData();
 
     uint8_t number;         // Joint number
     uint8_t channel;        // Joint channel in package (shift in package)

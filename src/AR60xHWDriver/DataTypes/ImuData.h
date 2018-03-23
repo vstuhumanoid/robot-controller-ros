@@ -5,4 +5,13 @@
 #ifndef ROBOT_CONTROLLER_ROS_IMUDATA_H
 #define ROBOT_CONTROLLER_ROS_IMUDATA_H
 
+
+struct ImuData
+{
+    double yaw, pitch, roll;
+    double accX, accY, accZ;
+    double barometer;
+
+};
+
 #endif //ROBOT_CONTROLLER_ROS_IMUDATA_H

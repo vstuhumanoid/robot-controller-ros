@@ -9,12 +9,13 @@
 class BasePacket
 {
 public:
-    const char *getByteArray() { return byte_array_; }
+    BasePacket(AR60xDescription& desc) : desc_(desc) {}
+    const uint8_t * getByteArray() { return byte_array_; }
     int getSize(){ return packetSize; }
 
 protected:
-    AR60xDescription * desc_;
-    char byte_array_ [packetSize];
+    AR60xDescription desc_;
+    uint8_t byte_array_ [packetSize];
 };
 
 

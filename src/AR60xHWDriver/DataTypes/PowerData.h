@@ -2,11 +2,8 @@
 #define POWERDATA_H
 
 
-class PowerData
+struct PowerData
 {
-public:
-    PowerData();
-
     enum PowerSupplies
     {
         Supply6V1,

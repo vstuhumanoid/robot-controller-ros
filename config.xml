@@ -87,19 +87,30 @@
         </joint>
     </joints>
 	<sensors>
-        <sensor number="1" name="Акселерометр X" channel="14"/>
-        <sensor number="2" name="Акселерометр Y" channel="14"/>
-		<sensor number="3" name="Акселерометр Z" channel="14"/>
-		<sensor number="4" name="Гироскоп X" channel="14"/>
-		<sensor number="5" name="Гироскоп Y" channel="14"/>
-		<sensor number="6" name="Гироскоп Z" channel="14"/>
-		<sensor number="7" name="Давление на левой ноге 0" channel="15"/>
-		<sensor number="8" name="Давление на левой ноге 1" channel="15"/>
-		<sensor number="9" name="Давление на левой ноге 2" channel="15"/>
-		<sensor number="10" name="Давление на левой ноге 3" channel="15"/>
-		<sensor number="11" name="Давление на правой ноге 0" channel="16"/>
-		<sensor number="12" name="Давление на правой ноге 1" channel="16"/>
-		<sensor number="13" name="Давление на правой ноге 2" channel="16"/>
-		<sensor number="14" name="Давление на правой ноге 3" channel="16"/>
+        <group id="1" name="Аккселерометр" channel="14">
+            <sensor number="1" name="X"/>
+            <sensor number="2" name="Y"/>
+            <sensor number="3" name="Z"/>
+        </group>
+
+        <group id="2" name="Гироскоп" channel="14">
+            <sensor number="4" name="X"/>
+            <sensor number="5" name="Y"/>
+            <sensor number="6" name="Z"/>
+        </group>
+
+        <group id="3" name="Давление на левой ноге" channel="14">
+            <sensor number="7" name="0"/>
+            <sensor number="8" name="1"/>
+            <sensor number="9" name="2"/>
+            <sensor number="10" name="3"/>
+        </group>
+
+        <group id="4" name="Давление на правой ноге" channel="14">
+            <sensor number="11" name="0"/>
+            <sensor number="12" name="1"/>
+            <sensor number="13" name="2"/>
+            <sensor number="14" name="3"/>
+        </group>
     </sensors>
 </config>

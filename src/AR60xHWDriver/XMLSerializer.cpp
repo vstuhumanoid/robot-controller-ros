@@ -15,14 +15,7 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
     }
 
     XMLElement *root = document.FirstChildElement();
-
-    XMLElement *connection = 0;
-    XMLElement *joints = 0;
-    XMLElement *sensors = 0;
-    XMLElement *jointData = 0;
-    XMLElement *sensorData = 0;
-
-    connection = root->FirstChildElement("connection");
+    XMLElement* connection = root->FirstChildElement("connection");
 
     ConnectionData connectionData;
     const char* host = connection->Attribute("host");
@@ -31,14 +24,14 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
     connection->QueryAttribute("send_delay_", &connectionData.sendDelay);
     connection->QueryAttribute("sendPort", &connectionData.sendPort);
 
-    joints = root->FirstChildElement("joints");
-    jointData = joints->FirstChildElement("joint");
+    XMLElement* joints = root->FirstChildElement("joints");
+    XMLElement* jointData = joints->FirstChildElement("joint");
 
     std::map <int, JointData> jointsMap;
 
     while(jointData != nullptr)
     {
-        // FUCK TinyXML BECOUSE IN DOESN'T SUPPORT STDINT
+        // FUCK TinyXML BECAUSE IN DOESN'T SUPPORT STDINT
 
         JointData joint;
 
@@ -75,22 +68,25 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
         jointData = jointData->NextSiblingElement("joint");
     }
 
-    sensors = root->FirstChildElement("sensors");
-    sensorData = sensors->FirstChildElement("sensor");
+    XMLElement* sensors = root->FirstChildElement("sensors");
+    XMLElement* sensorsGroupData = sensors->FirstChildElement("group");
 
-    std::map <int, SensorData> sensorsMap;
+    std::map <int, SensorsGroup> sensorsMap;
 
-    while(sensorData != nullptr)
+    while(sensorsGroupData != nullptr)
     {
-        SensorData sensor;
-        sensorData->QueryAttribute("number", &sensor.number);
-        const char* name = sensorData->Attribute("name");
-        sensor.name = std::string(name);
-        sensorData->QueryAttribute("channel", &sensor.channel);
+        SensorsGroup sensorsGroup;
+        sensorsGroupData->QueryAttribute("id", &sensorsGroup.id);
+        sensorsGroup.name = sensorsGroupData->Attribute("name");
+        sensorsGroupData->QueryAttribute("channel", &sensorsGroup.channel);
 
-        sensorsMap[sensor.number] = sensor;
-
-        sensorData = sensorData->NextSiblingElement("sensor");
+        XMLElement* sensorData = sensorsGroupData->FirstChildElement("sensor");
+        while(sensorData != nullptr)
+        {
+            SensorData sensor;
+            sensor.name = sensorData->Attribute("name");
+            sensorData->QueryAttribute("number", &sensor.number);
+        }
     }
 
     desc->joints = jointsMap;
@@ -114,9 +110,10 @@ bool XMLSerializer::serialize(std::string fileName, AR60xDescription * desc, Con
 
     XMLElement *joints = document.NewElement("joints");
 
-    for(auto it = desc->joints.begin(); it != desc->joints.end(); ++it)
+    //for(auto it = desc->joints.begin(); it != desc->joints.end(); ++it)
+    for(auto j: desc->joints)
     {
-        JointData joint = (*it).second;
+        JointData joint = j.second;
 
         XMLElement *jointData = document.NewElement("joint");
         jointData->SetAttribute("number", joint.number);
@@ -144,16 +141,22 @@ bool XMLSerializer::serialize(std::string fileName, AR60xDescription * desc, Con
     root->InsertEndChild(joints);
     XMLElement *sensors = document.NewElement("sensors");
 
-    for(auto it = desc->sensors.begin(); it != desc->sensors.end(); ++it)
+    for(auto group: desc->sensors)
     {
-        SensorData sensor = (*it).second;
+        XMLElement *sensorGroup = document.NewElement("group");
+        sensorGroup->SetAttribute("id", group.second.id);
+        sensorGroup->SetAttribute("name", group.second.name.c_str());
+        sensorGroup->SetAttribute("channel", group.second.channel);
 
-        XMLElement *sensorData = document.NewElement("sensor");
-        sensorData->SetAttribute("number", sensor.number);
-        sensorData->SetAttribute("name", sensor.name.c_str() );
-        sensorData->SetAttribute("channel", sensor.channel);
+        for(auto sensor: group.second.sensors)
+        {
+            XMLElement* sensorData = document.NewElement("sensor");
+            sensorData->SetAttribute("number", sensor.number);
+            sensorData->SetAttribute("name", sensor.name.c_str());
+            sensorGroup->InsertEndChild(sensorData);
+        }
 
-        sensors->InsertEndChild(sensorData);
+        sensors->InsertEndChild(sensorGroup);
     }
 
     root->InsertEndChild(sensors);

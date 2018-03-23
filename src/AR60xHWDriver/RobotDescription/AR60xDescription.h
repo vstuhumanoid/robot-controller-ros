@@ -2,9 +2,8 @@
 #define AR60XDESCRIPTION_H
 
 #include <map>
-
-#include "../DataTypes/JointData.h"
-#include "../DataTypes/SensorData.h"
+#include <DataTypes/JointData.h>
+#include <DataTypes/SensorsGroup.h>
 
 
 /**
@@ -16,7 +15,7 @@ public:
 
     AR60xDescription();
 
-    std::map<int, SensorData> sensors;
+    std::map<int, SensorsGroup> sensors;
     std::map<int, JointData> joints;
 };
 

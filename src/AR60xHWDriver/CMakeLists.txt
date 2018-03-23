@@ -12,13 +12,13 @@ add_library(${PROJECT_NAME} STATIC
         AR60xHWDriver.cpp
         XMLSerializer.cpp
         UDPConnection.cpp
-        DataTypes/ConnectionData.cpp
-        DataTypes/JointData.cpp
-        DataTypes/JointState.cpp
-        DataTypes/PowerData.cpp
-        DataTypes/PowerState.cpp
-        DataTypes/SensorData.cpp
-        DataTypes/SensorState.cpp
+        DataTypes/ConnectionData.h
+        DataTypes/ImuData.h
+        DataTypes/JointData.h
+        DataTypes/JointState.h
+        DataTypes/LegsData.h
+        DataTypes/PowerData.h
+        DataTypes/PowerState.h
         RobotDescription/AR60xDescription.cpp
         RobotPackets/BasePacket.cpp
         RobotPackets/AR60xRecvPacket.cpp
@@ -26,7 +26,7 @@ add_library(${PROJECT_NAME} STATIC
         HardwareInterfaces/IAR60xJointControl.h
         HardwareInterfaces/IAR60xPowerControl.h
         HardwareInterfaces/IAR60xSensorState.h
-        HardwareInterfaces/IAR60xSensorState.h)
+        RobotPackets/AR60xPacketsDefinitions.h)
 
 
 target_link_libraries(${PROJECT_NAME}

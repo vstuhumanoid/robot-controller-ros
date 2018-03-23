@@ -3,11 +3,8 @@
 
 #include <string>
 
-class ConnectionData
+struct ConnectionData
 {
-public:
-    ConnectionData();
-
     std::string host;
     int sendPort;
     int recvPort;
