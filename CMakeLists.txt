@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(robot-controller-ros)
+project(robot_controller_ros)
 
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)
@@ -15,8 +15,20 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   roslib
+  message_generation
 )
 
+
+add_message_files(
+        FILES
+        supply_state.msg
+        robot_supply_state.msg
+)
+
+generate_messages(
+        DEPENDENCIES
+        std_msgs
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -24,7 +36,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES robot-controller-ros
-#  CATKIN_DEPENDS roscpp sensor_msgs std_msgs roslib
+   CATKIN_DEPENDS roscpp sensor_msgs std_msgs roslib message_runtime
 #  DEPENDS system_lib
 )
 
@@ -39,5 +51,6 @@ include_directories(
 
 add_subdirectory(src/AR60xHWDriver)
 add_subdirectory(src/AR60x_driver)
+
 
 add_executable(wtf src/wtf.cpp)

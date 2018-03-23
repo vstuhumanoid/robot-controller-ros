@@ -1,0 +1,2 @@
+float32 Voltage
+float32 Current
