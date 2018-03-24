@@ -17,14 +17,26 @@
 #include <exception>
 #include <mutex>
 
-
+/**
+ * @brief Main AR60x robot driver class
+ *
+ * Provide methods to control robot's joints, power supply and
+ * get sensors' data
+ *
+ * Functions:
+ *  - Joints control: set position, set limits and offset (zero position)
+ *  - Power supply control: on/off power sources, get voltage and current for
+ *       every power source and every joint's motor
+ *  - Get sensors data
+ *  - Get sensors data
+ */
 class AR60xHWDriver :
         IAR60xJointControl,
         IAR60xPowerControl,
         IAR60xSensorState
 {
 public:
-
+    AR60xDescription desc;
     /**
      * Create new AR60x driver
      */
@@ -41,21 +53,38 @@ public:
      * Load robot's config file
      * @param fileName Path to the robot's config file
      */
-    void loadConfig(std::string fileName);
+    void LoadConfig(std::string fileName);
 
     /**
      * Save robot's config to file
      * @param fileName Path to the config file
      * @return Success
      */
-    bool saveConfig(std::string fileName);
+    bool SaveConfig(std::string fileName);
 
-    // interfaces
-    void robotConnect();
-    void robotDisconnect();
+    /**
+     *  Connect to the robot
+     */
+    void RobotConnect();
+
+    /**
+     * Disconnect from the robot
+     */
+    void RobotDisconnect();
+
+
+    /**
+     * Get robot's description (config) with information about all joints and sensors
+     * @return robot's description
+     */
+    AR60xDescription& GetRobotDesc();
 
     // ------------------------------- Joint control interface ---------------------------------------------------------
 
+    /**
+     * Set TRACE mode for all joints and set their
+     * position to 0 deg
+     */
     void SetStartPose();
 
     void JointSetSettings(uint8_t joint, JointData settings) override;
@@ -111,6 +140,13 @@ public:
     PowerState::PowerSupplyState JointGetSupplyState(uint8_t joint) override;
 
     /**
+     * Get voltage and current of specific joints
+     * @param joints List of numbers of joints
+     * @return List of power supply state
+     */
+    std::vector<PowerState::PowerSupplyState> JointsGetSupplyState(std::vector<uint8_t> joints) override;
+
+    /**
      * Get voltage and current of specific supply source (48v, 12v etc)
      * @param supply Selected supply
      * @return Supply's parameters
@@ -138,8 +174,6 @@ public:
     SensorImuState SensorGetImu() override ;
     SensorFeetState SensorGetFeet() override ;
 
-    AR60xDescription *getRobotDesc();
-
 
 private:
 
@@ -148,14 +182,11 @@ private:
 
     void init_packets();
 
-    AR60xDescription desc;
+    ConnectionData connectionData;
 
     UDPConnection *connection_;
     AR60xRecvPacket *recv_packet_;
     AR60xSendPacket *sendpacket_;
-
-    ConnectionData connectionData;
-    size_t max_recv_packet_size_;
 
     std::mutex send_mutex_, recv_mutex_;
 

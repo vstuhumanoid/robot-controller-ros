@@ -14,10 +14,11 @@ UDPConnection::UDPConnection(AR60xSendPacket& sendPacket,
     recv_locker_(recvLocker),
     send_locker_(sendLocker)
 {
-    this->send_delay_ = delay;
+    send_delay_ = delay;
+    is_running_ = false;
 
-    // bind socket to local ephemerial port
-    // TODO: Maybe robot expects fixed port
+    // bind socket to fixed local port
+    // ar600 doesn't support ephemerial port
     try
     {
         socket_.open(ip::udp::v4());
@@ -33,6 +34,9 @@ UDPConnection::UDPConnection(AR60xSendPacket& sendPacket,
 UDPConnection::~UDPConnection()
 {
     breakConnection();
+
+    if(socket_.is_open())
+        socket_.close();
 }
 
 

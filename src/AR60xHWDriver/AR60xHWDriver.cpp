@@ -12,7 +12,7 @@ AR60xHWDriver::AR60xHWDriver():
 
 AR60xHWDriver::AR60xHWDriver(std::string config_filename) : AR60xHWDriver()
 {
-    loadConfig(config_filename);
+    LoadConfig(config_filename);
 }
 
 AR60xHWDriver::~AR60xHWDriver()
@@ -37,7 +37,7 @@ AR60xHWDriver::~AR60xHWDriver()
     }
 }
 
-void AR60xHWDriver::loadConfig(std::string fileName)
+void AR60xHWDriver::LoadConfig(std::string fileName)
 {
     XMLSerializer serializer;
     if(!serializer.deserialize(fileName, &desc, &connectionData))
@@ -49,7 +49,7 @@ void AR60xHWDriver::loadConfig(std::string fileName)
     init_packets();
 }
 
-bool AR60xHWDriver::saveConfig(std::string fileName)
+bool AR60xHWDriver::SaveConfig(std::string fileName)
 {
     XMLSerializer serializer;
     return serializer.serialize(fileName, &desc, &connectionData);
@@ -67,15 +67,21 @@ void AR60xHWDriver::init_packets()
 }
 
 
+AR60xDescription& AR60xHWDriver::GetRobotDesc()
+{
+    return desc;
+}
+
+
 // ------------------------------ connection --------------------------------------------
 
 
-void AR60xHWDriver::robotConnect()
+void AR60xHWDriver::RobotConnect()
 {
     connection_->connectToHost(connectionData.host, connectionData.robotPort);
 }
 
-void AR60xHWDriver::robotDisconnect()
+void AR60xHWDriver::RobotDisconnect()
 {
     connection_->breakConnection();
 }
@@ -397,6 +403,18 @@ PowerState::PowerSupplyState AR60xHWDriver::JointGetSupplyState(uint8_t joint)
     return recv_packet_->jointGetSupplyState(joint);
 }
 
+
+
+std::vector<PowerState::PowerSupplyState> AR60xHWDriver::JointsGetSupplyState(std::vector<uint8_t> joints)
+{
+    RECV_GUARD;
+    std::vector<PowerState::PowerSupplyState> state(joints.size());
+    for(int i = 0; i<joints.size(); i++)
+        state[i] = recv_packet_->jointGetSupplyState(joints[i]);
+
+    return state;
+}
+
 PowerState::PowerSupplyState AR60xHWDriver::PowerGetSupplyState(PowerData::PowerSupplies supply)
 {
     RECV_GUARD;
@@ -414,8 +432,9 @@ void AR60xHWDriver::SupplySetOnOff(PowerData::PowerSupplies supply, bool onOffSt
 
 bool AR60xHWDriver::SupplyGetOnOff(PowerData::PowerSupplies supply)
 {
-    RECV_GUARD;
+    //RECV_GUARD;
     //TODO: нет метода в recvpacket
+    throw std::runtime_error("Not implemented");
 }
 
 // ------------------------------ sensorGroups -----------------------------------------------
@@ -438,9 +457,4 @@ SensorFeetState AR60xHWDriver::SensorGetFeet()
     return recv_packet_->sensorGetFeet();
 }
 
-
-AR60xDescription *AR60xHWDriver::getRobotDesc()
-{
-    return &desc;
-}
 

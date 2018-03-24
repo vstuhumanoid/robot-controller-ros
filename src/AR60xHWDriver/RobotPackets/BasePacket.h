@@ -14,7 +14,7 @@ public:
     int getSize(){ return packetSize; }
 
 protected:
-    AR60xDescription desc_;
+    AR60xDescription& desc_;
     uint8_t byte_array_ [packetSize];
 };
 

@@ -12,8 +12,10 @@
 class AR60xDescription
 {
 public:
+    AR60xDescription(){
 
-    AR60xDescription();
+    }
+    AR60xDescription(const AR60xDescription&) = delete;
 
     std::map<int, SensorsGroupData> sensorGroups;
     std::map<int, JointData> joints;

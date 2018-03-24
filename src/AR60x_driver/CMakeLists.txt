@@ -1,5 +1,6 @@
 project(AR60x_driver)
 add_executable(AR60x_driver AR60x_driver.cpp
+        BaseController/BaseController.cpp
         PowerController/PowerController.cpp)
 
 target_include_directories(AR60x_driver PRIVATE

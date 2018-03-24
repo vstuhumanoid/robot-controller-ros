@@ -3,6 +3,8 @@
 
 #include <string>
 #include <thread>
+#include <vector>
+#include <cstdint>
 #include <ros/ros.h>
 #include <std_msgs/builtin_bool.h>
 #include <AR60xHWDriver.h>
@@ -10,6 +12,7 @@
 #include <robot_controller_ros/robot_supply_state.h>
 #include <robot_controller_ros/supply_state.h>
 #include <robot_controller_ros/joint_supply_state.h>
+#include <BaseController/BaseController.h>
 
 using namespace robot_controller_ros;
 
@@ -25,39 +28,18 @@ using namespace robot_controller_ros;
  *  - On/off whole robot
  *
  */
-class PowerController
+class PowerController : BaseController
 {
 public:
 
     /**
      * Create new PowerController
      *
-     * Note: don't forget to init
-     */
-    PowerController();
-
-    /**
-     * Create new PowerController
-     *
-     * If driver and NodeHandler aren't accessible during object
-     * initialization, you must pass them later PowerController::Init() before using this
-     * object.
-     *
      * @param driver Pointer to robot driver
      * @param nh  Pointer to node handler
      * @param publishingFrequency Publishing frequency (in Hz)
      */
-    PowerController(AR60xHWDriver *driver,  ros::NodeHandle *nh,  double publishingFrequency);
-
-
-    /**
-     * Initialize driver and NodeHandle if they haven't initialized yet
-     * @param driver Pointer to robot driver
-     * @param nh  Pointer to node handler
-     * @param publishingFrequency Publishing frequency (in Hz)
-     */
-    void Init(AR60xHWDriver *driver, ros::NodeHandle *nh, double publishingFrequency);
-
+    PowerController(AR60xHWDriver& driver,  ros::NodeHandle& nh,  double publishingFrequency);
     ~PowerController();
 
     /**
@@ -77,12 +59,16 @@ private:
     void power_on();
     void power_off();
     supply_state get_supply_state(PowerData::PowerSupplies supply);
+    void publish_robot_supply_state();
+    void publish_joints_supply_state();
 
-    AR60xHWDriver* driver_;
-    ros::NodeHandle* nh_;
+
+    const std::string namespace_ = "power";
+
     std::thread publising_thread_;
     ros::Rate publishing_rate_;
     bool is_running_;
+    std::vector<uint8_t> joints_;
 
     ros::Publisher robot_supply_state_publisher_;
     ros::Publisher joints_supply_state_publiser_;

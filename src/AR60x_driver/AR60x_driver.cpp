@@ -15,17 +15,20 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "AR60x_driver");
     ros::NodeHandle nh;
 
-    PowerController power_controller(&driver, &nh, 5);
-
     // Load config and connect to robot
     string config_filename;
     nh.getParam("driver_config", config_filename);
-    driver.loadConfig(config_filename);
-    driver.robotConnect();
+    driver.LoadConfig(config_filename);
+    PowerController power_controller(driver, nh, 5);
 
+    driver.RobotConnect();
     power_controller.Start();
 
-    ros::spin();
+    while(ros::ok())
+    {
+        ros::spinOnce();
+    }
+
 
     return 0;
 }

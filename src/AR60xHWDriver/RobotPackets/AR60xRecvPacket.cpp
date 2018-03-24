@@ -116,6 +116,7 @@ float AR60xRecvPacket::supplyGetCurrent(PowerData::PowerSupplies supply)
 double AR60xRecvPacket::sensorGetValue(short number)
 {
     //TODO: Invalid. Number - sensor, not group
+    throw std::runtime_error("Not implemented");
     int channel = desc_.sensorGroups[number].channel;
     int16_t value = read_int16(channel * 16 + sensorsMap.at(number));
     return value / 100;

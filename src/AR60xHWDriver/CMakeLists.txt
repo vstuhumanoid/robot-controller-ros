@@ -18,7 +18,6 @@ add_library(${PROJECT_NAME} STATIC
         DataTypes/PowerState.h
         DataTypes/SensorData.h
         DataTypes/SensorsGroupData.h
-        RobotDescription/AR60xDescription.cpp
         RobotPackets/BasePacket.cpp
         RobotPackets/AR60xRecvPacket.cpp
         RobotPackets/AR60xSendPacket.cpp
