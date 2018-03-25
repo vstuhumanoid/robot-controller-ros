@@ -6,5 +6,5 @@
 #
 # Note: AR600 using joints' numbers as names
 
-string[] name
-supply_state[] state
+string[] names
+SupplyState[] states

@@ -21,14 +21,18 @@ find_package(catkin REQUIRED COMPONENTS
 
 add_message_files(
         FILES
-        supply_state.msg
-        robot_supply_state.msg
-        joint_supply_state.msg
+        SupplyState.msg
+        RobotSupplyState.msg
+        JointsSupplyState.msg
+        Pid.msg
+        JointsCommand.msg
+        FeetSensors.msg
 )
 
 generate_messages(
         DEPENDENCIES
         std_msgs
+        geometry_msgs
 )
 
 ###################################

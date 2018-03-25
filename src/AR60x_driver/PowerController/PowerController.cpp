@@ -20,8 +20,8 @@ PowerController::PowerController(AR60xHWDriver& driver, ros::NodeHandle& nh, dou
 
     is_running_ = false;
 
-    robot_supply_state_publisher_ = nh.advertise<robot_supply_state>( namespace_ + "/sources_state", 100);
-    joints_supply_state_publiser_ = nh.advertise<joint_supply_state>(namespace_  + "/joints_state", 100);
+    robot_supply_state_publisher_ = nh.advertise<RobotSupplyState>( namespace_ + "/sources_state", 100);
+    joints_supply_state_publiser_ = nh.advertise<JointsSupplyState>(namespace_  + "/joints_state", 100);
 
     power_commands_subscriber_ = nh.subscribe<std_msgs::Bool>(namespace_ + "/command", 100,
                                                                &PowerController::robot_supply_command_cb, this);
@@ -120,9 +120,9 @@ void PowerController::power_off()
 }
 
 
-supply_state PowerController::get_supply_state(PowerData::PowerSupplies supply)
+SupplyState PowerController::get_supply_state(PowerData::PowerSupplies supply)
 {
-    supply_state ros_state;
+    SupplyState ros_state;
     auto state = driver_.PowerGetSupplyState(supply);
     ros_state.Current = state.Current;
     ros_state.Voltage = state.Voltage;
@@ -131,7 +131,7 @@ supply_state PowerController::get_supply_state(PowerData::PowerSupplies supply)
 
 void PowerController::publish_robot_supply_state()
 {
-    robot_supply_state msg;
+    RobotSupplyState msg;
     msg.S48 = get_supply_state(PowerData::Supply48V);
     msg.S12 = get_supply_state(PowerData::Supply12V);
     msg.S8_1 = get_supply_state(PowerData::Supply8V1);
@@ -143,16 +143,16 @@ void PowerController::publish_robot_supply_state()
 
 void PowerController::publish_joints_supply_state()
 {
-    joint_supply_state msg;
+    JointsSupplyState msg;
     auto state = driver_.JointsGetSupplyState(joints_);
-    msg.name.resize(state.size());
-    msg.state.resize(state.size());
+    msg.names.resize(state.size());
+    msg.states.resize(state.size());
 
     for(int i = 0; i < state.size(); i++)
     {
-        msg.name[i] = std::to_string(joints_[i]);
-        msg.state[i].Voltage = state[i].Voltage;
-        msg.state[i].Current = state[i].Current;
+        msg.names[i] = std::to_string(joints_[i]);
+        msg.states[i].Voltage = state[i].Voltage;
+        msg.states[i].Current = state[i].Current;
     }
 
     joints_supply_state_publiser_.publish(msg);
