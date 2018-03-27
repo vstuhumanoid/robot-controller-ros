@@ -4,7 +4,7 @@ AR60xSendPacket::AR60xSendPacket(AR60xDescription& robotDesc) : BasePacket(robot
 {
     memset(byte_array_, 0, packetSize);
 
-    for (auto &it : desc_.joints)
+    /*for (auto &it : desc_.joints)
     {
         JointData joint = it.second;
         write_int16(joint.channel * 16, joint.number);
@@ -22,63 +22,12 @@ AR60xSendPacket::AR60xSendPacket(AR60xDescription& robotDesc) : BasePacket(robot
 
     for(auto& sensorGroup: desc_.sensorGroups)
         for(auto& sensor: sensorGroup.second.sensors)
-            sensorSetOffset(sensorGroup.second.id, sensor.number, sensor.offset);
+            sensorSetOffset(sensorGroup.second.id, sensor.number, sensor.offset);*/
+
+    //TODO: Send packet init
 }
 
-
-
-
-
-
-void AR60xSendPacket::jointSetState(uint8_t number, JointState state)
-{
-    short channel = desc_.joints[number].channel;
-    bool isEnable = desc_.joints[number].isEnable;
-    uint8_t* status = &byte_array_[channel * 16 + 1];
-
-    // shit bit magic
-    switch (state.state)
-    {
-        case JointState::MotorState::BRAKE:
-            *status |= 0b00;
-            break;
-        case JointState::MotorState::STOP:
-            *status |= 0b01;
-            break;
-        case JointState::MotorState::RELAX:
-            *status |= 0b10;
-            break;
-        case JointState::MotorState::TRACE:
-            if(isEnable) *status |= 0b11;
-            break;
-        default:
-            break;
-    }
-
-    if(state.controlType == JointState::ControlType::POSITION_CONTROl)
-        *status &= ~(1 << 7);
-    else if(state.controlType == JointState::ControlType::TORQUE_CONTROL)
-        *status |= (1 << 7);
-}
-
-void AR60xSendPacket::supplySetOff(PowerData::PowerSupplies supply)
-{
-    //TODO: Check invalid value. Invalid value casted to enum = UB
-    byte_array_[PowerDataAddress + 1] &= (255 - (1 << supply));
-
-}
-
-void AR60xSendPacket::supplySetOn(PowerData::PowerSupplies supply)
-{
-    //TODO: Check invalid value. Invalid value casted to enum = UB
-    byte_array_[PowerDataAddress + 1] |= 1 << supply;
-}
-
-void AR60xSendPacket::sensorSetOffset(uint8_t groupId, uint8_t number, double value)
-{
-    uint8_t channel = desc_.sensorGroups[groupId].channel;
-    write_int16(channel * 16 + sensorsMap[number], value * 100);
-}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void AR60xSendPacket::sensorSetImuOffset(SensorImuState data)
 {
@@ -109,62 +58,6 @@ void AR60xSendPacket::sensorSetFootOffset(SensorFeetState::FootData data, uint8_
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void AR60xSendPacket::JointsSetPosition(robot_controller_ros::JointsCommand command)
-{
-    if((command.names.size() != command.positions.size()) && (command.pids.size() == 0 || command.pids.size() != command.names.size()))
-    {
-        ROS_ERROR_STREAM("JointsSetCommand: names and positions vectors should be same size. pids should be zero or same size");
-        ROS_ERROR_STREAM("Ignoring command");
-        return;
-    }
-
-    for(int i = 0; i < command.names.size(); i++)
-    {
-        JointData& joint = desc_.joints[atoi(command.names[i].c_str())];
-        jointSetPosition(joint, command.positions[i]);
-
-        if(command.pids.size() > 0)
-            jointSetPIDGains(joint, command.pids[i]);
-    }
-}
-
-void AR60xSendPacket::JointsSetParams(robot_controller_ros::JointsParams params)
-{
-    if(params.names.size() != params.params.size())
-    {
-        ROS_ERROR_STREAM("JointSetParams: names and params vectors should be same size");
-        ROS_ERROR_STREAM("Ignoring command");
-        return;
-    }
-
-    for(int i = 0; i < params.names.size(); i++)
-    {
-        JointData& joint = desc_.joints[atoi(params.names[i].c_str())];
-
-        jointSetReverse(joint, params.params[i].reverse);
-        jointSetLimits(joint, params.params[i].lower_limit, params.params[i].upper_limit);
-        jointSetOffset(joint, params.params[i].offset);
-    }
-}
-
-void AR60xSendPacket::JointsSetMode(robot_controller_ros::JointsMode mode)
-{
-    if(mode.names.size() != mode.modes.size())
-    {
-        ROS_ERROR_STREAM("JointSetParams: names and modes vectors should be same size");
-        ROS_ERROR_STREAM("Ignoring command");
-        return;
-    }
-
-    for(int i = 0; i<mode.names.size(); i++)
-    {
-        JointData& joint = desc_.joints[atoi(mode.names[i].c_str())];
-
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void AR60xSendPacket::jointSetPosition(JointData& joint, double value)
 {
     if(value < joint.lower_limit)
@@ -178,7 +71,7 @@ void AR60xSendPacket::jointSetPosition(JointData& joint, double value)
     write_int16(joint.channel * 16 + JointPositionAddress, angle_to_uint16(value));
 }
 
-void AR60xSendPacket::jointSetPIDGains(JointData& joint, robot_controller_ros::Pid gains)
+void AR60xSendPacket::jointSetPIDGains(JointData& joint, robot_controller_ros::TypePid gains)
 {
     joint.gains = gains;
 
@@ -214,14 +107,54 @@ void AR60xSendPacket::jointSetLimits(JointData& joint, double lower, double uppe
 
 void AR60xSendPacket::jointSetOffset(JointData& joint, double value)
 {
+    joint.offset = value;
     write_int16(joint.channel * 16 + JointOffsetAddress, angle_to_uint16(value));
 }
 
 
-void AR60xSendPacket::jointSetMode(JointData& joint)
+void AR60xSendPacket::jointSetMode(JointData& joint, robot_controller_ros::TypeJointMode mode)
 {
-    
+    uint8_t* status = &byte_array_[joint.channel * 16 + 1];
+
+    switch (mode.mode)
+    {
+        case TypeJointMode::BREAK:
+            *status |= 0b00;
+            break;
+        case TypeJointMode::STOP:
+            *status |= 0b01;
+            break;
+        case TypeJointMode::RELAX:
+            *status |= 0b10;
+            break;
+        case TypeJointMode::TRACE:
+            if(joint.isEnable) *status |= 0b11;
+            break;
+        default:
+            break;
+    }
+
+    // TODO: Control type
+
+    /*if(state.controlType == JointState::ControlType::POSITION_CONTROl)
+        *status &= ~(1 << 7);
+    else if(state.controlType == JointState::ControlType::TORQUE_CONTROL)
+        *status |= (1 << 7);*/
 }
+
+void AR60xSendPacket::supplySetOnOff(PowerData::PowerSupplies supply, bool onOffState)
+{
+    //TODO: Check invalid value. Invalid value casted to enum = UB
+
+    if(onOffState)
+        byte_array_[PowerDataAddress + 1] |= 1 << supply;
+    else
+        byte_array_[PowerDataAddress + 1] &= ~(1 << supply);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 void AR60xSendPacket::write_int16(uint16_t address, int16_t value)
 {
@@ -233,6 +166,7 @@ short AR60xSendPacket::angle_to_uint16(double angle)
 {
     return (short)(angle * 100);
 }
+
 
 
 

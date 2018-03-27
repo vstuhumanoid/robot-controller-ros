@@ -2,7 +2,7 @@
 #define JOINTDATA_H
 
 #include <string>
-#include <robot_controller_ros/Pid.h>
+#include <robot_controller_ros/TypePid.h>
 
 using namespace robot_controller_ros;
 
@@ -11,7 +11,7 @@ struct JointData
     uint8_t number;         // Joint number
     uint8_t channel;        // Joint channel in package (shift in package)
     std::string name;       // Joint name
-    Pid gains;              // PID-controller gains
+    TypePid gains;          // PID-controller gains
     double lower_limit;     // Angle limits
     double upper_limit;
     double offset;          // Initial position

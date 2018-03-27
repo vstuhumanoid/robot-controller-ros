@@ -48,16 +48,16 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
         XMLElement *jointGains = jointData->FirstChildElement("gains");
         int gain;
         jointGains->QueryAttribute("proportional", &gain);
-        joint.gains.proportional = gain;
+        joint.gains.p = gain;
         jointGains->QueryAttribute("integral", &gain);
-        joint.gains.integral = gain;
+        joint.gains.i = gain;
         jointGains->QueryAttribute("derivative", &gain);
-        joint.gains.derivative = gain;
+        joint.gains.d = gain;
 
         XMLElement *jointLimits = jointData->FirstChildElement("limits");
 
-        jointLimits->QueryAttribute("lowerLimit", &joint.limits.lowerLimit);
-        jointLimits->QueryAttribute("upperLimit", &joint.limits.upperLimit);
+        jointLimits->QueryAttribute("lowerLimit", &joint.lower_limit);
+        jointLimits->QueryAttribute("upperLimit", &joint.upper_limit);
 
         jointData->QueryAttribute("offset", &joint.offset);
         jointData->QueryAttribute("isReverse", &joint.isReverse);
@@ -132,14 +132,14 @@ bool XMLSerializer::serialize(std::string fileName, AR60xDescription * desc, Con
         jointData->SetAttribute("channel", joint.channel);
 
         XMLElement *jointGains = document.NewElement("gains");
-        jointGains->SetAttribute("proportional", joint.gains.proportional);
-        jointGains->SetAttribute("integral", joint.gains.integral);
-        jointGains->SetAttribute("derivative", joint.gains.derivative);
+        jointGains->SetAttribute("proportional", joint.gains.p);
+        jointGains->SetAttribute("integral", joint.gains.i);
+        jointGains->SetAttribute("derivative", joint.gains.d);
         jointData->InsertEndChild(jointGains);
 
         XMLElement *jointLimits = document.NewElement("limits");
-        jointLimits->SetAttribute("lowerLimit", joint.limits.lowerLimit);
-        jointLimits->SetAttribute("upperLimit", joint.limits.upperLimit);
+        jointLimits->SetAttribute("lowerLimit", joint.lower_limit);
+        jointLimits->SetAttribute("upperLimit", joint.upper_limit);
         jointData->InsertEndChild(jointLimits);
 
         jointData->SetAttribute("offset", joint.offset);

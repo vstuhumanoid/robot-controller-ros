@@ -40,7 +40,7 @@ AR60xHWDriver::~AR60xHWDriver()
 void AR60xHWDriver::LoadConfig(std::string fileName)
 {
     XMLSerializer serializer;
-    if(!serializer.deserialize(fileName, &desc, &connectionData))
+    if(!serializer.deserialize(fileName, &desc_, &connectionData))
     {
         ROS_ERROR("Config parsing error");
         throw std::runtime_error("Config parsing error");
@@ -52,13 +52,13 @@ void AR60xHWDriver::LoadConfig(std::string fileName)
 bool AR60xHWDriver::SaveConfig(std::string fileName)
 {
     XMLSerializer serializer;
-    return serializer.serialize(fileName, &desc, &connectionData);
+    return serializer.serialize(fileName, &desc_, &connectionData);
 }
 
 void AR60xHWDriver::init_packets()
 {
-    sendpacket_ = new AR60xSendPacket(desc);
-    recv_packet_ = new AR60xRecvPacket(desc);
+    sendpacket_ = new AR60xSendPacket(desc_);
+    recv_packet_ = new AR60xRecvPacket(desc_);
     recv_packet_->initFromByteArray(sendpacket_->getByteArray());
     connection_ = new UDPConnection(*sendpacket_, *recv_packet_,
                                     recv_mutex_, send_mutex_,
@@ -69,7 +69,7 @@ void AR60xHWDriver::init_packets()
 
 AR60xDescription& AR60xHWDriver::GetRobotDesc()
 {
-    return desc;
+    return desc_;
 }
 
 
@@ -87,380 +87,7 @@ void AR60xHWDriver::RobotDisconnect()
 }
 
 
-// ------------------------------ joints ------------------------------------------------
-
-void AR60xHWDriver::SetStartPose()
-{
-    SEND_GUARD;
-    JointState state;
-    state.state = JointState::MotorState::TRACE;
-    state.controlType = JointState::ControlType::POSITION_CONTROl;
-
-    for(auto& joint: desc.joints)
-    {
-        //JointSetPosition(joint.second.number, 0);
-        //JointSetState(joint.second.number, JointState::MotorState::TRACE);
-        sendpacket_->jointSetPosition(joint.second.number, 0);
-        sendpacket_->jointSetState(joint.second.number, state);
-    }
-}
-
-// settings
-void AR60xHWDriver::JointSetSettings(uint8_t joint, JointData settings)
-{
-    SEND_GUARD;
-    desc.joints[joint] = settings;
-}
-
-JointData AR60xHWDriver::JointGetSettings(uint8_t joint)
-{
-    RECV_GUARD;
-    return desc.joints[joint];
-}
-
-void AR60xHWDriver::JointSetSettings(std::vector<uint8_t> joints, std::vector<JointData> settings)
-{
-    SEND_GUARD;
-    if(joints.size() != settings.size())
-        throw std::invalid_argument("Count of joints and settings must be equal");
-
-    for(int i = 0; i < joints.size(); i++)
-        desc.joints[joints[i]] = settings[i];
-}
-
-std::vector<JointData> AR60xHWDriver::JointGetSettings(std::vector<uint8_t> joints)
-{
-    RECV_GUARD;
-    std::vector<JointData> data(joints.size());
-    for(int i = 0; i<joints.size(); i++)
-        data[i] = desc.joints[joints[i]];
-}
-
-
-// position
-void AR60xHWDriver::JointSetPosition(uint8_t joint, double position)
-{
-    SEND_GUARD;
-    sendpacket_->jointSetPosition(joint, position);
-}
-
-double AR60xHWDriver::JointGetPosition(uint8_t joint)
-{
-    RECV_GUARD;
-    return recv_packet_->jointGetPosition(joint);
-}
-
-void AR60xHWDriver::JointSetPosition(std::vector<uint8_t>& joints, std::vector<double>& position)
-{
-    SEND_GUARD;
-    if(joints.size() != position.size())
-        throw std::invalid_argument("Count of joints and position must be equal");
-
-    for(int i = 0; i < joints.size(); i++)
-        sendpacket_->jointSetPosition(joints[i], position[i]);
-}
-
-std::vector<double> AR60xHWDriver::JointGetPosition(std::vector<uint8_t>& joints)
-{
-    RECV_GUARD;
-    std::vector<double> positions(joints.size());
-    for(int i = 0; i < joints.size(); i++)
-        positions[i] = recv_packet_->jointGetPosition(joints[i]);
-
-    return positions;
-}
-
-
-// offset
-void AR60xHWDriver::JointSetOffset(uint8_t joint, double offset)
-{
-    SEND_GUARD;
-    desc.joints[joint].offset = offset;
-    sendpacket_->jointSetOffset(joint, offset);
-}
-
-
-double AR60xHWDriver::JointGetOffset(uint8_t joint)
-{
-    RECV_GUARD;
-    return desc.joints[joint].offset;
-}
-
-void AR60xHWDriver::JointSetOffset(std::vector<uint8_t> joints, std::vector<double> offset)
-{
-    SEND_GUARD;
-    if(joints.size() != offset.size())
-        throw std::invalid_argument("Count of joints and offset must be equal");
-
-    for(int i = 0; i < joints.size(); i++)
-    {
-        sendpacket_->jointSetOffset(joints[i], offset[i]);
-        desc.joints[joints[i]].offset = offset[i];
-    }
-}
-
-std::vector<double> AR60xHWDriver::JointGetOffset(std::vector<uint8_t> joints)
-{
-    RECV_GUARD;
-    std::vector<double> offsets(joints.size());
-    for(int i = 0; i < joints.size(); i++)
-        offsets[i] = desc.joints[joints[i]].offset;
-
-    return offsets;
-}
-
-
-// reverse
-void AR60xHWDriver::JointSetReverce(uint8_t joint, bool isReverce)
-{
-    SEND_GUARD;
-    desc.joints[joint].isReverse = isReverce;
-}
-
-bool AR60xHWDriver::JointGetReverce(uint8_t joint)
-{
-    RECV_GUARD;
-    return desc.joints[joint].isReverse;
-}
-
-void AR60xHWDriver::JointSetReverce(std::vector<uint8_t> joints, std::vector<bool> isReverse)
-{
-    SEND_GUARD;
-    if(joints.size() != isReverse.size())
-        throw std::invalid_argument("Count of joints and isReverse must be equal");
-
-    for(int i = 0; i < joints.size(); i++)
-        desc.joints[joints[i]].isReverse = isReverse[i];
-
-}
-
-std::vector<bool> AR60xHWDriver::JointGetReverce(std::vector<uint8_t> joints)
-{
-    RECV_GUARD;
-    std::vector<bool> isReverse(joints.size());
-    for(int i = 0; i<joints.size(); i++)
-        isReverse[i] = desc.joints[joints[i]].isReverse;
-
-    return isReverse;
-}
-
-
-// PID
-void AR60xHWDriver::JointSetPIDGains(uint8_t joint, JointData::PIDGains gains)
-{
-    SEND_GUARD;
-    //TODO: Write to desc
-    sendpacket_->jointSetPIDGains(joint, gains);
-}
-
-JointData::PIDGains AR60xHWDriver::JointGetPIDGains(uint8_t joint)
-{
-    RECV_GUARD;
-    //TODO: Read real pids from robot?
-    return desc.joints[joint].gains;
-}
-
-void AR60xHWDriver::JointSetPIDGains(std::vector<uint8_t> joints, std::vector<JointData::PIDGains> gains)
-{
-    SEND_GUARD;
-    if (joints.size() != gains.size())
-        throw std::invalid_argument("Count of joints and gains must be equal");
-
-    for (int i = 0; i < joints.size(); i++)
-    {
-        //TODO: Write to desc
-        sendpacket_->jointSetPIDGains(joints[i], gains[i]);
-    }
-}
-
-std::vector<JointData::PIDGains> AR60xHWDriver::JointGetPIDGains(std::vector<uint8_t> joints)
-{
-    RECV_GUARD;
-    std::vector<JointData::PIDGains> pids(joints.size());
-    for(int i = 0; i<joints.size(); i++)
-        pids[i] = desc.joints[joints[i]].gains;
-
-    return pids;
-}
-
-
-// limits
-void AR60xHWDriver::JointSetLimits(uint8_t joint, JointData::JointLimits limits)
-{
-    SEND_GUARD;
-    desc.joints[joint].limits = limits;
-    sendpacket_->jointSetLowerLimit(joint, limits.lowerLimit);
-    sendpacket_->jointSetUpperLimit(joint, limits.upperLimit);
-}
-
-// TODO: Удалить JointSettings перенсти вместо него JointInformation!!!!!
-JointData::JointLimits AR60xHWDriver::JointGetLimits(uint8_t joint)
-{
-    RECV_GUARD;
-    return desc.joints[joint].limits;
-}
-
-void AR60xHWDriver::JointSetLimits(std::vector<uint8_t> joints, std::vector<JointData::JointLimits> limits)
-{
-    SEND_GUARD;
-    if(joints.size() != limits.size())
-        throw std::invalid_argument("Count of joints and limits must be equal");
-
-    for(int i = 0; i<joints.size(); i++)
-    {
-        desc.joints[joints[i]].limits = limits[i];
-        sendpacket_->jointSetLowerLimit(joints[i], limits[i].lowerLimit);
-        sendpacket_->jointSetUpperLimit(joints[i], limits[i].upperLimit);
-    }
-}
-
-std::vector<JointData::JointLimits> AR60xHWDriver::JointGetLimits(std::vector<uint8_t> joints)
-{
-    RECV_GUARD;
-    std::vector<JointData::JointLimits> limits(joints.size());
-    for(int i = 0; i<joints.size(); i++)
-        limits[i] = desc.joints[joints[i]].limits;
-
-    return limits;
-}
-
-
-// enable
-void AR60xHWDriver::JointSetEnable(uint8_t joint, bool isEnable)
-{
-    SEND_GUARD;
-    desc.joints[joint].isEnable = isEnable;
-}
-
-bool AR60xHWDriver::JointGetEnable(uint8_t joint)
-{
-    RECV_GUARD;
-    return desc.joints[joint].isEnable;
-}
-
-void AR60xHWDriver::JointSetEnable(std::vector<uint8_t> joints, std::vector<bool> isEnable)
-{
-    SEND_GUARD;
-    if(joints.size() != isEnable.size())
-        throw std::invalid_argument("Count of joints and isEnable must be equal");
-
-    for(int i = 0; i<joints.size(); i++)
-        desc.joints[joints[i]].isEnable = isEnable[i];
-}
-
-std::vector<bool> AR60xHWDriver::JointGetEnable(std::vector<uint8_t> joints)
-{
-    RECV_GUARD;
-    std::vector<bool> isEnable(joints.size());
-    for(int i = 0; i < joints.size(); i++)
-        isEnable[i] = desc.joints[joints[i]].isEnable;
-
-    return isEnable;
-}
-
-// state
-void AR60xHWDriver::JointSetState(uint8_t joint, JointState::MotorState motorState, JointState::ControlType controlType)
-{
-    SEND_GUARD;
-    JointState state;
-    state.state = motorState;
-    state.controlType = controlType;
-    sendpacket_->jointSetState(joint, state);
-}
-
-//TODO: проверить!!!!
-JointState AR60xHWDriver::JointGetState(uint8_t joint)
-{
-    RECV_GUARD;
-    return recv_packet_->jointGetState(joint);
-}
-
-void AR60xHWDriver::JointSetState(std::vector<uint8_t> joints, std::vector<JointState> state)
-{
-    SEND_GUARD;
-    if(joints.size() != state.size())
-        throw std::invalid_argument("Count of joints and state must be equal");
-
-    for(int i = 0; i<joints.size(); i++)
-        sendpacket_->jointSetState(joints[i], state[i]);
-}
-
-std::vector<JointState> AR60xHWDriver::JointGetState(std::vector<uint8_t> joints)
-{
-    RECV_GUARD;
-    std::vector<JointState> states(joints.size());
-    for(int  i = 0; i<joints.size(); i++)
-        states[i] = recv_packet_->jointGetState(joints[i]);
-
-    return states;
-}
-
-// ------------------------------ power control -----------------------------------------
-
-PowerState::PowerSupplyState AR60xHWDriver::JointGetSupplyState(uint8_t joint)
-{
-    RECV_GUARD;
-    return recv_packet_->jointGetSupplyState(joint);
-}
-
-
-
-std::vector<PowerState::PowerSupplyState> AR60xHWDriver::JointsGetSupplyState(std::vector<uint8_t> joints)
-{
-    RECV_GUARD;
-    std::vector<PowerState::PowerSupplyState> state(joints.size());
-    for(int i = 0; i<joints.size(); i++)
-        state[i] = recv_packet_->jointGetSupplyState(joints[i]);
-
-    return state;
-}
-
-PowerState::PowerSupplyState AR60xHWDriver::PowerGetSupplyState(PowerData::PowerSupplies supply)
-{
-    RECV_GUARD;
-    return recv_packet_->supplyGetState(supply);
-}
-
-void AR60xHWDriver::SupplySetOnOff(PowerData::PowerSupplies supply, bool onOffState)
-{
-    SEND_GUARD;
-    if(onOffState)
-        sendpacket_->supplySetOn(supply);
-    else
-        sendpacket_->supplySetOff(supply);
-}
-
-bool AR60xHWDriver::SupplyGetOnOff(PowerData::PowerSupplies supply)
-{
-    //RECV_GUARD;
-    //TODO: нет метода в recvpacket
-    throw std::runtime_error("Not implemented");
-}
-
-// ------------------------------ sensorGroups -----------------------------------------------
-
-double AR60xHWDriver::SensorGetState(int sensor)
-{
-    RECV_GUARD;
-    return recv_packet_->sensorGetValue(sensor);
-}
-
-SensorImuState AR60xHWDriver::SensorGetImu()
-{
-    RECV_GUARD;
-    return recv_packet_->sensorGetImu();
-}
-
-SensorFeetState AR60xHWDriver::SensorGetFeet()
-{
-    RECV_GUARD;
-    return recv_packet_->sensorGetFeet();
-}
-
-
-
-
-
+////////////////////////////////// JOINTS CONTROL //////////////////////////////////////////////////////////////////////
 
 sensor_msgs::JointState AR60xHWDriver::JointsGetState()
 {
@@ -468,23 +95,78 @@ sensor_msgs::JointState AR60xHWDriver::JointsGetState()
     return recv_packet_->JointsGetState();
 }
 
-void AR60xHWDriver::JointsSetCommand(robot_controller_ros::JointsCommand command)
+void AR60xHWDriver::JointsSetPosition(robot_controller_ros::JointsCommand command)
 {
     SEND_GUARD;
 
+    if((command.names.size() != command.positions.size()) && (command.pids.size() == 0 || command.pids.size() != command.names.size()))
+    {
+        ROS_ERROR_STREAM("JointsSetCommand: names and positions vectors should be same size. pids should be zero or same size");
+        ROS_ERROR_STREAM("Ignoring command");
+        return;
+    }
 
+    for(int i = 0; i < command.names.size(); i++)
+    {
+        JointData& joint = desc_.joints[atoi(command.names[i].c_str())];
+        sendpacket_->jointSetPosition(joint, command.positions[i]);
+
+        if(command.pids.size() > 0)
+            sendpacket_->jointSetPIDGains(joint, command.pids[i]);
+    }
 }
 
 
-robot_controller_ros::JointsParams AR60xHWDriver::JointsGetParams()
+
+void AR60xHWDriver::JointsGetParams()
 {
-    return robot_controller_ros::JointsParams();
 }
+
+void AR60xHWDriver::JointsSetParams(robot_controller_ros::JointsParams params)
+{
+    SEND_GUARD;
+
+    if(params.names.size() != params.params.size())
+    {
+        ROS_ERROR_STREAM("JointSetParams: names and params vectors should be same size");
+        ROS_ERROR_STREAM("Ignoring command");
+        return;
+    }
+
+    for(int i = 0; i < params.names.size(); i++)
+    {
+        JointData& joint = desc_.joints[atoi(params.names[i].c_str())];
+
+        sendpacket_->jointSetReverse(joint, params.params[i].reverse);
+        sendpacket_->jointSetLimits(joint, params.params[i].lower_limit, params.params[i].upper_limit);
+        sendpacket_->jointSetOffset(joint, params.params[i].offset);
+        sendpacket_->jointSetMode(joint, params.params[i].mode);
+        //TODO: PIDs
+        //TODO: Enable
+    }
+}
+
+
 
 void AR60xHWDriver::JointsSetMode(robot_controller_ros::JointsMode mode)
 {
+    SEND_GUARD;
 
+    if(mode.names.size() != mode.modes.size())
+    {
+        ROS_ERROR_STREAM("JointSetParams: names and modes vectors should be same size");
+        ROS_ERROR_STREAM("Ignoring command");
+        return;
+    }
+
+    for(int i = 0; i<mode.names.size(); i++)
+    {
+        JointData& joint = desc_.joints[atoi(mode.names[i].c_str())];
+        sendpacket_->jointSetMode(joint, mode.modes[i]);
+    }
 }
+
+//////////////////////////////////// POWER SUPPLY CONTROL //////////////////////////////////////////////////////////////
 
 robot_controller_ros::SourcesSupplyState AR60xHWDriver::PowerGetSourcesSupplyState()
 {
@@ -496,4 +178,11 @@ robot_controller_ros::JointsSupplyState AR60xHWDriver::PowerGetJointsSupplyState
     return robot_controller_ros::JointsSupplyState();
 }
 
+
+void AR60xHWDriver::SupplySetOnOff(PowerData::PowerSupplies supply, bool onOffState)
+{
+    SEND_GUARD;
+
+    sendpacket_->supplySetOnOff(supply, onOffState);
+}
 

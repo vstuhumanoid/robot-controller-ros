@@ -21,9 +21,6 @@ add_library(${PROJECT_NAME} STATIC
         RobotPackets/BasePacket.cpp
         RobotPackets/AR60xRecvPacket.cpp
         RobotPackets/AR60xSendPacket.cpp
-        HardwareInterfaces/IAR60xJointControl.h
-        HardwareInterfaces/IAR60xPowerControl.h
-        HardwareInterfaces/IAR60xSensorState.h
         RobotPackets/AR60xPacketsDefinitions.h)
 
 
