@@ -4,10 +4,10 @@
 #  - 8v (2 supplies)
 #  - 6v (2 supplies)
 
-SupplyState S48
-SupplyState S12
-SupplyState S8_1
-SupplyState S8_2
-SupplyState S6_1
-SupplyState S6_2
+TypeSupplyState S48
+TypeSupplyState S12
+TypeSupplyState S8_1
+TypeSupplyState S8_2
+TypeSupplyState S6_1
+TypeSupplyState S6_2
 

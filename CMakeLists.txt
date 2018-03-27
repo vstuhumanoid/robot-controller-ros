@@ -21,12 +21,16 @@ find_package(catkin REQUIRED COMPONENTS
 
 add_message_files(
         FILES
-        SupplyState.msg
-        RobotSupplyState.msg
-        JointsSupplyState.msg
-        Pid.msg
-        JointsCommand.msg
+        TypeJointMode.msg
+        TypeJointParams.msg
+        TypePid.msg
+        TypeSupplyState.msg
         FeetSensors.msg
+        JointsCommand.msg
+        JointsParams.msg
+        JointsMode.msg
+        JointsSupplyState.msg
+        SourcesSupplyState.msg
 )
 
 generate_messages(

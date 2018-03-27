@@ -7,4 +7,4 @@
 
 string[] names
 float32[] positions
-Pid[] pids
+TypePid[] pids

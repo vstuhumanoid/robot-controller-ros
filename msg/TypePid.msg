@@ -1,4 +1,6 @@
 # This message holds PID-controller message
+#
+# This is a helper type and using as a part of other messages
 
 float32 p
 float32 i
