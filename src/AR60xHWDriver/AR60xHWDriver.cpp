@@ -458,3 +458,42 @@ SensorFeetState AR60xHWDriver::SensorGetFeet()
 }
 
 
+
+
+
+
+sensor_msgs::JointState AR60xHWDriver::JointsGetState()
+{
+    RECV_GUARD;
+    return recv_packet_->JointsGetState();
+}
+
+void AR60xHWDriver::JointsSetCommand(robot_controller_ros::JointsCommand command)
+{
+    SEND_GUARD;
+
+
+}
+
+
+robot_controller_ros::JointsParams AR60xHWDriver::JointsGetParams()
+{
+    return robot_controller_ros::JointsParams();
+}
+
+void AR60xHWDriver::JointsSetMode(robot_controller_ros::JointsMode mode)
+{
+
+}
+
+robot_controller_ros::SourcesSupplyState AR60xHWDriver::PowerGetSourcesSupplyState()
+{
+    return robot_controller_ros::SourcesSupplyState();
+}
+
+robot_controller_ros::JointsSupplyState AR60xHWDriver::PowerGetJointsSupplyState()
+{
+    return robot_controller_ros::JointsSupplyState();
+}
+
+

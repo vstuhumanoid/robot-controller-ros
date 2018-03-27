@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <cstdint>
+#include <ros/ros.h>
 
 #include "BasePacket.h"
 #include "AR60xPacketsDefinitions.h"
@@ -12,12 +13,13 @@
 #include <DataTypes/SensorImuState.h>
 #include <DataTypes/SensorFeetState.h>
 
+#include <sensor_msgs/JointState.h>
+
 class AR60xRecvPacket : public BasePacket
 {
 public:
     AR60xRecvPacket(AR60xDescription& robotDesc);
     void initFromByteArray(const uint8_t *bytes);
-
     double jointGetPosition(uint8_t number);
     JointData::PIDGains jointGetPIDGains(uint8_t number);
     JointState jointGetState(uint8_t number);
@@ -29,6 +31,10 @@ public:
     double sensorGetValue( short number );
     SensorImuState sensorGetImu();
     SensorFeetState sensorGetFeet();
+
+
+    sensor_msgs::JointState JointsGetState();
+
 
 private:
     float supplyGetVoltage(PowerData::PowerSupplies supply);

@@ -16,6 +16,15 @@
 #include <vector>
 #include <exception>
 #include <mutex>
+#include <robot_controller_ros/FeetSensors.h>
+#include <robot_controller_ros/JointsCommand.h>
+#include <robot_controller_ros/JointsMode.h>
+#include <robot_controller_ros/JointsParams.h>
+#include <robot_controller_ros/JointsSupplyState.h>
+#include <robot_controller_ros/SourcesSupplyState.h>
+#include <sensor_msgs/Imu.h>
+#include <sensor_msgs/JointState.h>
+#include <std_msgs/Bool.h>
 
 /**
  * @brief Main AR60x robot driver class
@@ -78,6 +87,78 @@ public:
      * @return robot's description
      */
     AR60xDescription& GetRobotDesc();
+
+    // ------------------------------- Joint control interface ---------------------------------------------------------
+
+    /**
+     * @brief Get all joints current state
+     *
+     * Get position, velocity and effort not supported
+     * @return
+     */
+    sensor_msgs::JointState JointsGetState();
+
+    /**
+     * Send position command to joints
+     *
+     * @param command ROS message with joints names, positions and PID-gains
+     */
+    void JointsSetCommand(robot_controller_ros::JointsCommand command);
+
+    /**
+     * Setup joints params (limits, offset, reverse)
+     * @param params ROS message with joints params
+     */
+    void JointsSetParams(robot_controller_ros::JointsParams params);
+
+    /**
+     * Get all joints params (limits, offset, reverse)
+     * @return
+     */
+    robot_controller_ros::JointsParams JointsGetParams();
+
+    /**
+     * Control joint's motor and clutch
+     * @param mode ROS message with  joint's operational mode
+     */
+    void JointsSetMode(robot_controller_ros::JointsMode mode);
+
+    // ------------------------------- Power control interface ---------------------------------------------------------
+
+    /**
+     * Get supply state (voltage, current) of all power sources
+     * @return
+     */
+    robot_controller_ros::SourcesSupplyState PowerGetSourcesSupplyState();
+
+    /**
+     * Get all joints supply state (voltage, current) of all joints
+     * @return
+     */
+    robot_controller_ros::JointsSupplyState PowerGetJointsSupplyState();
+
+    /**
+    * Set supply source on/off
+    * @param supply Selected supply
+    * @param onOffState On or off
+    */
+    void SupplySetOnOff(PowerData::PowerSupplies supply, bool onOffState) override;
+
+
+    // -------------------------------------- Sensors -------- ---------------------------------------------------------
+
+    /**
+     * Get data from IMU sensor
+     * @return
+     */
+    sensor_msgs::Imu SensorGetImu();
+
+
+    /**
+     * Get data from feet sensors
+     * @return
+     */
+    robot_controller_ros::FeetSensors SensorGetFeet();
 
     // ------------------------------- Joint control interface ---------------------------------------------------------
 
@@ -153,12 +234,6 @@ public:
      */
     PowerState::PowerSupplyState PowerGetSupplyState(PowerData::PowerSupplies supply) override;
 
-    /**
-     * Set supply source on/off
-     * @param supply Selected supply
-     * @param onOffState On or off
-     */
-    void SupplySetOnOff(PowerData::PowerSupplies supply, bool onOffState) override;
 
     /**
      * Get supply state (on/off)

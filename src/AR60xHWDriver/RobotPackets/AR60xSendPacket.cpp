@@ -26,60 +26,9 @@ AR60xSendPacket::AR60xSendPacket(AR60xDescription& robotDesc) : BasePacket(robot
 }
 
 
-void AR60xSendPacket::jointSetPosition(uint8_t number, double value)
-{
-    double lowerLimit = desc_.joints[number].limits.lowerLimit;
-    double upperLimit = desc_.joints[number].limits.upperLimit;
-    bool isReverse = desc_.joints[number].isReverse;
-    uint8_t channel = desc_.joints[number].channel;
-
-    if(value < lowerLimit)
-        value = lowerLimit;
-    else if(value > upperLimit)
-        value = upperLimit;
-
-    if(isReverse)
-        value = -value;
-
-    write_int16(channel * 16 + JointPositionAddress, angle_to_uint16(value));
-}
-
-void AR60xSendPacket::jointSetOffset(uint8_t number, double value)
-{
-    short channel = desc_.joints[number].channel;
-    write_int16(channel * 16 + JointOffsetAddress, angle_to_uint16(value));
-}
 
 
-void AR60xSendPacket::jointSetPIDGains(uint8_t number, JointData::PIDGains gains)
-{
-    short channel = desc_.joints[number].channel;
-    write_int16(channel * 16 + JointPGainAddress, gains.proportional);
-    write_int16(channel * 16 + JointIGainAddress, gains.integral);
-    write_int16(channel * 16 + JointDGainAddress, gains.derivative);
-}
 
-void AR60xSendPacket::jointSetLowerLimit(uint8_t number, double value)
-{
-    short channel = desc_.joints[number].channel;
-    bool isReverce = desc_.joints[number].isReverse;
-
-    if(isReverce)
-        write_int16(channel * 16 + JointUpperLimitAddress, angle_to_uint16(-value));
-    else
-        write_int16(channel * 16 + JointLowerLimitAddress, angle_to_uint16(value));
-}
-
-void AR60xSendPacket::jointSetUpperLimit(uint8_t number, double value)
-{
-    short channel = desc_.joints[number].channel;
-    bool isReverce = desc_.joints[number].isReverse;
-
-    if(isReverce)
-        write_int16(channel * 16 + JointLowerLimitAddress, angle_to_uint16(-value));
-    else
-        write_int16(channel * 16 + JointUpperLimitAddress, angle_to_uint16(value));
-}
 
 void AR60xSendPacket::jointSetState(uint8_t number, JointState state)
 {
@@ -157,6 +106,123 @@ void AR60xSendPacket::sensorSetFootOffset(SensorFeetState::FootData data, uint8_
     write_int16(channel * 16 + SensorUch3Offset, data.uch3 * 100);
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void AR60xSendPacket::JointsSetPosition(robot_controller_ros::JointsCommand command)
+{
+    if((command.names.size() != command.positions.size()) && (command.pids.size() == 0 || command.pids.size() != command.names.size()))
+    {
+        ROS_ERROR_STREAM("JointsSetCommand: names and positions vectors should be same size. pids should be zero or same size");
+        ROS_ERROR_STREAM("Ignoring command");
+        return;
+    }
+
+    for(int i = 0; i < command.names.size(); i++)
+    {
+        JointData& joint = desc_.joints[atoi(command.names[i].c_str())];
+        jointSetPosition(joint, command.positions[i]);
+
+        if(command.pids.size() > 0)
+            jointSetPIDGains(joint, command.pids[i]);
+    }
+}
+
+void AR60xSendPacket::JointsSetParams(robot_controller_ros::JointsParams params)
+{
+    if(params.names.size() != params.params.size())
+    {
+        ROS_ERROR_STREAM("JointSetParams: names and params vectors should be same size");
+        ROS_ERROR_STREAM("Ignoring command");
+        return;
+    }
+
+    for(int i = 0; i < params.names.size(); i++)
+    {
+        JointData& joint = desc_.joints[atoi(params.names[i].c_str())];
+
+        jointSetReverse(joint, params.params[i].reverse);
+        jointSetLimits(joint, params.params[i].lower_limit, params.params[i].upper_limit);
+        jointSetOffset(joint, params.params[i].offset);
+    }
+}
+
+void AR60xSendPacket::JointsSetMode(robot_controller_ros::JointsMode mode)
+{
+    if(mode.names.size() != mode.modes.size())
+    {
+        ROS_ERROR_STREAM("JointSetParams: names and modes vectors should be same size");
+        ROS_ERROR_STREAM("Ignoring command");
+        return;
+    }
+
+    for(int i = 0; i<mode.names.size(); i++)
+    {
+        JointData& joint = desc_.joints[atoi(mode.names[i].c_str())];
+
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void AR60xSendPacket::jointSetPosition(JointData& joint, double value)
+{
+    if(value < joint.lower_limit)
+        value = joint.lower_limit;
+    else if(value > joint.upper_limit)
+        value = joint.upper_limit;
+
+    if(joint.isReverse)
+        value = -value;
+
+    write_int16(joint.channel * 16 + JointPositionAddress, angle_to_uint16(value));
+}
+
+void AR60xSendPacket::jointSetPIDGains(JointData& joint, robot_controller_ros::Pid gains)
+{
+    joint.gains = gains;
+
+    short channel = joint.channel;
+    write_int16(channel * 16 + JointPGainAddress, gains.p);
+    write_int16(channel * 16 + JointIGainAddress, gains.i);
+    write_int16(channel * 16 + JointDGainAddress, gains.d);
+}
+
+void AR60xSendPacket::jointSetReverse(JointData &joint, bool reverse)
+{
+    joint.isReverse = reverse;
+}
+
+void AR60xSendPacket::jointSetLimits(JointData& joint, double lower, double upper)
+{
+    joint.lower_limit = lower;
+    joint.upper_limit = upper;
+
+    short channel = joint.channel;
+
+    if(joint.isReverse)
+    {
+        write_int16(channel * 16 + JointUpperLimitAddress, angle_to_uint16(-lower));
+        write_int16(channel * 16 + JointLowerLimitAddress, angle_to_uint16(-upper));
+    }
+    else
+    {
+        write_int16(channel * 16 + JointLowerLimitAddress, angle_to_uint16(lower));
+        write_int16(channel * 16 + JointUpperLimitAddress, angle_to_uint16(upper));
+    }
+}
+
+void AR60xSendPacket::jointSetOffset(JointData& joint, double value)
+{
+    write_int16(joint.channel * 16 + JointOffsetAddress, angle_to_uint16(value));
+}
+
+
+void AR60xSendPacket::jointSetMode(JointData& joint)
+{
+    
+}
+
 void AR60xSendPacket::write_int16(uint16_t address, int16_t value)
 {
     byte_array_[address + 1] = (BYTE)(value >> 8);
@@ -167,3 +233,6 @@ short AR60xSendPacket::angle_to_uint16(double angle)
 {
     return (short)(angle * 100);
 }
+
+
+

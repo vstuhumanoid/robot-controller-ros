@@ -20,12 +20,6 @@ PowerState::PowerSupplyState AR60xRecvPacket::jointGetSupplyState(uint8_t number
     return state;
 }
 
-double AR60xRecvPacket::jointGetPosition(uint8_t number)
-{
-    int channel = desc_.joints.at(number).channel;
-    int16_t value = read_int16(channel * 16 + JointPositionAddress);
-    return value;
-}
 
 JointData::PIDGains AR60xRecvPacket::jointGetPIDGains(uint8_t number)
 {
@@ -176,4 +170,26 @@ double AR60xRecvPacket::uint16_to_angle(uint16_t angle)
     return angle / 100.0;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+sensor_msgs::JointState AR60xRecvPacket::JointsGetState()
+{
+    sensor_msgs::JointState msg;
+    msg.name.resize(desc_.joints.size());
+    msg.position.resize(desc_.joints.size());
+
+    int i = 0;
+    for(auto& joint: desc_.joints)
+    {
+        int16_t value = read_int16(joint.second.channel * 16 + JointPositionAddress);
+        msg.name[i] = std::to_string(joint.second.number);
+        msg.position[i] = uint16_to_angle(value);
+        i++;
+    }
+
+    return msg;
+}
 
