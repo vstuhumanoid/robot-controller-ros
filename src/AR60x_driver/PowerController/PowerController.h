@@ -16,12 +16,12 @@ using namespace robot_controller_ros;
 /**
  * @brief This is a class for ROS-interface for robot power control.
  *
- * Features:
+ * Functions:
  *
  * Publishing:
  *  - publishing whole robot supply state (voltage, current, power-on?)
  *  - publishing joints' supply state (voltage, current)
- * Commands (subscribe):
+ * Subscribe:
  *  - On/off whole robot
  *
  */
@@ -30,17 +30,25 @@ class PowerController : public BaseController
 public:
 
     /**
+     * Create new PowerController with manual update
+     *
+     * @param driver Reference to robot driver
+     * @param nh  Reference to node handler
+     */
+    PowerController(AR60xHWDriver& driver,  ros::NodeHandle& nh);
+
+    /**
      * Create new PowerController with automatic update in
      * background thread
      *
-     * @param driver Pointer to robot driver
-     * @param nh  Pointer to node handler
+     * @param driver Reference to robot driver
+     * @param nh  Reference to node handler
      * @param publishingFrequency Publishing frequency (in Hz)
      */
     PowerController(AR60xHWDriver& driver,  ros::NodeHandle& nh,  double publishingFrequency);
 
-
 private:
+    void init_topics();
     void loop() override;
     std::string controller_name() override;
     void robot_supply_command_cb(std_msgs::Bool msg);

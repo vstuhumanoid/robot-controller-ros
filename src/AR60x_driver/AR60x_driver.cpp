@@ -2,7 +2,8 @@
 #include <std_msgs/builtin_float.h>
 
 #include <AR60xHWDriver.h>
-#include "PowerController/PowerController.h"
+#include <PowerController/PowerController.h>
+#include <JointsController/JointsController.h>
 
 using namespace std;
 using namespace robot_controller_ros;
@@ -19,10 +20,14 @@ int main(int argc, char** argv)
     string config_filename;
     nh.getParam("driver_config", config_filename);
     driver.LoadConfig(config_filename);
+
     PowerController power_controller(driver, nh, 5);
+    JointsController jointsController(driver, nh, 50);
 
     driver.RobotConnect();
     power_controller.Start();
+    jointsController.Start();
+    jointsController.PublishJoints();
 
     while(ros::ok())
     {

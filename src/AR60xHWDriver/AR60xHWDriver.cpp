@@ -102,7 +102,7 @@ sensor_msgs::JointState AR60xHWDriver::JointsGetState()
     return msg;
 }
 
-void AR60xHWDriver::JointsSetPosition(const robot_controller_ros::JointsCommand command)
+void AR60xHWDriver::JointsSetCommand(const robot_controller_ros::JointsCommand command)
 {
     if((command.names.size() != command.positions.size()) || (command.pids.size() != 0 && command.pids.size() != command.names.size()))
     {

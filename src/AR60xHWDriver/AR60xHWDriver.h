@@ -101,7 +101,7 @@ public:
       *
       * @param command ROS message with joints names, positions and PID-gains
       */
-    void JointsSetPosition(const robot_controller_ros::JointsCommand command);
+    void JointsSetCommand(const robot_controller_ros::JointsCommand command);
 
     /**
      * Get joints params (names, enable, limits, offset, reverse, mode, pid gains);

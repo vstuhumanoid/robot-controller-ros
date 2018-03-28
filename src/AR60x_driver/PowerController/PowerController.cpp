@@ -4,16 +4,22 @@
 
 #include "PowerController.h"
 
-
+PowerController::PowerController(AR60xHWDriver &driver, ros::NodeHandle &nh) : BaseController(driver, nh)
+{
+    init_topics();
+}
 
 PowerController::PowerController(AR60xHWDriver& driver, ros::NodeHandle& nh, double publishingFrequency) :
     BaseController(driver, nh, publishingFrequency)
 {
-    robot_supply_state_publisher_ = nh.advertise<RobotSupplyState>( namespace_ + "/sources_state", 100);
-    joints_supply_state_publiser_ = nh.advertise<JointsSupplyState>(namespace_  + "/joints_state", 100);
+    init_topics();
+}
 
-    power_commands_subscriber_ = nh.subscribe<std_msgs::Bool>(namespace_ + "/command", 100,
-                                                               &PowerController::robot_supply_command_cb, this);
+void PowerController::init_topics()
+{
+    robot_supply_state_publisher_ = nh_.advertise<RobotSupplyState>(namespace_ + "/sources_state", 100);
+    joints_supply_state_publiser_ = nh_.advertise<JointsSupplyState>(namespace_ + "/joints_state", 100);
+    power_commands_subscriber_ = nh_.subscribe<std_msgs::Bool>(namespace_ + "/command", 100, &PowerController::robot_supply_command_cb, this);
 }
 
 
@@ -76,4 +82,5 @@ void PowerController::power_off()
 
     ROS_INFO("Power off commands sent");
 }
+
 

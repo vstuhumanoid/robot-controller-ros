@@ -8,6 +8,10 @@
 #include <ros/ros.h>
 #include <AR60xHWDriver.h>
 
+/**
+ * Base class for all driver-ROS communcation controllers.
+ * Incapsulate thread-related work.
+ */
 class BaseController
 {
 public:
@@ -15,8 +19,8 @@ public:
      * Create new BaseController with automatic update in
      * background thread
      *
-     * @param driver Pointer to robot driver
-     * @param nh  Pointer to node handler
+     * @param driver Reference to robot driver
+     * @param nh  Reference to node handler
      * @param publishing_frequency Publishing frequency (in Hz)
      */
     BaseController(AR60xHWDriver& driver,  ros::NodeHandle& nh, double publishing_frequency);
@@ -25,8 +29,8 @@ public:
      * Create new BaseController with manual updating.
      * You should manually call BaseController::Update() to perform operations
      *
-     * @param driver Pointer to robot driver
-     * @param nh  Pointer to node handler
+     * @param driver Reference to robot driver
+     * @param nh  Reference to node handler
      */
     BaseController(AR60xHWDriver& driver,  ros::NodeHandle& nh);
 
