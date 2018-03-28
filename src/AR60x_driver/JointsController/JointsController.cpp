@@ -13,7 +13,7 @@ JointsController::JointsController(AR60xHWDriver &driver, ros::NodeHandle& nh) :
 JointsController::JointsController(AR60xHWDriver &driver, ros::NodeHandle &nh, double publishingFrequency)
         : BaseController(driver, nh, publishingFrequency)
 {
-
+    init_topics();
 }
 
 void JointsController::init_topics()

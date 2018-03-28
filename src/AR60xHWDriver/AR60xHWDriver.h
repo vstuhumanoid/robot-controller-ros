@@ -167,7 +167,7 @@ public:
      * Get data from feet sensors
      * @return
      */
-    SensorFeetState SensorGetFeet();
+    robot_controller_ros::FeetSensors SensorGetFeet();
 
     /**
      * Set calibration value (zero offset) for feet pressure sensors

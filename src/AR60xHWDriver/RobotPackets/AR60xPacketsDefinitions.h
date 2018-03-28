@@ -26,6 +26,10 @@ const uint16_t SensorAccXOffset = 8;
 const uint16_t SensorAccYOffset = 10;
 const uint16_t SensorAccZOffset = 12;
 
+const uint16_t SensorTxOffset = 2;
+const uint16_t SensorTyOffset = 4;
+const uint16_t SensorFzOffset = 6;
+
 const uint16_t SensorUch0Offset = 8;
 const uint16_t SensorUch1Offset = 10;
 const uint16_t SensorUch2Offset = 12;

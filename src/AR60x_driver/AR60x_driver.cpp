@@ -4,6 +4,7 @@
 #include <AR60xHWDriver.h>
 #include <PowerController/PowerController.h>
 #include <JointsController/JointsController.h>
+#include <SensorsController/SensorsController.h>
 
 using namespace std;
 using namespace robot_controller_ros;
@@ -23,10 +24,13 @@ int main(int argc, char** argv)
 
     PowerController power_controller(driver, nh, 5);
     JointsController jointsController(driver, nh, 50);
+    SensorsController sensorsController(driver, nh, 50);
 
     driver.RobotConnect();
     power_controller.Start();
     jointsController.Start();
+    sensorsController.Start();
+
     jointsController.PublishJoints();
 
     while(ros::ok())

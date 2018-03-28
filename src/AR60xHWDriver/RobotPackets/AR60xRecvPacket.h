@@ -8,7 +8,6 @@
 #include "BasePacket.h"
 #include "AR60xPacketsDefinitions.h"
 #include <RobotDescription/AR60xDescription.h>
-#include <DataTypes/SensorFeetState.h>
 #include <DataTypes/PowerSources.h>
 #include <sensor_msgs/JointState.h>
 #include <sensor_msgs/Imu.h>
@@ -34,10 +33,10 @@ public:
     robot_controller_ros::TypeSupplyState PowerGetSourceSupplyState(const PowerSources supply) const;
 
     sensor_msgs::Imu SensorsGetImu() const;
-    SensorFeetState SensorsGetFeet() const;
+    robot_controller_ros::FeetSensors SensorsGetFeet() const;
 
 private:
-    SensorFeetState::FootData sensorGetFoot(const uint8_t groupId) const;
+    geometry_msgs::Wrench sensorGetFoot(const uint8_t groupId) const;
 
     int16_t read_int16(const uint16_t address) const;
     float read_float(const uint16_t address) const;

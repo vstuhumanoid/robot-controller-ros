@@ -260,7 +260,7 @@ void AR60xHWDriver::SensorSetImuCalibration(const sensor_msgs::Imu imu)
     sendpacket_->SensorSetImuCalibration(imu);
 }
 
-SensorFeetState AR60xHWDriver::SensorGetFeet()
+robot_controller_ros::FeetSensors AR60xHWDriver::SensorGetFeet()
 {
     RECV_GUARD;
     return recv_packet_->SensorsGetFeet();
