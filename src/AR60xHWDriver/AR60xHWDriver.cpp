@@ -67,13 +67,7 @@ void AR60xHWDriver::init_packets()
 }
 
 
-AR60xDescription& AR60xHWDriver::GetRobotDesc()
-{
-    return desc_;
-}
-
-
-// ------------------------------ connection --------------------------------------------
+////////////////////////////////////// CONNECTION //////////////////////////////////////////////////////////////////////
 
 
 void AR60xHWDriver::RobotConnect()
@@ -108,7 +102,7 @@ sensor_msgs::JointState AR60xHWDriver::JointsGetState()
     return msg;
 }
 
-void AR60xHWDriver::JointsSetPosition(robot_controller_ros::JointsCommand command)
+void AR60xHWDriver::JointsSetPosition(const robot_controller_ros::JointsCommand command)
 {
     if((command.names.size() != command.positions.size()) || (command.pids.size() != 0 && command.pids.size() != command.names.size()))
     {
@@ -150,8 +144,8 @@ robot_controller_ros::JointsParams AR60xHWDriver::JointsGetParams()
         msg.lower_limit[i]  = recv_packet_->JointGetLowerLimit(joint.second);
         msg.upper_limit[i]  = recv_packet_->JointGetUpperLimit(joint.second);
         msg.offset[i] = recv_packet_->JointGetOffset(joint.second);
-        msg.reverse[i] = joint.second.isReverse;
-        msg.enabled[i] = joint.second.isEnable;
+        msg.reverse[i] = joint.second.is_reverse;
+        msg.enabled[i] = joint.second.is_enable;
         msg.mode[i] = recv_packet_->JointGetMode(joint.second);
         msg.pids[i] = recv_packet_->JointGetPidGains(joint.second);
         i++;
@@ -160,7 +154,7 @@ robot_controller_ros::JointsParams AR60xHWDriver::JointsGetParams()
     return msg;
 }
 
-void AR60xHWDriver::JointsSetParams(robot_controller_ros::JointsParams params)
+void AR60xHWDriver::JointsSetParams(const robot_controller_ros::JointsParams params)
 {
     if(!check_sizes(params))
         return;
@@ -186,12 +180,12 @@ void AR60xHWDriver::JointsSetParams(robot_controller_ros::JointsParams params)
         if(params.pids.size() != 0)
             sendpacket_->JointSetPIDGains(joint, params.pids[i]);
 
-        joint.isEnable = params.enabled[i];
+        joint.is_enable = params.enabled[i];
     }
 }
 
 
-void AR60xHWDriver::JointsSetMode(robot_controller_ros::JointsMode mode)
+void AR60xHWDriver::JointsSetMode(const robot_controller_ros::JointsMode mode)
 {
     SEND_GUARD;
 
@@ -245,7 +239,7 @@ robot_controller_ros::JointsSupplyState AR60xHWDriver::PowerGetJointsSupplyState
 }
 
 
-void AR60xHWDriver::SupplySetOnOff(PowerSources supply, bool onOffState)
+void AR60xHWDriver::SupplySetOnOff(const PowerSources supply, const bool onOffState)
 {
     SEND_GUARD;
     sendpacket_->PowerSourceSetOnOff(supply, onOffState);
@@ -260,7 +254,7 @@ sensor_msgs::Imu AR60xHWDriver::SensorGetImu()
 }
 
 
-void AR60xHWDriver::SensorSetImuCalibration(sensor_msgs::Imu imu)
+void AR60xHWDriver::SensorSetImuCalibration(const sensor_msgs::Imu imu)
 {
     SEND_GUARD;
     sendpacket_->SensorSetImuCalibration(imu);
@@ -272,7 +266,7 @@ SensorFeetState AR60xHWDriver::SensorGetFeet()
     return recv_packet_->SensorsGetFeet();
 }
 
-void AR60xHWDriver::SensorSetFeetCalibration(SensorFeetState feet)
+void AR60xHWDriver::SensorSetFeetCalibration(const SensorFeetState feet)
 {
     SEND_GUARD;
     sendpacket_->SensorSetFeetCalibration(feet);

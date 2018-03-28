@@ -14,43 +14,15 @@ void AR60xRecvPacket::initFromByteArray(const uint8_t *bytes)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-sensor_msgs::Imu AR60xRecvPacket::SensorsGetImu()
-{
-    sensor_msgs::Imu imu;
-
-    uint8_t channel = desc_.sensorGroups[ImuGroupId].channel;
-
-    imu.linear_acceleration.x = read_int16(channel * 16 + SensorAccXOffset) / 100.0;
-    imu.linear_acceleration.y = read_int16(channel * 16 + SensorAccYOffset) / 100.0;
-    imu.linear_acceleration.z = read_int16(channel * 16 + SensorAccZOffset) / 100.0;
-    imu.orientation.z = read_int16(channel * 16 + SensorYawOffset) / 100.0;
-    imu.orientation.y = read_int16(channel * 16 + SensorPitchOffset) / 100.0;
-    imu.orientation.x = read_int16(channel * 16 + SensorRollOffset) / 100.0;
-
-    return  imu;
-}
-
-
-SensorFeetState AR60xRecvPacket::SensorsGetFeet()
-{
-    SensorFeetState state;
-    state.left = sensorGetFoot(LeftFootGroupId);
-    state.right = sensorGetFoot(RightFootGroupId);
-    return state;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-double AR60xRecvPacket::JointGetPosition(JointData &joint)
+double AR60xRecvPacket::JointGetPosition(const JointData &joint) const
 {
     return int16_to_angle(read_int16(joint.channel * 16 + JointPositionAddress));
 }
 
-double AR60xRecvPacket::JointGetLowerLimit(JointData &joint)
+double AR60xRecvPacket::JointGetLowerLimit(const JointData &joint) const
 {
     int16_t value;
-    if(joint.isReverse)
+    if(joint.is_reverse)
         value = -read_int16(joint.channel * 16 + JointUpperLimitAddress);
     else
         value = read_int16(joint.channel * 16 + JointLowerLimitAddress);
@@ -58,11 +30,11 @@ double AR60xRecvPacket::JointGetLowerLimit(JointData &joint)
     return int16_to_angle(value);
 }
 
-double AR60xRecvPacket::JointGetUpperLimit(JointData &joint)
+double AR60xRecvPacket::JointGetUpperLimit(const JointData &joint) const
 {
     int16_t value;
 
-    if(joint.isReverse)
+    if(joint.is_reverse)
         value = -read_int16(joint.channel * 16 + JointLowerLimitAddress);
     else
         value = read_int16(joint.channel * 16 + JointUpperLimitAddress);
@@ -71,12 +43,12 @@ double AR60xRecvPacket::JointGetUpperLimit(JointData &joint)
 }
 
 
-double AR60xRecvPacket::JointGetOffset(JointData &joint)
+double AR60xRecvPacket::JointGetOffset(const JointData &joint) const
 {
     return int16_to_angle(read_int16(joint.channel * 16 + JointOffsetAddress));
 }
 
-robot_controller_ros::TypeJointMode AR60xRecvPacket::JointGetMode(JointData &joint)
+robot_controller_ros::TypeJointMode AR60xRecvPacket::JointGetMode(const JointData &joint) const
 {
     robot_controller_ros::TypeJointMode state;
 
@@ -102,17 +74,17 @@ robot_controller_ros::TypeJointMode AR60xRecvPacket::JointGetMode(JointData &joi
 }
 
 
-robot_controller_ros::TypePid AR60xRecvPacket::JointGetPidGains(JointData &joint)
+robot_controller_ros::TypePid AR60xRecvPacket::JointGetPidGains(const JointData &joint) const
 {
     //FUCK Android Technology company
     robot_controller_ros::TypePid pid;
     pid.p = read_int16(joint.channel * 16 + JointPGainAddress);
     pid.i = read_int16(joint.channel * 16 + JointIGainAddress);
-    pid.d = joint.gains.d; // We can't read D gain from robot
+    pid.d = joint.pid_gains.d; // We can't read D gain from robot
 }
 
 
-robot_controller_ros::TypeSupplyState AR60xRecvPacket::PowerGetJointSupplyState(JointData &joint)
+robot_controller_ros::TypeSupplyState AR60xRecvPacket::PowerGetJointSupplyState(const JointData &joint) const
 {
     robot_controller_ros::TypeSupplyState state;
     state.Current = read_int16(joint.channel * 16 + JointCurrentAddress) / 1000.0f;
@@ -120,7 +92,7 @@ robot_controller_ros::TypeSupplyState AR60xRecvPacket::PowerGetJointSupplyState(
     return state;
 }
 
-robot_controller_ros::TypeSupplyState AR60xRecvPacket::PowerGetSourceSupplyState(PowerSources supply)
+robot_controller_ros::TypeSupplyState AR60xRecvPacket::PowerGetSourceSupplyState(const PowerSources supply) const
 {
     robot_controller_ros::TypeSupplyState state;
 
@@ -132,7 +104,35 @@ robot_controller_ros::TypeSupplyState AR60xRecvPacket::PowerGetSourceSupplyState
     return state;
 }
 
-SensorFeetState::FootData AR60xRecvPacket::sensorGetFoot(uint8_t groupId)
+sensor_msgs::Imu AR60xRecvPacket::SensorsGetImu() const
+{
+    sensor_msgs::Imu imu;
+
+    uint8_t channel = desc_.sensorGroups[ImuGroupId].channel;
+
+    imu.linear_acceleration.x = read_int16(channel * 16 + SensorAccXOffset) / 100.0;
+    imu.linear_acceleration.y = read_int16(channel * 16 + SensorAccYOffset) / 100.0;
+    imu.linear_acceleration.z = read_int16(channel * 16 + SensorAccZOffset) / 100.0;
+    imu.orientation.z = read_int16(channel * 16 + SensorYawOffset) / 100.0;
+    imu.orientation.y = read_int16(channel * 16 + SensorPitchOffset) / 100.0;
+    imu.orientation.x = read_int16(channel * 16 + SensorRollOffset) / 100.0;
+
+    return  imu;
+}
+
+
+SensorFeetState AR60xRecvPacket::SensorsGetFeet() const
+{
+    SensorFeetState state;
+    state.left = sensorGetFoot(LeftFootGroupId);
+    state.right = sensorGetFoot(RightFootGroupId);
+    return state;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+SensorFeetState::FootData AR60xRecvPacket::sensorGetFoot(const uint8_t groupId) const
 {
     SensorFeetState::FootData data;
     uint8_t channel = desc_.sensorGroups[groupId].channel;
@@ -145,24 +145,19 @@ SensorFeetState::FootData AR60xRecvPacket::sensorGetFoot(uint8_t groupId)
     return data;
 }
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-int16_t AR60xRecvPacket::read_int16(uint16_t address)
+int16_t AR60xRecvPacket::read_int16(const uint16_t address) const
 {
     //int16_t value =  (byte_array_[address + 1] << 8) + (BYTE)byte_array_[address];
     return  *((int16_t*)(byte_array_ + address));
 }
 
-float AR60xRecvPacket::read_float(uint16_t address)
-
+float AR60xRecvPacket::read_float(const uint16_t address) const
 {
     //float value = static_cast<float>((byte_array_[address + 1] << 8) + (BYTE)byte_array_[address]);
     return *((float*)(byte_array_ + address));
 }
 
-double AR60xRecvPacket::int16_to_angle(int16_t angle)
+double AR60xRecvPacket::int16_to_angle(const int16_t angle) const
 {
     return angle / 100.0;
 }

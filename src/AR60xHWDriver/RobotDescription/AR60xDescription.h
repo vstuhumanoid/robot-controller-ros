@@ -2,8 +2,8 @@
 #define AR60XDESCRIPTION_H
 
 #include <map>
-#include <DataTypes/JointData.h>
-#include <DataTypes/SensorsGroupData.h>
+#include "JointData.h"
+#include "SensorsGroupData.h"
 
 
 /**

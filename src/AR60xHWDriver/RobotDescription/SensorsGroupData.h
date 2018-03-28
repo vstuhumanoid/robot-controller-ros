@@ -16,17 +16,8 @@ struct SensorsGroupData
 {
     int id;
     std::string name;
-
-    /**
-     * Channel - address of sensor sub-packet in
-     * all packet
-     */
-    uint8_t channel;
-
-    /**
-     * List of sensors in group
-     */
-    std::vector<SensorData> sensors;
+    uint8_t channel;                   ///< Address of sensor sub-packet in all packet
+    std::vector<SensorData> sensors;   ///< List of sensors in group
 };
 
 #endif //ROBOT_CONTROLLER_ROS_SENSORSGROUP_H

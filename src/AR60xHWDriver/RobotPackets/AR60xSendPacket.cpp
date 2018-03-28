@@ -9,10 +9,10 @@ AR60xSendPacket::AR60xSendPacket(AR60xDescription& robotDesc) : BasePacket(robot
         JointData& joint = it.second;
         write_int16(joint.channel * 16, joint.number);
 
-        JointSetPIDGains(joint, joint.gains);
+        JointSetPIDGains(joint, joint.pid_gains);
         JointSetOffset(joint, joint.offset);
         JointSetLimits(joint, joint.lower_limit, joint.upper_limit);
-        JointSetPIDGains(joint, joint.gains);
+        JointSetPIDGains(joint, joint.pid_gains);
 
         robot_controller_ros::TypeJointMode mode;
         mode.mode = robot_controller_ros::TypeJointMode::BREAK;
@@ -35,7 +35,7 @@ void AR60xSendPacket::JointSetPosition(JointData &joint, double value)
     else if(value > joint.upper_limit)
         value = joint.upper_limit;
 
-    if(joint.isReverse)
+    if(joint.is_reverse)
         value = -value;
 
     write_int16(joint.channel * 16 + JointPositionAddress, angle_to_uint16(value));
@@ -43,7 +43,7 @@ void AR60xSendPacket::JointSetPosition(JointData &joint, double value)
 
 void AR60xSendPacket::JointSetPIDGains(JointData &joint, robot_controller_ros::TypePid gains)
 {
-    joint.gains = gains;
+    joint.pid_gains = gains;
 
     short channel = joint.channel;
     write_int16(channel * 16 + JointPGainAddress, gains.p);
@@ -53,7 +53,7 @@ void AR60xSendPacket::JointSetPIDGains(JointData &joint, robot_controller_ros::T
 
 void AR60xSendPacket::JointSetReverse(JointData &joint, bool reverse)
 {
-    joint.isReverse = reverse;
+    joint.is_reverse = reverse;
 }
 
 void AR60xSendPacket::JointSetLimits(JointData &joint, double lower, double upper)
@@ -63,7 +63,7 @@ void AR60xSendPacket::JointSetLimits(JointData &joint, double lower, double uppe
 
     short channel = joint.channel;
 
-    if(joint.isReverse)
+    if(joint.is_reverse)
     {
         write_int16(channel * 16 + JointUpperLimitAddress, angle_to_uint16(-lower));
         write_int16(channel * 16 + JointLowerLimitAddress, angle_to_uint16(-upper));
@@ -98,7 +98,7 @@ void AR60xSendPacket::JointSetMode(JointData &joint, robot_controller_ros::TypeJ
             *status |= 0b10;
             break;
         case TypeJointMode::TRACE:
-            if(joint.isEnable) *status |= 0b11;
+            if(joint.is_enable) *status |= 0b11;
             break;
         default:
             break;

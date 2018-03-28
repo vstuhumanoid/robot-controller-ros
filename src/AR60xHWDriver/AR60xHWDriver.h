@@ -77,13 +77,6 @@ public:
 
 
     /**
-     * Get robot's description (config) with information about all joints and sensors
-     * @return robot's description
-     */
-    AR60xDescription& GetRobotDesc();
-
-
-    /**
      * Set TRACE mode for all joints and set their
      * position to 0 deg
      */
@@ -108,7 +101,7 @@ public:
       *
       * @param command ROS message with joints names, positions and PID-gains
       */
-    void JointsSetPosition(robot_controller_ros::JointsCommand command);
+    void JointsSetPosition(const robot_controller_ros::JointsCommand command);
 
     /**
      * Get joints params (names, enable, limits, offset, reverse, mode, pid gains);
@@ -123,13 +116,13 @@ public:
      *
     * @param params ROS message with joints params
     */
-    void JointsSetParams(robot_controller_ros::JointsParams params);
+    void JointsSetParams(const robot_controller_ros::JointsParams params);
 
     /**
      * Control joint's motor and clutch
      * @param mode ROS message with  joint's operational mode
      */
-    void JointsSetMode(robot_controller_ros::JointsMode mode);
+    void JointsSetMode(const robot_controller_ros::JointsMode mode);
 
 
 
@@ -152,7 +145,7 @@ public:
      * @param supply Selected supply
      * @param onOffState On or off
      */
-    void SupplySetOnOff(PowerSources supply, bool onOffState);
+    void SupplySetOnOff(const PowerSources supply, const bool onOffState);
 
 
     // -------------------------------------- Sensors -------- ---------------------------------------------------------
@@ -167,7 +160,7 @@ public:
      * Set calibration value (zero offset) for IMU sensor
      * @param imu calibration value
      */
-    void SensorSetImuCalibration(sensor_msgs::Imu imu);
+    void SensorSetImuCalibration(const sensor_msgs::Imu imu);
 
 
     /**
@@ -180,7 +173,7 @@ public:
      * Set calibration value (zero offset) for feet pressure sensors
      * @param feet calibration values
      */
-    void SensorSetFeetCalibration(SensorFeetState feet);
+    void SensorSetFeetCalibration(const SensorFeetState feet);
 
 
 private:

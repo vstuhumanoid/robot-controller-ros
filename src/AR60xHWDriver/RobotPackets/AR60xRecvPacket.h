@@ -5,10 +5,8 @@
 #include <map>
 #include <cstdint>
 #include <ros/ros.h>
-
 #include "BasePacket.h"
 #include "AR60xPacketsDefinitions.h"
-
 #include <RobotDescription/AR60xDescription.h>
 #include <DataTypes/SensorFeetState.h>
 #include <DataTypes/PowerSources.h>
@@ -25,25 +23,25 @@ public:
     AR60xRecvPacket(AR60xDescription& robotDesc);
     void initFromByteArray(const uint8_t *bytes);
 
-    double JointGetPosition(JointData &joint);
-    double JointGetLowerLimit(JointData &joint);
-    double JointGetUpperLimit(JointData &joint);
-    double JointGetOffset(JointData &joint);
-    robot_controller_ros::TypeJointMode JointGetMode(JointData &joint);
-    robot_controller_ros::TypePid JointGetPidGains(JointData &joint);
+    double JointGetPosition(const JointData &joint) const;
+    double JointGetLowerLimit(const JointData &joint) const;
+    double JointGetUpperLimit(const JointData &joint) const;
+    double JointGetOffset(const JointData &joint) const;
+    robot_controller_ros::TypeJointMode JointGetMode(const JointData &joint) const;
+    robot_controller_ros::TypePid JointGetPidGains(const JointData &joint) const ;
 
-    robot_controller_ros::TypeSupplyState PowerGetJointSupplyState(JointData &joint);
-    robot_controller_ros::TypeSupplyState PowerGetSourceSupplyState(PowerSources supply);
+    robot_controller_ros::TypeSupplyState PowerGetJointSupplyState(const JointData &joint) const;
+    robot_controller_ros::TypeSupplyState PowerGetSourceSupplyState(const PowerSources supply) const;
 
-    sensor_msgs::Imu SensorsGetImu();
-    SensorFeetState SensorsGetFeet();
+    sensor_msgs::Imu SensorsGetImu() const;
+    SensorFeetState SensorsGetFeet() const;
 
 private:
-    SensorFeetState::FootData sensorGetFoot(uint8_t groupId);
+    SensorFeetState::FootData sensorGetFoot(const uint8_t groupId) const;
 
-    int16_t read_int16(uint16_t address);
-    float read_float(uint16_t address);
-    double int16_to_angle(int16_t angle);
+    int16_t read_int16(const uint16_t address) const;
+    float read_float(const uint16_t address) const;
+    double int16_to_angle(const int16_t angle) const;
 };
 
 #endif // AR60XRECVPACKET_H

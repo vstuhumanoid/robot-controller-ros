@@ -48,11 +48,11 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
         XMLElement *jointGains = jointData->FirstChildElement("gains");
         int gain;
         jointGains->QueryAttribute("proportional", &gain);
-        joint.gains.p = gain;
+        joint.pid_gains.p = gain;
         jointGains->QueryAttribute("integral", &gain);
-        joint.gains.i = gain;
+        joint.pid_gains.i = gain;
         jointGains->QueryAttribute("derivative", &gain);
-        joint.gains.d = gain;
+        joint.pid_gains.d = gain;
 
         XMLElement *jointLimits = jointData->FirstChildElement("limits");
 
@@ -60,8 +60,8 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
         jointLimits->QueryAttribute("upperLimit", &joint.upper_limit);
 
         jointData->QueryAttribute("offset", &joint.offset);
-        jointData->QueryAttribute("isReverse", &joint.isReverse);
-        jointData->QueryAttribute("isEnable", &joint.isEnable);
+        jointData->QueryAttribute("isReverse", &joint.is_reverse);
+        jointData->QueryAttribute("isEnable", &joint.is_enable);
 
         jointsMap[joint.number] = joint;
 
@@ -132,9 +132,9 @@ bool XMLSerializer::serialize(std::string fileName, AR60xDescription * desc, Con
         jointData->SetAttribute("channel", joint.channel);
 
         XMLElement *jointGains = document.NewElement("gains");
-        jointGains->SetAttribute("proportional", joint.gains.p);
-        jointGains->SetAttribute("integral", joint.gains.i);
-        jointGains->SetAttribute("derivative", joint.gains.d);
+        jointGains->SetAttribute("proportional", joint.pid_gains.p);
+        jointGains->SetAttribute("integral", joint.pid_gains.i);
+        jointGains->SetAttribute("derivative", joint.pid_gains.d);
         jointData->InsertEndChild(jointGains);
 
         XMLElement *jointLimits = document.NewElement("limits");
@@ -143,8 +143,8 @@ bool XMLSerializer::serialize(std::string fileName, AR60xDescription * desc, Con
         jointData->InsertEndChild(jointLimits);
 
         jointData->SetAttribute("offset", joint.offset);
-        jointData->SetAttribute("isReverse", joint.isReverse);
-        jointData->SetAttribute("isEnable", joint.isEnable);
+        jointData->SetAttribute("isReverse", joint.is_reverse);
+        jointData->SetAttribute("isEnable", joint.is_enable);
 
         joints->InsertEndChild(jointData);
     }
