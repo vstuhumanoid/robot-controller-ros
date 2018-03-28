@@ -2,17 +2,16 @@
 #define POWERDATA_H
 
 
-struct PowerData
+enum class PowerSources
 {
-    enum PowerSupplies
-    {
+
         Supply6V1,
         Supply6V2,
         Supply8V1,
         Supply8V2,
         Supply12V,
         Supply48V
-    };
+
 };
 
 #endif // POWERDATA_H

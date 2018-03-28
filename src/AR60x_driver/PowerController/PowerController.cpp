@@ -83,17 +83,17 @@ void PowerController::power_on()
 {
     ROS_INFO("Power on command received. Powering on robot...");
 
-    driver_.SupplySetOnOff(PowerData::Supply12V, true);
+    driver_.SupplySetOnOff(PowerSources::Supply12V, true);
     ros::Duration(0.5).sleep();
-    driver_.SupplySetOnOff(PowerData::Supply48V, true);
+    driver_.SupplySetOnOff(PowerSources::Supply48V, true);
     ros::Duration(0.5).sleep();
-    driver_.SupplySetOnOff(PowerData::Supply8V1, true);
+    driver_.SupplySetOnOff(PowerSources::Supply8V1, true);
     ros::Duration(0.5).sleep();
-    driver_.SupplySetOnOff(PowerData::Supply8V2, true);
+    driver_.SupplySetOnOff(PowerSources::Supply8V2, true);
     ros::Duration(0.5).sleep();
-    driver_.SupplySetOnOff(PowerData::Supply6V1, true);
+    driver_.SupplySetOnOff(PowerSources::Supply6V1, true);
     ros::Duration(0.5).sleep();
-    driver_.SupplySetOnOff(PowerData::Supply6V2, true);
+    driver_.SupplySetOnOff(PowerSources::Supply6V2, true);
     ros::Duration(0.5).sleep();
 
     ROS_INFO("Power on commands sent");
@@ -103,24 +103,24 @@ void PowerController::power_off()
 {
     ROS_INFO("Power off command received. Powering off robot...");
 
-    driver_.SupplySetOnOff(PowerData::Supply6V1, false);
+    driver_.SupplySetOnOff(PowerSources::Supply6V1, false);
     ros::Duration(0.5).sleep();
-    driver_.SupplySetOnOff(PowerData::Supply6V2, false);
+    driver_.SupplySetOnOff(PowerSources::Supply6V2, false);
     ros::Duration(0.5).sleep();
-    driver_.SupplySetOnOff(PowerData::Supply8V1, false);
+    driver_.SupplySetOnOff(PowerSources::Supply8V1, false);
     ros::Duration(0.5).sleep();
-    driver_.SupplySetOnOff(PowerData::Supply8V2, false);
+    driver_.SupplySetOnOff(PowerSources::Supply8V2, false);
     ros::Duration(0.5).sleep();
-    driver_.SupplySetOnOff(PowerData::Supply48V, false);
+    driver_.SupplySetOnOff(PowerSources::Supply48V, false);
     ros::Duration(0.5).sleep();
-    driver_.SupplySetOnOff(PowerData::Supply12V, false);
+    driver_.SupplySetOnOff(PowerSources::Supply12V, false);
     ros::Duration(0.5).sleep();
 
     ROS_INFO("Power off commands sent");
 }
 
 
-SupplyState PowerController::get_supply_state(PowerData::PowerSupplies supply)
+SupplyState PowerController::get_supply_state(PowerSources::PowerSupplies supply)
 {
     SupplyState ros_state;
     auto state = driver_.PowerGetSupplyState(supply);
@@ -132,12 +132,12 @@ SupplyState PowerController::get_supply_state(PowerData::PowerSupplies supply)
 void PowerController::publish_robot_supply_state()
 {
     RobotSupplyState msg;
-    msg.S48 = get_supply_state(PowerData::Supply48V);
-    msg.S12 = get_supply_state(PowerData::Supply12V);
-    msg.S8_1 = get_supply_state(PowerData::Supply8V1);
-    msg.S8_2 = get_supply_state(PowerData::Supply8V2);
-    msg.S6_1 = get_supply_state(PowerData::Supply6V1);
-    msg.S6_2 = get_supply_state(PowerData::Supply6V2);
+    msg.S48 = get_supply_state(PowerSources::Supply48V);
+    msg.S12 = get_supply_state(PowerSources::Supply12V);
+    msg.S8_1 = get_supply_state(PowerSources::Supply8V1);
+    msg.S8_2 = get_supply_state(PowerSources::Supply8V2);
+    msg.S6_1 = get_supply_state(PowerSources::Supply6V1);
+    msg.S6_2 = get_supply_state(PowerSources::Supply6V2);
     robot_supply_state_publisher_.publish(msg);
 }
 

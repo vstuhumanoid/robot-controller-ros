@@ -10,18 +10,16 @@ add_library(${PROJECT_NAME} STATIC
         XMLSerializer/XMLSerializer.cpp
         UDPConnection/UDPConnection.cpp
         DataTypes/ConnectionData.h
-        DataTypes/SensorImuState.h
         DataTypes/JointData.h
-        DataTypes/JointState.h
-        DataTypes/SensorFeetState.h
-        DataTypes/PowerData.h
-        DataTypes/PowerState.h
+        DataTypes/PowerSources.h
         DataTypes/SensorData.h
+        DataTypes/SensorFeetState.h
         DataTypes/SensorsGroupData.h
         RobotPackets/BasePacket.cpp
         RobotPackets/AR60xRecvPacket.cpp
         RobotPackets/AR60xSendPacket.cpp
-        RobotPackets/AR60xPacketsDefinitions.h)
+        RobotPackets/AR60xPacketsDefinitions.h
+        RobotDescription/AR60xDescription.h)
 
 
 target_link_libraries(${PROJECT_NAME}

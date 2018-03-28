@@ -8,7 +8,7 @@
 #include <ros/ros.h>
 #include <std_msgs/builtin_bool.h>
 #include <AR60xHWDriver.h>
-#include <DataTypes/PowerData.h>
+#include <DataTypes/PowerSources.h>
 #include <robot_controller_ros/RobotSupplyState.h>
 #include <robot_controller_ros/SupplyState.h>
 #include <robot_controller_ros/JointsSupplyState.h>
@@ -58,7 +58,7 @@ private:
     void robot_supply_command_cb(std_msgs::Bool msg);
     void power_on();
     void power_off();
-    SupplyState get_supply_state(PowerData::PowerSupplies supply);
+    SupplyState get_supply_state(PowerSources::PowerSupplies supply);
     void publish_robot_supply_state();
     void publish_joints_supply_state();
 

@@ -3,20 +3,20 @@
 
 #include "AR60xPacketsDefinitions.h"
 #include "BasePacket.h"
-#include <DataTypes/JointState.h>
-#include <DataTypes/SensorImuState.h>
 #include <DataTypes/SensorFeetState.h>
+#include <DataTypes/PowerSources.h>
 #include <RobotDescription/AR60xDescription.h>
-
 #include <iostream>
 #include <map>
-#include <stdlib.h>
+#include <bitset>
+#include <cstdlib>
 #include <cstring>
 #include <ros/ros.h>
 #include <robot_controller_ros/JointsCommand.h>
 #include <robot_controller_ros/TypePid.h>
 #include <robot_controller_ros/JointsParams.h>
 #include <robot_controller_ros/JointsMode.h>
+#include <sensor_msgs/Imu.h>
 
 
 class AR60xSendPacket : public BasePacket
@@ -24,23 +24,20 @@ class AR60xSendPacket : public BasePacket
 public:
     AR60xSendPacket(AR60xDescription& robotDesc);
 
-    void sensorSetImuOffset(SensorImuState data);
-    void sensorSetFeetOffset(SensorFeetState data);
+    void JointSetPosition(JointData &joint, double value);
+    void JointSetPIDGains(JointData &joint, robot_controller_ros::TypePid gains);
+    void JointSetReverse(JointData &joint, bool reverse);
+    void JointSetLimits(JointData &joint, double lower, double upper);
+    void JointSetOffset(JointData &joint, double value);
+    void JointSetMode(JointData &joint, robot_controller_ros::TypeJointMode mode);
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void PowerSourceSetOnOff(PowerSources supply, bool onOffState);
 
-    //TODO: Sensors' calibration
-
-    void jointSetPosition(JointData& joint, double value);
-    void jointSetPIDGains(JointData& joint, robot_controller_ros::TypePid gains);
-    void jointSetReverse(JointData& joint, bool reverse);
-    void jointSetLimits(JointData& joint, double lower, double upper);
-    void jointSetOffset(JointData& joint, double value);
-    void jointSetMode(JointData& joint, robot_controller_ros::TypeJointMode mode);
-    void supplySetOnOff(PowerData::PowerSupplies supply, bool onOffState);
+    void SensorSetImuCalibration(sensor_msgs::Imu imu);
+    void SensorSetFeetCalibration(SensorFeetState data);
 
 private:
-
+    void sensorSetOffset(uint8_t groupId, uint8_t number, double value);
     void sensorSetFootOffset(SensorFeetState::FootData data, uint8_t groupId);
     void write_int16(uint16_t address, int16_t value);
     short angle_to_uint16(double angle);

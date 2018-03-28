@@ -14,77 +14,6 @@ void AR60xRecvPacket::initFromByteArray(const uint8_t *bytes)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-sensor_msgs::JointState AR60xRecvPacket::JointsGetState()
-{
-    sensor_msgs::JointState msg;
-    msg.name.resize(desc_.joints.size());
-    msg.position.resize(desc_.joints.size());
-
-    int i = 0;
-    for(auto& joint: desc_.joints)
-    {
-        int16_t value = read_int16(joint.second.channel * 16 + JointPositionAddress);
-        msg.name[i] = std::to_string(joint.second.number);
-        msg.position[i] = uint16_to_angle(value);
-        i++;
-    }
-
-    return msg;
-}
-
-robot_controller_ros::JointsParams AR60xRecvPacket::JointsGetParams()
-{
-    robot_controller_ros::JointsParams msg;
-    msg.names.resize(desc_.joints.size());
-    msg.params.resize(desc_.joints.size());
-
-    int i = 0;
-    for(auto& joint: desc_.joints)
-    {
-        msg.names[i] = std::to_string(joint.second.number);
-        msg.params[i].lower_limit  = jointGetLowerLimit(joint.second);
-        msg.params[i].upper_limit  = jointGetUpperLimit(joint.second);
-        msg.params[i].reverse = joint.second.isReverse;
-        msg.params[i].mode = jointGetMode(joint.second);
-        //TODO: PIDs
-        //TODO: Enable
-        i++;
-    }
-
-    return msg;
-}
-
-
-robot_controller_ros::JointsSupplyState AR60xRecvPacket::PowerGetJointsSupplyState()
-{
-    robot_controller_ros::JointsSupplyState msg;
-    msg.names.resize(desc_.joints.size());
-    msg.states.resize(desc_.joints.size());
-
-    int i = 0;
-    for(auto& joint: desc_.joints)
-    {
-        msg.names[i] = std::to_string(joint.second.number);
-        msg.states[i] = jointGetSupplyState(joint.second);
-        i++;
-    }
-
-    return msg;
-}
-
-robot_controller_ros::SourcesSupplyState AR60xRecvPacket::PowerGetSourcesSupplyState()
-{
-    robot_controller_ros::SourcesSupplyState msg;
-    msg.S48 = sourceGetSupplyState(PowerData::Supply48V);
-    msg.S12 = sourceGetSupplyState(PowerData::Supply12V);
-    msg.S8_1 = sourceGetSupplyState(PowerData::Supply8V1);
-    msg.S8_2 = sourceGetSupplyState(PowerData::Supply8V2);
-    msg.S6_1 = sourceGetSupplyState(PowerData::Supply6V1);
-    msg.S6_2 = sourceGetSupplyState(PowerData::Supply6V2);
-    return msg;
-}
-
 sensor_msgs::Imu AR60xRecvPacket::SensorsGetImu()
 {
     sensor_msgs::Imu imu;
@@ -102,15 +31,23 @@ sensor_msgs::Imu AR60xRecvPacket::SensorsGetImu()
 }
 
 
-robot_controller_ros::FeetSensors AR60xRecvPacket::SensorsGetFeet()
+SensorFeetState AR60xRecvPacket::SensorsGetFeet()
 {
-    //TODO: Read feet
-    throw std::runtime_error("Not implemented");
+    SensorFeetState state;
+    state.left = sensorGetFoot(LeftFootGroupId);
+    state.right = sensorGetFoot(RightFootGroupId);
+    return state;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-double AR60xRecvPacket::jointGetLowerLimit(JointData& joint)
+
+double AR60xRecvPacket::JointGetPosition(JointData &joint)
+{
+    return int16_to_angle(read_int16(joint.channel * 16 + JointPositionAddress));
+}
+
+double AR60xRecvPacket::JointGetLowerLimit(JointData &joint)
 {
     int16_t value;
     if(joint.isReverse)
@@ -118,10 +55,10 @@ double AR60xRecvPacket::jointGetLowerLimit(JointData& joint)
     else
         value = read_int16(joint.channel * 16 + JointLowerLimitAddress);
 
-    return  uint16_to_angle(value);
+    return int16_to_angle(value);
 }
 
-double AR60xRecvPacket::jointGetUpperLimit(JointData& joint)
+double AR60xRecvPacket::JointGetUpperLimit(JointData &joint)
 {
     int16_t value;
 
@@ -130,11 +67,16 @@ double AR60xRecvPacket::jointGetUpperLimit(JointData& joint)
     else
         value = read_int16(joint.channel * 16 + JointUpperLimitAddress);
 
-    return uint16_to_angle(value);
+    return int16_to_angle(value);
 }
 
 
-robot_controller_ros::TypeJointMode AR60xRecvPacket::jointGetMode(JointData& joint)
+double AR60xRecvPacket::JointGetOffset(JointData &joint)
+{
+    return int16_to_angle(read_int16(joint.channel * 16 + JointOffsetAddress));
+}
+
+robot_controller_ros::TypeJointMode AR60xRecvPacket::JointGetMode(JointData &joint)
 {
     robot_controller_ros::TypeJointMode state;
 
@@ -142,13 +84,13 @@ robot_controller_ros::TypeJointMode AR60xRecvPacket::jointGetMode(JointData& joi
     uint8_t status_mask = value & 0b11;
 
     if(status_mask == 0b00)
-        state.mode = JointState::BRAKE;
+        state.mode = robot_controller_ros::TypeJointMode::BREAK;
     else if(status_mask == 0b01)
-        state.mode = JointState::STOP;
+        state.mode = robot_controller_ros::TypeJointMode::STOP;
     else if(status_mask == 0b10)
-        state.mode = JointState::RELAX;
+        state.mode = robot_controller_ros::TypeJointMode::RELAX;
     else if(status_mask == 0b11)
-        state.mode = JointState::TRACE;
+        state.mode = robot_controller_ros::TypeJointMode::TRACE;
 
     // TODO: Get control type
     // TODO: Get over limits
@@ -160,7 +102,17 @@ robot_controller_ros::TypeJointMode AR60xRecvPacket::jointGetMode(JointData& joi
 }
 
 
-robot_controller_ros::TypeSupplyState AR60xRecvPacket::jointGetSupplyState(JointData& joint)
+robot_controller_ros::TypePid AR60xRecvPacket::JointGetPidGains(JointData &joint)
+{
+    //FUCK Android Technology company
+    robot_controller_ros::TypePid pid;
+    pid.p = read_int16(joint.channel * 16 + JointPGainAddress);
+    pid.i = read_int16(joint.channel * 16 + JointIGainAddress);
+    pid.d = joint.gains.d; // We can't read D gain from robot
+}
+
+
+robot_controller_ros::TypeSupplyState AR60xRecvPacket::PowerGetJointSupplyState(JointData &joint)
 {
     robot_controller_ros::TypeSupplyState state;
     state.Current = read_int16(joint.channel * 16 + JointCurrentAddress) / 1000.0f;
@@ -168,7 +120,7 @@ robot_controller_ros::TypeSupplyState AR60xRecvPacket::jointGetSupplyState(Joint
     return state;
 }
 
-robot_controller_ros::TypeSupplyState AR60xRecvPacket::sourceGetSupplyState(PowerData::PowerSupplies supply)
+robot_controller_ros::TypeSupplyState AR60xRecvPacket::PowerGetSourceSupplyState(PowerSources supply)
 {
     robot_controller_ros::TypeSupplyState state;
 
@@ -210,8 +162,10 @@ float AR60xRecvPacket::read_float(uint16_t address)
     return *((float*)(byte_array_ + address));
 }
 
-double AR60xRecvPacket::uint16_to_angle(uint16_t angle)
+double AR60xRecvPacket::int16_to_angle(int16_t angle)
 {
     return angle / 100.0;
 }
+
+
 

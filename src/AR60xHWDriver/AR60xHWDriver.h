@@ -111,12 +111,16 @@ public:
     void JointsSetPosition(robot_controller_ros::JointsCommand command);
 
     /**
-     * Get joints params (enable, limits, offset, reverse);
+     * Get joints params (names, enable, limits, offset, reverse, mode, pid gains);
      */
-    void JointsGetParams();
+    robot_controller_ros::JointsParams JointsGetParams();
 
     /**
-    * Setup joints params (enable, limits, offset, reverse)
+     * @brief Setup joints params (enable, limits, offset, reverse, mode, pid gains)
+     *
+     * All vectors should be same size or empty. If you don't want to set some parameters
+     * (want to keep current value) just pass empty vector
+     *
     * @param params ROS message with joints params
     */
     void JointsSetParams(robot_controller_ros::JointsParams params);
@@ -148,7 +152,7 @@ public:
      * @param supply Selected supply
      * @param onOffState On or off
      */
-    void SupplySetOnOff(PowerData::PowerSupplies supply, bool onOffState);
+    void SupplySetOnOff(PowerSources supply, bool onOffState);
 
 
     // -------------------------------------- Sensors -------- ---------------------------------------------------------
@@ -159,12 +163,24 @@ public:
      */
     sensor_msgs::Imu SensorGetImu();
 
+    /**
+     * Set calibration value (zero offset) for IMU sensor
+     * @param imu calibration value
+     */
+    void SensorSetImuCalibration(sensor_msgs::Imu imu);
+
 
     /**
      * Get data from feet sensors
      * @return
      */
-    robot_controller_ros::FeetSensors SensorGetFeet();
+    SensorFeetState SensorGetFeet();
+
+    /**
+     * Set calibration value (zero offset) for feet pressure sensors
+     * @param feet calibration values
+     */
+    void SensorSetFeetCalibration(SensorFeetState feet);
 
 
 private:
@@ -173,15 +189,15 @@ private:
 #define SEND_GUARD std::lock_guard<std::mutex> guard(send_mutex_)
 
     void init_packets();
+    bool check_sizes(const JointsParams &params) const;
+    bool equal_or_empty(int size, int orig_size) const;
 
     ConnectionData connectionData;
-
     UDPConnection *connection_;
     AR60xRecvPacket *recv_packet_;
     AR60xSendPacket *sendpacket_;
 
     std::mutex send_mutex_, recv_mutex_;
-
 };
 
 #endif // AR60XHWDRIVER_H

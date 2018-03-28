@@ -22,7 +22,6 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
         FILES
         TypeJointMode.msg
-        TypeJointParams.msg
         TypePid.msg
         TypeSupplyState.msg
         FeetSensors.msg

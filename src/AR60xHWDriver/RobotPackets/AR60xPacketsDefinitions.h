@@ -1,10 +1,9 @@
 #ifndef AR60XPACKETDEFINITION_H
 #define AR60XPACKETDEFINITION_H
 
-#include "../DataTypes/PowerData.h"
-
 #include <iostream>
 #include <map>
+#include <DataTypes/PowerSources.h>
 
 typedef unsigned char BYTE;
 
@@ -94,14 +93,14 @@ struct PowerStateAddress
     int SupplyCurrentAddress;
 };
 
-static std::map<int ,PowerStateAddress> powerStateMap =
+static std::map<PowerSources, PowerStateAddress> powerStateMap =
 {
-    {PowerData::Supply12V, {Supply12VoltageAddress, Supply12CurrentAddress}},
-    {PowerData::Supply6V1, {Supply6V1VoltageAddress, Supply6V1CurrentAddress}},
-    {PowerData::Supply6V2, {Supply6V2VoltageAddress, Supply6V2CurrentAddress}},
-    {PowerData::Supply8V1, {Supply8V1VoltageAddress, Supply8V1CurrentAddress}},
-    {PowerData::Supply8V2, {Supply8V2VoltageAddress, Supply8V2CurrentAddress}},
-    {PowerData::Supply48V, {Supply48VoltageAddress, Supply48CurrentAddress}}
+    {PowerSources::Supply12V, {Supply12VoltageAddress, Supply12CurrentAddress}},
+    {PowerSources::Supply6V1, {Supply6V1VoltageAddress, Supply6V1CurrentAddress}},
+    {PowerSources::Supply6V2, {Supply6V2VoltageAddress, Supply6V2CurrentAddress}},
+    {PowerSources::Supply8V1, {Supply8V1VoltageAddress, Supply8V1CurrentAddress}},
+    {PowerSources::Supply8V2, {Supply8V2VoltageAddress, Supply8V2CurrentAddress}},
+    {PowerSources::Supply48V, {Supply48VoltageAddress, Supply48CurrentAddress}}
 };
 
 #endif // AR60XPACKETDEFINITION_H

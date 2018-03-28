@@ -92,60 +92,103 @@ void AR60xHWDriver::RobotDisconnect()
 sensor_msgs::JointState AR60xHWDriver::JointsGetState()
 {
     RECV_GUARD;
-    return recv_packet_->JointsGetState();
+
+    sensor_msgs::JointState msg;
+    msg.name.resize(desc_.joints.size());
+    msg.position.resize(desc_.joints.size());
+
+    int i = 0;
+    for(auto& joint: desc_.joints)
+    {
+        msg.name[i] = std::to_string(joint.second.number);
+        msg.position[i] = recv_packet_->JointGetPosition(joint.second);
+        i++;
+    }
+
+    return msg;
 }
 
 void AR60xHWDriver::JointsSetPosition(robot_controller_ros::JointsCommand command)
 {
-    SEND_GUARD;
-
-    if((command.names.size() != command.positions.size()) && (command.pids.size() == 0 || command.pids.size() != command.names.size()))
+    if((command.names.size() != command.positions.size()) || (command.pids.size() != 0 && command.pids.size() != command.names.size()))
     {
         ROS_ERROR_STREAM("JointsSetCommand: names and positions vectors should be same size. pids should be zero or same size");
         ROS_ERROR_STREAM("Ignoring command");
         return;
     }
 
+    SEND_GUARD;
+
     for(int i = 0; i < command.names.size(); i++)
     {
         JointData& joint = desc_.joints[atoi(command.names[i].c_str())];
-        sendpacket_->jointSetPosition(joint, command.positions[i]);
+        sendpacket_->JointSetPosition(joint, command.positions[i]);
 
         if(command.pids.size() > 0)
-            sendpacket_->jointSetPIDGains(joint, command.pids[i]);
+            sendpacket_->JointSetPIDGains(joint, command.pids[i]);
     }
 }
 
 
 
-void AR60xHWDriver::JointsGetParams()
+robot_controller_ros::JointsParams AR60xHWDriver::JointsGetParams()
 {
+    robot_controller_ros::JointsParams msg;
+    msg.names.resize(desc_.joints.size());
+    msg.lower_limit.resize(desc_.joints.size());
+    msg.upper_limit.resize(desc_.joints.size());
+    msg.offset.resize(desc_.joints.size());
+    msg.reverse.resize(desc_.joints.size());
+    msg.enabled.resize(desc_.joints.size());
+    msg.mode.resize(desc_.joints.size());
+    msg.pids.resize(desc_.joints.size());
+
+    int i = 0;
+    for(auto& joint: desc_.joints)
+    {
+        msg.names[i] = std::to_string(joint.second.number);
+        msg.lower_limit[i]  = recv_packet_->JointGetLowerLimit(joint.second);
+        msg.upper_limit[i]  = recv_packet_->JointGetUpperLimit(joint.second);
+        msg.offset[i] = recv_packet_->JointGetOffset(joint.second);
+        msg.reverse[i] = joint.second.isReverse;
+        msg.enabled[i] = joint.second.isEnable;
+        msg.mode[i] = recv_packet_->JointGetMode(joint.second);
+        msg.pids[i] = recv_packet_->JointGetPidGains(joint.second);
+        i++;
+    }
+
+    return msg;
 }
 
 void AR60xHWDriver::JointsSetParams(robot_controller_ros::JointsParams params)
 {
-    SEND_GUARD;
-
-    if(params.names.size() != params.params.size())
-    {
-        ROS_ERROR_STREAM("JointSetParams: names and params vectors should be same size");
-        ROS_ERROR_STREAM("Ignoring command");
+    if(!check_sizes(params))
         return;
-    }
+
+    SEND_GUARD;
 
     for(int i = 0; i < params.names.size(); i++)
     {
         JointData& joint = desc_.joints[atoi(params.names[i].c_str())];
 
-        sendpacket_->jointSetReverse(joint, params.params[i].reverse);
-        sendpacket_->jointSetLimits(joint, params.params[i].lower_limit, params.params[i].upper_limit);
-        sendpacket_->jointSetOffset(joint, params.params[i].offset);
-        sendpacket_->jointSetMode(joint, params.params[i].mode);
-        //TODO: PIDs
-        //TODO: Enable
+        if(params.reverse.size() != 0)
+            sendpacket_->JointSetReverse(joint, params.reverse[i]);
+
+        if(params.lower_limit.size() != 0 && params.upper_limit.size() != 0)
+            sendpacket_->JointSetLimits(joint, params.lower_limit[i], params.upper_limit[i]);
+
+        if(params.offset.size() != 0)
+            sendpacket_->JointSetOffset(joint, params.offset[i]);
+
+        if(params.mode.size() != 0)
+            sendpacket_->JointSetMode(joint, params.mode[i]);
+
+        if(params.pids.size() != 0)
+            sendpacket_->JointSetPIDGains(joint, params.pids[i]);
+
+        joint.isEnable = params.enabled[i];
     }
 }
-
 
 
 void AR60xHWDriver::JointsSetMode(robot_controller_ros::JointsMode mode)
@@ -162,7 +205,7 @@ void AR60xHWDriver::JointsSetMode(robot_controller_ros::JointsMode mode)
     for(int i = 0; i<mode.names.size(); i++)
     {
         JointData& joint = desc_.joints[atoi(mode.names[i].c_str())];
-        sendpacket_->jointSetMode(joint, mode.modes[i]);
+        sendpacket_->JointSetMode(joint, mode.modes[i]);
     }
 }
 
@@ -170,19 +213,96 @@ void AR60xHWDriver::JointsSetMode(robot_controller_ros::JointsMode mode)
 
 robot_controller_ros::SourcesSupplyState AR60xHWDriver::PowerGetSourcesSupplyState()
 {
-    return robot_controller_ros::SourcesSupplyState();
+    RECV_GUARD;
+
+    robot_controller_ros::SourcesSupplyState msg;
+    msg.S48 = recv_packet_->PowerGetSourceSupplyState(PowerSources::Supply48V);
+    msg.S12 = recv_packet_->PowerGetSourceSupplyState(PowerSources::Supply12V);
+    msg.S8_1 = recv_packet_->PowerGetSourceSupplyState(PowerSources::Supply8V1);
+    msg.S8_2 = recv_packet_->PowerGetSourceSupplyState(PowerSources::Supply8V2);
+    msg.S6_1 = recv_packet_->PowerGetSourceSupplyState(PowerSources::Supply6V1);
+    msg.S6_2 = recv_packet_->PowerGetSourceSupplyState(PowerSources::Supply6V2);
+    return msg;
 }
 
 robot_controller_ros::JointsSupplyState AR60xHWDriver::PowerGetJointsSupplyState()
 {
-    return robot_controller_ros::JointsSupplyState();
+    RECV_GUARD;
+
+    robot_controller_ros::JointsSupplyState msg;
+    msg.names.resize(desc_.joints.size());
+    msg.states.resize(desc_.joints.size());
+
+    int i = 0;
+    for(auto& joint: desc_.joints)
+    {
+        msg.names[i] = std::to_string(joint.second.number);
+        msg.states[i] = recv_packet_->PowerGetJointSupplyState(joint.second);
+        i++;
+    }
+
+    return msg;
 }
 
 
-void AR60xHWDriver::SupplySetOnOff(PowerData::PowerSupplies supply, bool onOffState)
+void AR60xHWDriver::SupplySetOnOff(PowerSources supply, bool onOffState)
 {
     SEND_GUARD;
-
-    sendpacket_->supplySetOnOff(supply, onOffState);
+    sendpacket_->PowerSourceSetOnOff(supply, onOffState);
 }
+
+////////////////////////////////////// SENSORS /////////////////////////////////////////////////////////////////////////
+
+sensor_msgs::Imu AR60xHWDriver::SensorGetImu()
+{
+    RECV_GUARD;
+    return recv_packet_->SensorsGetImu();
+}
+
+
+void AR60xHWDriver::SensorSetImuCalibration(sensor_msgs::Imu imu)
+{
+    SEND_GUARD;
+    sendpacket_->SensorSetImuCalibration(imu);
+}
+
+SensorFeetState AR60xHWDriver::SensorGetFeet()
+{
+    RECV_GUARD;
+    return recv_packet_->SensorsGetFeet();
+}
+
+void AR60xHWDriver::SensorSetFeetCalibration(SensorFeetState feet)
+{
+    SEND_GUARD;
+    sendpacket_->SensorSetFeetCalibration(feet);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool AR60xHWDriver::check_sizes(const JointsParams &params) const
+{
+    bool is_pid_size_ok = equal_or_empty(params.pids.size(), params.names.size());
+    bool is_upper_size_ok = equal_or_empty(params.upper_limit.size(), params.names.size());
+    bool is_lower_size_ok = equal_or_empty(params.lower_limit.size(), params.names.size());
+    bool is_offset_size_ok = equal_or_empty(params.offset.size(), params.names.size());
+    bool is_reverse_size_ok = equal_or_empty(params.reverse.size(), params.names.size());
+    bool is_enabled_size_ok = equal_or_empty(params.enabled.size(), params.names.size());
+    bool is_mode_size_ok =equal_or_empty(params.mode.size(), params.names.size());
+
+    if(!is_pid_size_ok || !is_upper_size_ok || !is_lower_size_ok || !is_offset_size_ok || !is_reverse_size_ok || !is_enabled_size_ok || !is_mode_size_ok)
+    {
+        ROS_ERROR_STREAM("JointSetParams: all vectors should be same size or empty");
+        ROS_ERROR_STREAM("Ignoring command");
+        return false;
+    }
+
+    return true;
+}
+
+bool AR60xHWDriver::equal_or_empty(int size, int orig_size) const
+{
+    return size == 0 || size == orig_size;
+}
+
 
