@@ -81,14 +81,16 @@ robot_controller_ros::TypePid AR60xRecvPacket::JointGetPidGains(const JointData 
     pid.p = read_int16(joint.channel * 16 + JointPGainAddress);
     pid.i = read_int16(joint.channel * 16 + JointIGainAddress);
     pid.d = joint.pid_gains.d; // We can't read D gain from robot
+
+    return pid;
 }
 
 
 robot_controller_ros::TypeSupplyState AR60xRecvPacket::PowerGetJointSupplyState(const JointData &joint) const
 {
     robot_controller_ros::TypeSupplyState state;
-    state.Current = read_int16(joint.channel * 16 + JointCurrentAddress) / 1000.0f;
-    state.Voltage = read_int16(joint.channel * 16 + JointVoltageAddress) / 1000.0f;
+    state.Current = read_int16(joint.channel * 16 + JointCurrentAddress) / 100.0f;
+    state.Voltage = read_int16(joint.channel * 16 + JointVoltageAddress) / 100.0f;
     return state;
 }
 
@@ -96,10 +98,14 @@ robot_controller_ros::TypeSupplyState AR60xRecvPacket::PowerGetSourceSupplyState
 {
     robot_controller_ros::TypeSupplyState state;
 
-    int address = powerStateMap.at(supply).SupplyVoltageAddress;
-    state.Voltage = address == Supply48VoltageAddress ? (read_float(address) / 100) : (read_float(address) / 1000);
-    address = powerStateMap.at(supply).SupplyCurrentAddress;
-    state.Voltage = address == Supply48VoltageAddress ? (read_float(address) / 100) : (read_float(address) / 1000);
+    state.Voltage = read_float(powerStateMap.at(supply).SupplyVoltageAddress) / 1000;
+    state.Current = read_float(powerStateMap.at(supply).SupplyCurrentAddress) / 1000;
+
+    if(supply == PowerSources::Supply48V)
+    {
+        state.Voltage *=10;
+        state.Current *= 10;
+    }
 
     return state;
 }
@@ -153,14 +159,14 @@ geometry_msgs::Wrench AR60xRecvPacket::sensorGetFoot(const uint8_t groupId) cons
 
 int16_t AR60xRecvPacket::read_int16(const uint16_t address) const
 {
-    //int16_t value =  (byte_array_[address + 1] << 8) + (BYTE)byte_array_[address];
-    return  *((int16_t*)(byte_array_ + address));
+    // FUCK AT: Big Endian
+    return  (byte_array_[address + 1] << 8) + (BYTE)byte_array_[address];
 }
 
 float AR60xRecvPacket::read_float(const uint16_t address) const
 {
-    //float value = static_cast<float>((byte_array_[address + 1] << 8) + (BYTE)byte_array_[address]);
-    return *((float*)(byte_array_ + address));
+    // FUCK AT: Big Endian
+    return static_cast<float>((byte_array_[address + 1] << 8) + (BYTE)byte_array_[address]);
 }
 
 double AR60xRecvPacket::int16_to_angle(const int16_t angle) const

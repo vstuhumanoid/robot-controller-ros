@@ -27,6 +27,7 @@ int main(int argc, char** argv)
     SensorsController sensorsController(driver, nh, 50);
 
     driver.RobotConnect();
+
     power_controller.Start();
     jointsController.Start();
     sensorsController.Start();

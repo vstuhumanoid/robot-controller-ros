@@ -116,6 +116,8 @@ void AR60xSendPacket::PowerSourceSetOnOff(PowerSources supply, bool onOffState)
 {
     //TODO: Check invalid value. Invalid value casted to enum = UB
 
+    int a = 1 << static_cast<uint8_t>(supply);
+
     if(onOffState)
         byte_array_[PowerDataAddress + 1] |= 1 << static_cast<uint8_t>(supply);
     else

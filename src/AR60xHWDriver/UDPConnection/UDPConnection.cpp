@@ -63,8 +63,8 @@ void UDPConnection::connectToHost(std::string robot_address, uint16_t robot_port
 
         ROS_INFO_STREAM("Connected to " << robot_address << ":" <<  robot_port);
 
-        update_thread = std::thread(&UDPConnection::thread_func, this);
         is_running_ = true;
+        update_thread = std::thread(&UDPConnection::thread_func, this);
         update_thread.detach();
 
         ROS_INFO("Connection thread started with perioud %dms", this->send_delay_);
@@ -96,6 +96,8 @@ void UDPConnection::thread_func()
         receive_datagram();
         std::this_thread::sleep_for(std::chrono::milliseconds(send_delay_));
     }
+
+    ROS_INFO("CYCLES WAS ENDED");
 }
 
 void UDPConnection::send_datagram()
