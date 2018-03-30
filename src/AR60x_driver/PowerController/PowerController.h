@@ -47,13 +47,14 @@ public:
      */
     PowerController(AR60xHWDriver& driver,  ros::NodeHandle& nh,  double publishingFrequency);
 
+    void PowerOn();
+    void PowerOff();
+
 private:
     void init_topics();
     void loop() override;
     std::string controller_name() override;
     void robot_supply_command_cb(std_msgs::Bool msg);
-    void power_on();
-    void power_off();
 
     const std::string namespace_ = "power";
 

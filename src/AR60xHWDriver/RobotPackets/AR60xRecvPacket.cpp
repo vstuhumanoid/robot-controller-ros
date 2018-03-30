@@ -122,6 +122,7 @@ sensor_msgs::Imu AR60xRecvPacket::SensorsGetImu() const
     imu.orientation.z = read_int16(channel * 16 + SensorYawOffset) / 100.0;
     imu.orientation.y = read_int16(channel * 16 + SensorPitchOffset) / 100.0;
     imu.orientation.x = read_int16(channel * 16 + SensorRollOffset) / 100.0;
+    imu.header.frame_id = "imu";  //TODO: Maybe should read from config?
 
     return  imu;
 }

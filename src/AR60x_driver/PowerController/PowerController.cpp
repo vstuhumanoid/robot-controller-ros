@@ -38,12 +38,12 @@ void PowerController::loop()
 void PowerController::robot_supply_command_cb(std_msgs::Bool msg)
 {
     if(msg.data)
-        power_on();
+        PowerOn();
     else
-        power_off();
+        PowerOff();
 }
 
-void PowerController::power_on()
+void PowerController::PowerOn()
 {
     ROS_INFO("Power on command received. Powering on robot...");
 
@@ -61,7 +61,7 @@ void PowerController::power_on()
     ROS_INFO("Power on commands sent");
 }
 
-void PowerController::power_off()
+void PowerController::PowerOff()
 {
     ROS_INFO("Power off command received. Powering off robot...");
 

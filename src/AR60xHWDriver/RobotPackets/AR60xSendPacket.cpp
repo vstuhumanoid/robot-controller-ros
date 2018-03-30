@@ -20,8 +20,13 @@ AR60xSendPacket::AR60xSendPacket(AR60xDescription& robotDesc) : BasePacket(robot
     }
 
     for(auto& sensorGroup: desc_.sensorGroups)
-        for(auto& sensor: sensorGroup.second.sensors)
+    {
+        for (auto &sensor: sensorGroup.second.sensors)
+        {
+            write_int16(sensorGroup.second.channel * 16, sensorGroup.second.channel);
             sensorSetOffset(sensorGroup.second.id, sensor.number, sensor.offset);
+        }
+    }
 
 
     PowerSourceSetOnOff(PowerSources::Supply12V, true);

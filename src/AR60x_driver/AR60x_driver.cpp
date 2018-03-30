@@ -31,7 +31,7 @@ int main(int argc, char** argv)
     power_controller.Start();
     jointsController.Start();
     sensorsController.Start();
-
+    power_controller.PowerOn();
     jointsController.PublishJoints();
 
     while(ros::ok())
