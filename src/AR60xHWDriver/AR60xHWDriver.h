@@ -185,6 +185,9 @@ private:
     bool check_sizes(const JointsParams &params) const;
     bool equal_or_empty(int size, int orig_size) const;
 
+
+    JointData* find_joint(std::string name);
+
     ConnectionData connectionData;
     UDPConnection *connection_;
     AR60xRecvPacket *recv_packet_;

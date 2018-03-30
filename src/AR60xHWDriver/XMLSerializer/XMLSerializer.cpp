@@ -39,7 +39,7 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
         jointData->QueryAttribute("number", &number);
         joint.number = number;
 
-        joint.name = std::string(jointData->Attribute("name")); //TODO: Does it allocate string inside parser?
+        joint.description = std::string(jointData->Attribute("description")); //TODO: Does it allocate string inside parser?
 
         int channel;
         jointData->QueryAttribute("channel", &channel);
@@ -128,7 +128,7 @@ bool XMLSerializer::serialize(std::string fileName, AR60xDescription * desc, Con
 
         XMLElement *jointData = document.NewElement("joint");
         jointData->SetAttribute("number", joint.number);
-        jointData->SetAttribute("name", joint.name.c_str() );
+        jointData->SetAttribute("description", joint.description.c_str() );
         jointData->SetAttribute("channel", joint.channel);
 
         XMLElement *jointGains = document.NewElement("gains");

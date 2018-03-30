@@ -115,11 +115,14 @@ void AR60xHWDriver::JointsSetCommand(const robot_controller_ros::JointsCommand c
 
     for(int i = 0; i < command.names.size(); i++)
     {
-        JointData& joint = desc_.joints[atoi(command.names[i].c_str())];
-        sendpacket_->JointSetPosition(joint, command.positions[i]);
+        JointData* joint = find_joint(command.names[i]);
+        if(joint== nullptr)
+            continue;
+
+        sendpacket_->JointSetPosition(*joint, command.positions[i]);
 
         if(command.pids.size() > 0)
-            sendpacket_->JointSetPIDGains(joint, command.pids[i]);
+            sendpacket_->JointSetPIDGains(*joint, command.pids[i]);
     }
 }
 
@@ -163,24 +166,26 @@ void AR60xHWDriver::JointsSetParams(const robot_controller_ros::JointsParams par
 
     for(int i = 0; i < params.names.size(); i++)
     {
-        JointData& joint = desc_.joints[atoi(params.names[i].c_str())];
+        JointData* joint = find_joint(params.names[i]);
+        if(joint== nullptr)
+            continue;
 
         if(params.reverse.size() != 0)
-            sendpacket_->JointSetReverse(joint, params.reverse[i]);
+            sendpacket_->JointSetReverse(*joint, params.reverse[i]);
 
         if(params.lower_limit.size() != 0 && params.upper_limit.size() != 0)
-            sendpacket_->JointSetLimits(joint, params.lower_limit[i], params.upper_limit[i]);
+            sendpacket_->JointSetLimits(*joint, params.lower_limit[i], params.upper_limit[i]);
 
         if(params.offset.size() != 0)
-            sendpacket_->JointSetOffset(joint, params.offset[i]);
+            sendpacket_->JointSetOffset(*joint, params.offset[i]);
 
         if(params.mode.size() != 0)
-            sendpacket_->JointSetMode(joint, params.mode[i]);
+            sendpacket_->JointSetMode(*joint, params.mode[i]);
 
         if(params.pids.size() != 0)
-            sendpacket_->JointSetPIDGains(joint, params.pids[i]);
+            sendpacket_->JointSetPIDGains(*joint, params.pids[i]);
 
-        joint.is_enable = params.enabled[i];
+        joint->is_enable = params.enabled[i];
     }
 }
 
@@ -198,8 +203,12 @@ void AR60xHWDriver::JointsSetMode(const robot_controller_ros::JointsMode mode)
 
     for(int i = 0; i<mode.names.size(); i++)
     {
-        JointData& joint = desc_.joints[atoi(mode.names[i].c_str())];
-        sendpacket_->JointSetMode(joint, mode.modes[i]);
+        JointData* joint = find_joint(mode.names[i]);
+        if(joint== nullptr)
+            continue;
+
+        sendpacket_->JointSetMode(*joint, mode.modes[i]);
+
     }
 }
 
@@ -297,6 +306,32 @@ bool AR60xHWDriver::check_sizes(const JointsParams &params) const
 bool AR60xHWDriver::equal_or_empty(int size, int orig_size) const
 {
     return size == 0 || size == orig_size;
+}
+
+JointData *AR60xHWDriver::find_joint(std::string name)
+{
+    int number;
+
+    try
+    {
+        number = std::stoi(name);
+    }
+    catch(...)
+    {
+        ROS_ERROR_STREAM("Joint name \"" << name << "\" is not a number");
+        return nullptr;
+    }
+
+    try
+    {
+        JointData& joint = desc_.joints.at(number);
+        return  &joint;
+    }
+    catch(...)
+    {
+        ROS_ERROR_STREAM("Joint \"" << number << "\" not exists");
+        return nullptr;
+    }
 }
 
 

@@ -47,8 +47,6 @@ void PowerController::power_on()
 {
     ROS_INFO("Power on command received. Powering on robot...");
 
-    driver_.SupplySetOnOff(PowerSources::Supply12V, true);
-    ros::Duration(0.5).sleep();
     driver_.SupplySetOnOff(PowerSources::Supply48V, true);
     ros::Duration(0.5).sleep();
     driver_.SupplySetOnOff(PowerSources::Supply8V1, true);
@@ -76,8 +74,6 @@ void PowerController::power_off()
     driver_.SupplySetOnOff(PowerSources::Supply8V2, false);
     ros::Duration(0.5).sleep();
     driver_.SupplySetOnOff(PowerSources::Supply48V, false);
-    ros::Duration(0.5).sleep();
-    driver_.SupplySetOnOff(PowerSources::Supply12V, false);
     ros::Duration(0.5).sleep();
 
     ROS_INFO("Power off commands sent");

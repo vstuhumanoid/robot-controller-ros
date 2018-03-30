@@ -23,6 +23,8 @@ AR60xSendPacket::AR60xSendPacket(AR60xDescription& robotDesc) : BasePacket(robot
         for(auto& sensor: sensorGroup.second.sensors)
             sensorSetOffset(sensorGroup.second.id, sensor.number, sensor.offset);
 
+
+    PowerSourceSetOnOff(PowerSources::Supply12V, true);
 }
 
 
@@ -89,16 +91,19 @@ void AR60xSendPacket::JointSetMode(JointData &joint, robot_controller_ros::TypeJ
     switch (mode.mode)
     {
         case TypeJointMode::BREAK:
-            *status |= 0b00;
+            *status &= ~0b11; //set 0b00
             break;
         case TypeJointMode::STOP:
+            *status &= ~0b10; //set 0b01
             *status |= 0b01;
             break;
         case TypeJointMode::RELAX:
-            *status |= 0b10;
+            *status |= 0b10;  //set 0b10
+            *status &=~0b01;
             break;
         case TypeJointMode::TRACE:
-            if(joint.is_enable) *status |= 0b11;
+            if(joint.is_enable)
+                *status |= 0b11;
             break;
         default:
             break;

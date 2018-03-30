@@ -13,7 +13,7 @@ struct JointData
 {
     uint8_t number;         ///< Joint's number (also is used as identifier)
     uint8_t channel;        ///< Joint's channel in package (shift in package)
-    std::string name;       ///< Joint's name
+    std::string description;       ///< Joint's name
     TypePid pid_gains;      ///< PID-controller gains
     double lower_limit;     ///< Angle lower limit (in degrees)
     double upper_limit;     ///< Angle upper limit (in degrees)
