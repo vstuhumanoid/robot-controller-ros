@@ -19,7 +19,7 @@ AR60xHWDriver::~AR60xHWDriver()
 {
     if(connection_)
     {
-        connection_->breakConnection();
+        connection_->BreakConnection();
         delete[] connection_;
         connection_ = nullptr;
     }
@@ -72,13 +72,28 @@ void AR60xHWDriver::init_packets()
 
 void AR60xHWDriver::RobotConnect()
 {
-    connection_->connectToHost(connectionData.host, connectionData.robotPort);
+    connection_->ConnectToHost(connectionData.host, connectionData.localPort,  connectionData.robotPort);
 }
 
 void AR60xHWDriver::RobotDisconnect()
 {
-    connection_->breakConnection();
+    connection_->BreakConnection();
 }
+
+
+void AR60xHWDriver::Read()
+{
+    //TODO: Check that connection is established (and connection_ is not nullptr)
+    connection_->Receive();
+}
+
+void AR60xHWDriver::Write()
+{
+    //TODO: Check that connection is established (and connection_ is not nullptr)
+    connection_->Send();
+}
+
+
 
 
 ////////////////////////////////// JOINTS CONTROL //////////////////////////////////////////////////////////////////////
@@ -347,5 +362,4 @@ void AR60xHWDriver::set_timestamp(std_msgs::Header &header)
 {
     header.stamp = ros::Time::now();
 }
-
 

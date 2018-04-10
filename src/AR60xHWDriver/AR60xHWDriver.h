@@ -76,6 +76,16 @@ public:
      */
     void RobotDisconnect();
 
+    /**
+     * Read data from robot
+     */
+    void Read();
+
+    /**
+     * Write data to robot
+     */
+    void Write();
+
 
     /**
      * Set TRACE mode for all joints and set their

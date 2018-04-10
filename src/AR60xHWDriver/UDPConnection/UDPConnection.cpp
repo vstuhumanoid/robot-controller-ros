@@ -15,35 +15,42 @@ UDPConnection::UDPConnection(AR60xSendPacket& sendPacket,
     send_locker_(sendLocker)
 {
     send_delay_ = delay;
-    is_running_ = false;
+    is_connected_ = false;
 
-    // bind socket to fixed local port
-    // ar600 doesn't support ephemerial port
-    try
-    {
-        socket_.open(ip::udp::v4());
-        socket_.bind(ip::udp::endpoint(ip::udp::v4(), localPort));
-    }
-    catch(const std::runtime_error& er)
-    {
-        ROS_ERROR("Unable to bind socket");
-        ROS_ERROR_STREAM(er.what());
-    }
+
 }
 
 UDPConnection::~UDPConnection()
 {
-    breakConnection();
+    BreakConnection();
 
     if(socket_.is_open())
         socket_.close();
 }
 
 
-void UDPConnection::connectToHost(std::string robot_address, uint16_t robot_port)
+void UDPConnection::ConnectToHost(std::string robot_address, uint16_t  local_port, uint16_t robot_port)
 {
-    if (!is_running_)
+    if (!is_connected_)
     {
+        // bind socket to fixed local port
+        // ar600 doesn't support ephemerial port
+        try
+        {
+            ROS_INFO_STREAM("Binding socket to local port " << local_port << "...");
+            socket_.open(ip::udp::v4());
+            socket_.bind(ip::udp::endpoint(ip::udp::v4(), local_port));
+        }
+        catch(const std::runtime_error& er)
+        {
+            ROS_ERROR("Unable to bind socket");
+            ROS_ERROR_STREAM(er.what());
+
+            throw std::runtime_error("Unable to bind socket");
+        }
+
+        ROS_INFO("Done");
+
         // Connect to robot.
         // Connection is used just to use send instead send_to later.
         // It's bit faster
@@ -51,6 +58,7 @@ void UDPConnection::connectToHost(std::string robot_address, uint16_t robot_port
         // TODO: Return value or exception when error
         try
         {
+            ROS_INFO_STREAM("Connecting socket to robot " << robot_address <<":" << robot_port << "...");
             auto robot_endpoint_ = ip::udp::endpoint(ip::address::from_string(robot_address), robot_port);
             socket_.connect(robot_endpoint_);
         }
@@ -58,16 +66,12 @@ void UDPConnection::connectToHost(std::string robot_address, uint16_t robot_port
         {
             ROS_ERROR("Unable to connect to robot");
             ROS_ERROR_STREAM(er.what());
-            return;
+
+            throw std::runtime_error("Unable to connect to robot");
         }
 
-        ROS_INFO_STREAM("Connected to " << robot_address << ":" <<  robot_port);
-
-        is_running_ = true;
-        update_thread = std::thread(&UDPConnection::thread_func, this);
-        update_thread.detach();
-
-        ROS_INFO("Connection thread started with perioud %dms", this->send_delay_);
+        ROS_INFO("Done");
+        is_connected_ = true;
     }
     else
     {
@@ -75,39 +79,35 @@ void UDPConnection::connectToHost(std::string robot_address, uint16_t robot_port
     }
 }
 
-void UDPConnection::breakConnection()
+void UDPConnection::BreakConnection()
 {
-    if(is_running_)
+    if(is_connected_)
     {
-        ROS_INFO("Stopping...");
-        is_running_ = false;
-        update_thread.join();
+        ROS_INFO("Disconnecting...");
+        is_connected_ = false;
         socket_.close();
-        ROS_INFO("Stopped & disconnected");
+        ROS_INFO("Disconnected");
     }
-}
-
-
-void UDPConnection::thread_func()
-{
-    while (is_running_)
+    else
     {
-        send_datagram();
-        receive_datagram();
-        std::this_thread::sleep_for(std::chrono::milliseconds(send_delay_));
+        ROS_WARN("Not connected");
     }
-
-    ROS_INFO("CYCLES WAS ENDED");
 }
 
-void UDPConnection::send_datagram()
+
+
+void UDPConnection::Send()
 {
     send_locker_.lock();
 
     try
     {
-        //TODO: Handle errors and disconnection
         size_t sended = socket_.send(buffer(send_packet_.getByteArray(), send_packet_.getSize() * sizeof(char)));
+        if(sended != packetSize)
+        {
+            ROS_ERROR("Sending error");
+            ROS_ERROR("Unknown error");
+        }
     }
     catch(const std::runtime_error& er)
     {
@@ -119,14 +119,19 @@ void UDPConnection::send_datagram()
     send_locker_.unlock();
 }
 
-void UDPConnection::receive_datagram()
+void UDPConnection::Receive()
 {
     recv_locker_.lock();
 
     try
     {
-        //TODO: Handle errors and disconnection
+        //TODO: timeout
         size_t received = socket_.receive(buffer(recv_packet_.getByteArray(), packetSize));
+        if (received != packetSize)
+        {
+            ROS_ERROR("Receiving error");
+            ROS_ERROR("Unknown error");
+        }
     }
     catch(const std::runtime_error& er)
     {

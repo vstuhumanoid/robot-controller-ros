@@ -43,14 +43,15 @@ public:
      * @param robot_address Robot's IP-address
      * @param robot_port Robots' port
      */
-    void connectToHost(std::string robot_address, uint16_t robot_port);
+    void ConnectToHost(std::string robot_address, uint16_t local_port, uint16_t robot_port);
 
     /**
      * Disconnect from remote host and stop communication thread
      */
-    void breakConnection();
+    void BreakConnection();
 
-
+    void Send();
+    void Receive();
 private:
 
     // send & recv packages sync
@@ -64,19 +65,11 @@ private:
     io_service io_service_;
     ip::udp::socket socket_;
 
-
-    volatile bool is_running_;
-
     // packages
     AR60xRecvPacket& recv_packet_;
     AR60xSendPacket& send_packet_;
 
-    // sending & receiving thread
-    std::thread update_thread;
-
-    void thread_func();
-    void send_datagram();
-    void receive_datagram();
+    bool is_connected_;
 
 };
 
