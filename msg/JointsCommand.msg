@@ -5,6 +5,7 @@
 #
 # Arrays should have same size. pids may be empty (zero size)
 
+Header header
 string[] names
 float32[] positions
 TypePid[] pids

@@ -22,6 +22,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/Bool.h>
+#include <ros/time.h>
 
 /**
  * @brief Main AR60x robot driver class
@@ -184,7 +185,7 @@ private:
     void init_packets();
     bool check_sizes(const JointsParams &params) const;
     bool equal_or_empty(int size, int orig_size) const;
-
+    void set_timestamp(std_msgs::Header& header);
 
     JointData* find_joint(std::string name);
 

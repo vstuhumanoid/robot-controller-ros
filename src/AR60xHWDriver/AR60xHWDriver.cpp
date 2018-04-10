@@ -99,6 +99,7 @@ sensor_msgs::JointState AR60xHWDriver::JointsGetState()
         i++;
     }
 
+    set_timestamp(msg.header);
     return msg;
 }
 
@@ -154,6 +155,7 @@ robot_controller_ros::JointsParams AR60xHWDriver::JointsGetParams()
         i++;
     }
 
+    set_timestamp(msg.header);
     return msg;
 }
 
@@ -225,6 +227,7 @@ robot_controller_ros::SourcesSupplyState AR60xHWDriver::PowerGetSourcesSupplySta
     msg.S8_2 = recv_packet_->PowerGetSourceSupplyState(PowerSources::Supply8V2);
     msg.S6_1 = recv_packet_->PowerGetSourceSupplyState(PowerSources::Supply6V1);
     msg.S6_2 = recv_packet_->PowerGetSourceSupplyState(PowerSources::Supply6V2);
+    set_timestamp(msg.header);
     return msg;
 }
 
@@ -244,6 +247,7 @@ robot_controller_ros::JointsSupplyState AR60xHWDriver::PowerGetJointsSupplyState
         i++;
     }
 
+    set_timestamp(msg.header);
     return msg;
 }
 
@@ -259,7 +263,10 @@ void AR60xHWDriver::SupplySetOnOff(const PowerSources supply, const bool onOffSt
 sensor_msgs::Imu AR60xHWDriver::SensorGetImu()
 {
     RECV_GUARD;
-    return recv_packet_->SensorsGetImu();
+    auto msg =  recv_packet_->SensorsGetImu();
+    msg.header.frame_id = "imu"; //TODO: Maybe set frame_id of IMU in config?
+    set_timestamp(msg.header);
+    return msg;
 }
 
 
@@ -272,7 +279,9 @@ void AR60xHWDriver::SensorSetImuCalibration(const sensor_msgs::Imu imu)
 robot_controller_ros::FeetSensors AR60xHWDriver::SensorGetFeet()
 {
     RECV_GUARD;
-    return recv_packet_->SensorsGetFeet();
+    auto msg = recv_packet_->SensorsGetFeet();
+    set_timestamp(msg.header);
+    return msg;
 }
 
 void AR60xHWDriver::SensorSetFeetCalibration(const SensorFeetState feet)
@@ -332,6 +341,11 @@ JointData *AR60xHWDriver::find_joint(std::string name)
         ROS_ERROR_STREAM("Joint \"" << number << "\" not exists");
         return nullptr;
     }
+}
+
+void AR60xHWDriver::set_timestamp(std_msgs::Header &header)
+{
+    header.stamp = ros::Time::now();
 }
 
 

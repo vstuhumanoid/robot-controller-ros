@@ -60,6 +60,3 @@ include_directories(
 
 add_subdirectory(src/AR60xHWDriver)
 add_subdirectory(src/AR60x_driver)
-
-
-add_executable(wtf src/wtf.cpp)
