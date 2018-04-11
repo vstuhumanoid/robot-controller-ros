@@ -2,6 +2,7 @@
 #
 # Arrays should have same size or be empty
 
+Header header
 string[] names
 bool[] enabled
 float32[] lower_limit

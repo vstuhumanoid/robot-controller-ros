@@ -6,5 +6,6 @@
 #
 # Note: AR600 using joints' numbers as names
 
+Header header
 string[] names
 TypeSupplyState[] states

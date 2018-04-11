@@ -5,5 +5,6 @@
 #
 # Arrays should have same size
 
+Header header
 string[] names
 TypeJointMode[] modes

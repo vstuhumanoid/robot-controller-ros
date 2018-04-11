@@ -5,4 +5,6 @@
 # data - legs array (0 - left, 1 - right)
 #        (also, you can use more legs, why not?)
 
-geometry_msgs/Wrench[] data
+Header header
+TypeFootSensor left
+TypeFootSensor right

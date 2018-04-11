@@ -5,8 +5,7 @@
 #include <ros/ros.h>
 #include <std_msgs/builtin_bool.h>
 #include <DataTypes/PowerSources.h>
-#include <robot_controller_ros/RobotSupplyState.h>
-#include <robot_controller_ros/SupplyState.h>
+#include <robot_controller_ros/SourcesSupplyState.h>
 #include <robot_controller_ros/JointsSupplyState.h>
 #include <AR60xHWDriver.h>
 #include <BaseController/BaseController.h>

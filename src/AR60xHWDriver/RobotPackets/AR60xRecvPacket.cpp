@@ -131,29 +131,27 @@ sensor_msgs::Imu AR60xRecvPacket::SensorsGetImu() const
 robot_controller_ros::FeetSensors AR60xRecvPacket::SensorsGetFeet() const
 {
     robot_controller_ros::FeetSensors state;
-    state.data.resize(2);
-
-    state.data[0] = sensorGetFoot(LeftFootGroupId);
-    state.data[0] = sensorGetFoot(RightFootGroupId);
+    state.left = sensorGetFoot(LeftFootGroupId);
+    state.left = sensorGetFoot(RightFootGroupId);
     return state;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-geometry_msgs::Wrench AR60xRecvPacket::sensorGetFoot(const uint8_t groupId) const
+robot_controller_ros::TypeFootSensor AR60xRecvPacket::sensorGetFoot(const uint8_t groupId) const
 {
-    geometry_msgs::Wrench data;
+    robot_controller_ros::TypeFootSensor data;
     uint8_t channel = desc_.sensorGroups[groupId].channel;
 
-    /*data.uch0 = read_int16(channel * 16 + SensorUch0Offset) / 100.0;
-    data.uch1 = read_int16(channel * 16 + SensorUch1Offset) / 100.0;
-    data.uch2 = read_int16(channel * 16 + SensorUch2Offset) / 100.0;
-    data.uch3 = read_int16(channel * 16 + SensorUch3Offset) / 100.0;*/
+    data.uch0 = read_int16(channel * 16 + SensorUch0Offset) / 100.0f;
+    data.uch1 = read_int16(channel * 16 + SensorUch1Offset) / 100.0f;
+    data.uch2 = read_int16(channel * 16 + SensorUch2Offset) / 100.0f;
+    data.uch3 = read_int16(channel * 16 + SensorUch3Offset) / 100.0f;
 
-    data.torque.x = read_int16(channel * 16 + SensorTyOffset) / 100.0;
-    data.torque.y = read_int16(channel * 16 + SensorTyOffset) / 100.0;
-    data.force.z = read_int16(channel * 16 + SensorFzOffset) / 100.0;
+    data.tx = read_int16(channel * 16 + SensorTyOffset) / 100.0f;
+    data.ty = read_int16(channel * 16 + SensorTyOffset) / 100.0f;
+    data.fz = read_int16(channel * 16 + SensorFzOffset) / 100.0f;
 
     return data;
 }

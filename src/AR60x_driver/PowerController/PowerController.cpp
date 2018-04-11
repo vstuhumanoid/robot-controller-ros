@@ -17,7 +17,7 @@ PowerController::PowerController(AR60xHWDriver& driver, ros::NodeHandle& nh, dou
 
 void PowerController::init_topics()
 {
-    robot_supply_state_publisher_ = nh_.advertise<RobotSupplyState>(namespace_ + "/sources_state", 100);
+    robot_supply_state_publisher_ = nh_.advertise<SourcesSupplyState>(namespace_ + "/sources_state", 100);
     joints_supply_state_publiser_ = nh_.advertise<JointsSupplyState>(namespace_ + "/joints_state", 100);
     power_commands_subscriber_ = nh_.subscribe<std_msgs::Bool>(namespace_ + "/command", 100, &PowerController::robot_supply_command_cb, this);
 }

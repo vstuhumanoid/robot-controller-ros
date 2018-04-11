@@ -36,7 +36,7 @@ public:
     robot_controller_ros::FeetSensors SensorsGetFeet() const;
 
 private:
-    geometry_msgs::Wrench sensorGetFoot(const uint8_t groupId) const;
+    robot_controller_ros::TypeFootSensor sensorGetFoot(const uint8_t groupId) const;
 
     int16_t read_int16(const uint16_t address) const;
     float read_float(const uint16_t address) const;

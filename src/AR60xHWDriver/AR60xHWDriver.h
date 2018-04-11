@@ -22,6 +22,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/Bool.h>
+#include <ros/time.h>
 
 /**
  * @brief Main AR60x robot driver class
@@ -39,7 +40,6 @@
 class AR60xHWDriver
 {
 public:
-    AR60xDescription desc_;
     /**
      * Create new AR60x driver
      */
@@ -75,6 +75,24 @@ public:
      */
     void RobotDisconnect();
 
+    /**
+     * Is robot connected
+     * @return
+     */
+    bool CheckConnection() { return connection_->CheckConnection(); }
+
+    /**
+     * Read data from robot
+     */
+    void Read();
+
+    /**
+     * Write data to robot
+     */
+    void Write();
+
+
+    ConnectionData GetConnectionData() const;
 
     /**
      * Set TRACE mode for all joints and set their
@@ -184,14 +202,15 @@ private:
     void init_packets();
     bool check_sizes(const JointsParams &params) const;
     bool equal_or_empty(int size, int orig_size) const;
-
+    void set_timestamp(std_msgs::Header& header);
 
     JointData* find_joint(std::string name);
 
+    AR60xDescription desc_;
     ConnectionData connectionData;
-    UDPConnection *connection_;
-    AR60xRecvPacket *recv_packet_;
-    AR60xSendPacket *sendpacket_;
+    std::unique_ptr<UDPConnection> connection_;
+    std::shared_ptr<AR60xRecvPacket> recv_packet_;
+    std::shared_ptr<AR60xSendPacket> sendpacket_;
 
     std::mutex send_mutex_, recv_mutex_;
 };

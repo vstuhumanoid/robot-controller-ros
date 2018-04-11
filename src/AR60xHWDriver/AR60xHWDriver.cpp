@@ -18,23 +18,7 @@ AR60xHWDriver::AR60xHWDriver(std::string config_filename) : AR60xHWDriver()
 AR60xHWDriver::~AR60xHWDriver()
 {
     if(connection_)
-    {
-        connection_->breakConnection();
-        delete[] connection_;
-        connection_ = nullptr;
-    }
-
-    if(sendpacket_)
-    {
-        delete[] sendpacket_;
-        sendpacket_ = nullptr;
-    }
-
-    if(recv_packet_)
-    {
-        delete[] recv_packet_;
-        recv_packet_ = nullptr;
-    }
+        connection_->BreakConnection();
 }
 
 void AR60xHWDriver::LoadConfig(std::string fileName)
@@ -55,12 +39,21 @@ bool AR60xHWDriver::SaveConfig(std::string fileName)
     return serializer.serialize(fileName, &desc_, &connectionData);
 }
 
+
+
+ConnectionData AR60xHWDriver::GetConnectionData() const
+{
+    return connectionData;
+}
+
+
 void AR60xHWDriver::init_packets()
 {
-    sendpacket_ = new AR60xSendPacket(desc_);
-    recv_packet_ = new AR60xRecvPacket(desc_);
+    sendpacket_ =  std::make_shared<AR60xSendPacket>(desc_);
+    recv_packet_ = std::make_shared<AR60xRecvPacket>(desc_);
     recv_packet_->initFromByteArray(sendpacket_->getByteArray());
-    connection_ = new UDPConnection(*sendpacket_, *recv_packet_,
+
+    connection_ = std::make_unique<UDPConnection>(sendpacket_, recv_packet_,
                                     recv_mutex_, send_mutex_,
                                     connectionData.localPort,
                                     connectionData.sendDelay);
@@ -72,13 +65,28 @@ void AR60xHWDriver::init_packets()
 
 void AR60xHWDriver::RobotConnect()
 {
-    connection_->connectToHost(connectionData.host, connectionData.robotPort);
+    connection_->ConnectToHost(connectionData.host, connectionData.localPort,  connectionData.robotPort);
 }
 
 void AR60xHWDriver::RobotDisconnect()
 {
-    connection_->breakConnection();
+    connection_->BreakConnection();
 }
+
+
+void AR60xHWDriver::Read()
+{
+    //TODO: Check that connection is established (and connection_ is not nullptr)
+    connection_->Receive();
+}
+
+void AR60xHWDriver::Write()
+{
+    //TODO: Check that connection is established (and connection_ is not nullptr)
+    connection_->Send();
+}
+
+
 
 
 ////////////////////////////////// JOINTS CONTROL //////////////////////////////////////////////////////////////////////
@@ -99,6 +107,7 @@ sensor_msgs::JointState AR60xHWDriver::JointsGetState()
         i++;
     }
 
+    set_timestamp(msg.header);
     return msg;
 }
 
@@ -154,6 +163,7 @@ robot_controller_ros::JointsParams AR60xHWDriver::JointsGetParams()
         i++;
     }
 
+    set_timestamp(msg.header);
     return msg;
 }
 
@@ -225,6 +235,7 @@ robot_controller_ros::SourcesSupplyState AR60xHWDriver::PowerGetSourcesSupplySta
     msg.S8_2 = recv_packet_->PowerGetSourceSupplyState(PowerSources::Supply8V2);
     msg.S6_1 = recv_packet_->PowerGetSourceSupplyState(PowerSources::Supply6V1);
     msg.S6_2 = recv_packet_->PowerGetSourceSupplyState(PowerSources::Supply6V2);
+    set_timestamp(msg.header);
     return msg;
 }
 
@@ -244,6 +255,7 @@ robot_controller_ros::JointsSupplyState AR60xHWDriver::PowerGetJointsSupplyState
         i++;
     }
 
+    set_timestamp(msg.header);
     return msg;
 }
 
@@ -259,7 +271,10 @@ void AR60xHWDriver::SupplySetOnOff(const PowerSources supply, const bool onOffSt
 sensor_msgs::Imu AR60xHWDriver::SensorGetImu()
 {
     RECV_GUARD;
-    return recv_packet_->SensorsGetImu();
+    auto msg =  recv_packet_->SensorsGetImu();
+    msg.header.frame_id = "imu"; //TODO: Maybe set frame_id of IMU in config?
+    set_timestamp(msg.header);
+    return msg;
 }
 
 
@@ -272,7 +287,9 @@ void AR60xHWDriver::SensorSetImuCalibration(const sensor_msgs::Imu imu)
 robot_controller_ros::FeetSensors AR60xHWDriver::SensorGetFeet()
 {
     RECV_GUARD;
-    return recv_packet_->SensorsGetFeet();
+    auto msg = recv_packet_->SensorsGetFeet();
+    set_timestamp(msg.header);
+    return msg;
 }
 
 void AR60xHWDriver::SensorSetFeetCalibration(const SensorFeetState feet)
@@ -334,4 +351,8 @@ JointData *AR60xHWDriver::find_joint(std::string name)
     }
 }
 
+void AR60xHWDriver::set_timestamp(std_msgs::Header &header)
+{
+    header.stamp = ros::Time::now();
+}
 
