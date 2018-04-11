@@ -11,17 +11,20 @@ using namespace robot_controller_ros;
 
 
 void connect_cb(const std_msgs::Bool& msg);
+void check_connection();
 
 AR60xHWDriver driver;
 ros::Subscriber connection_sub;
 ros::Publisher connection_pub;
+bool previous_connection_state;
 
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "AR60x_driver");
     ros::NodeHandle nh;
     connection_sub = nh.subscribe("connection/command", 100, connect_cb);
-    connection_pub = nh.advertise<std_msgs::Bool>("connection/state", 100);
+    connection_pub = nh.advertise<std_msgs::Bool>("connection/state", 100, true);
+    previous_connection_state = false;
 
     // Load config and connect to robot
     string config_filename;
@@ -40,21 +43,39 @@ int main(int argc, char** argv)
     power_controller.PowerOn();
     jointsController.PublishJoints();*/
 
-    ros::Rate rate(0.01); //TODO: from config
+    ros::Rate rate(50); //TODO: from config
 
     while(ros::ok())
     {
-        driver.Read();
-        jointsController.Update();
-        sensorsController.Update();
         driver.Write();
+        driver.Read();
+        //jointsController.Update();
+        //sensorsController.Update();
 
+        check_connection();
         rate.sleep();
         ros::spinOnce();
     }
 
 
     return 0;
+}
+
+void check_connection()
+{
+    bool current_state = driver.CheckConnection();
+    if(current_state != previous_connection_state)
+    {
+        std_msgs::Bool msg;
+        msg.data = current_state;
+        connection_pub.publish(msg);
+        previous_connection_state = current_state;
+
+        if(current_state)
+            ROS_INFO("Robot connected");
+        else
+            ROS_INFO("Robot disconnected");
+    }
 }
 
 void connect_cb(const std_msgs::Bool& msg)

@@ -1,5 +1,7 @@
 project(AR60xHWDriver)
 
+set (CMAKE_CXX_STANDARD 14)
+
 find_package(catkin REQUIRED COMPONENTS
         roscpp
         cmake_modules)

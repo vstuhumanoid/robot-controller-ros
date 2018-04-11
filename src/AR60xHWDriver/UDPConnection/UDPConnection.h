@@ -5,6 +5,7 @@
 #include <thread>
 #include <chrono>
 #include <mutex>
+#include <future>
 
 #include "RobotPackets/AR60xRecvPacket.h"
 #include "RobotPackets/AR60xSendPacket.h"
@@ -52,7 +53,24 @@ public:
 
     void Send();
     void Receive();
+    bool CheckConnection() { return is_connection_ok_; }
+
 private:
+
+    /**
+     * Result of send or recv operation
+     */
+    struct SocketResult
+    {
+        error_code ErrorCode;   ///< Asio error code
+        size_t Length;          ///< Number
+    };
+
+    std::future<SocketResult>  receive(ip::udp::socket& socket, uint8_t* buffer, size_t buffer_size);
+    std::future<SocketResult> send(ip::udp::socket& socket, uint8_t* buffer, size_t buffer_size);
+    void connection_failed() { is_connection_ok_ = false;}
+    void connection_established() { is_connection_ok_ = true; };
+    void fucking_asio_thread_func();
 
     // send & recv packages sync
     std::mutex& send_locker_;
@@ -64,12 +82,14 @@ private:
     // connection
     io_service io_service_;
     ip::udp::socket socket_;
+    std::thread fucking_asio_thread;
 
     // packages
     AR60xRecvPacket& recv_packet_;
     AR60xSendPacket& send_packet_;
 
     bool is_connected_;
+    bool is_connection_ok_;
 
 };
 

@@ -77,6 +77,12 @@ public:
     void RobotDisconnect();
 
     /**
+     * Is robot connected
+     * @return
+     */
+    bool CheckConnection() { return connection_->CheckConnection(); }
+
+    /**
      * Read data from robot
      */
     void Read();
