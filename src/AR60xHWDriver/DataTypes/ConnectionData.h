@@ -13,5 +13,4 @@ struct ConnectionData
     int localPort;     ///< Local port, because ephemerial ports isn't supported by AR600
     int sendDelay;     ///< Sending loop delay in ms
 };
-
 #endif // CONNECTIONDATA_H

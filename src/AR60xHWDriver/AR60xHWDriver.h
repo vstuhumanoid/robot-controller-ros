@@ -40,7 +40,6 @@
 class AR60xHWDriver
 {
 public:
-    AR60xDescription desc_;
     /**
      * Create new AR60x driver
      */
@@ -92,6 +91,8 @@ public:
      */
     void Write();
 
+
+    ConnectionData GetConnectionData() const;
 
     /**
      * Set TRACE mode for all joints and set their
@@ -205,10 +206,11 @@ private:
 
     JointData* find_joint(std::string name);
 
+    AR60xDescription desc_;
     ConnectionData connectionData;
-    UDPConnection *connection_;
-    AR60xRecvPacket *recv_packet_;
-    AR60xSendPacket *sendpacket_;
+    std::unique_ptr<UDPConnection> connection_;
+    std::shared_ptr<AR60xRecvPacket> recv_packet_;
+    std::shared_ptr<AR60xSendPacket> sendpacket_;
 
     std::mutex send_mutex_, recv_mutex_;
 };

@@ -3,8 +3,8 @@
 
 using namespace std;
 
-UDPConnection::UDPConnection(AR60xSendPacket& sendPacket,
-                             AR60xRecvPacket& recvPacket,
+UDPConnection::UDPConnection(shared_ptr<AR60xSendPacket> sendPacket,
+                             shared_ptr<AR60xRecvPacket> recvPacket,
                              std::mutex& sendLocker,
                              std::mutex& recvLocker,
                              uint16_t localPort,
@@ -85,10 +85,11 @@ void UDPConnection::Send()
     try
     {
         error_code code;
-        size_t sended = socket_.send_to(buffer(send_packet_.getByteArray(), send_packet_.getSize() * sizeof(char)), robot_endpoint_, 0, code);
+        size_t sended = socket_.send_to(buffer(send_packet_->getByteArray(), packetSize), robot_endpoint_, 0, code);
         if(code)
         {
             ROS_WARN_STREAM("Sending error: " << code.message());
+            ROS_ERROR("Unknown error");
             connection_failed();
         }
         else
@@ -111,7 +112,7 @@ void UDPConnection::Receive()
 
     try
     {
-        auto future = receive(socket_, recv_packet_.getByteArray(), packetSize);
+        auto future = receive(socket_, recv_packet_->getByteArray(), packetSize);
         auto status = future.wait_for(2s);
         if(status == future_status::timeout)
         {

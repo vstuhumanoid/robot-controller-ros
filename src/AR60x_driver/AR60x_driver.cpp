@@ -14,7 +14,6 @@ void connect_cb(const std_msgs::Bool& msg);
 void check_connection();
 
 AR60xHWDriver driver;
-ros::Subscriber connection_sub;
 ros::Publisher connection_pub;
 bool previous_connection_state;
 
@@ -22,7 +21,6 @@ int main(int argc, char** argv)
 {
     ros::init(argc, argv, "AR60x_driver");
     ros::NodeHandle nh;
-    connection_sub = nh.subscribe("connection/command", 100, connect_cb);
     connection_pub = nh.advertise<std_msgs::Bool>("connection/state", 100, true);
     previous_connection_state = false;
 
@@ -37,21 +35,18 @@ int main(int argc, char** argv)
 
     driver.RobotConnect();
 
-    /*power_controller.Start();
-    jointsController.Start();
-    sensorsController.Start();
+    power_controller.Start();
     power_controller.PowerOn();
-    jointsController.PublishJoints();*/
+    jointsController.PublishJoints();
 
-    ros::Rate rate(50); //TODO: from config
+    ros::Rate rate(1e3 / driver.GetConnectionData().sendDelay); // sendDelay in ms
 
     while(ros::ok())
     {
         driver.Write();
         driver.Read();
-        //jointsController.Update();
-        //sensorsController.Update();
-
+        jointsController.Update();
+        sensorsController.Update();
         check_connection();
         rate.sleep();
         ros::spinOnce();
@@ -75,17 +70,5 @@ void check_connection()
             ROS_INFO("Robot connected");
         else
             ROS_INFO("Robot disconnected");
-    }
-}
-
-void connect_cb(const std_msgs::Bool& msg)
-{
-    if(msg.data)
-    {
-        // Connect to robot
-    }
-    else
-    {
-        // Disconnect
     }
 }

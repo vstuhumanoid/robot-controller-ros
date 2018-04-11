@@ -16,6 +16,7 @@
 #include <cstdint>
 
 using namespace asio;
+using namespace std;
 
 class UDPConnection
 {
@@ -24,15 +25,15 @@ public:
 
     /**
      * Create new connection object
-     * @param sendPacket Reference to the send packet structure
-     * @param recvPacket Referenct to the recv packet structure
+     * @param sendPacket Pointer to the send packet structure
+     * @param recvPacket Pointer to the recv packet structure
      * @param recvLocker Mutex for receiving
      * @param sendLocker Mutex for sending
      * @param localPort port socket is binding to
      * @param delay Sending loop delay (ms)
      */
-    UDPConnection(AR60xSendPacket& sendPacket,
-                  AR60xRecvPacket& recvPacket,
+    UDPConnection(shared_ptr<AR60xSendPacket> sendPacket,
+                  shared_ptr<AR60xRecvPacket> recvPacket,
                   std::mutex& sendLocker,
                   std::mutex& recvLocker,
                   uint16_t localPort,
@@ -86,8 +87,8 @@ private:
     std::thread fucking_asio_thread;
 
     // packages
-    AR60xRecvPacket& recv_packet_;
-    AR60xSendPacket& send_packet_;
+    shared_ptr<AR60xRecvPacket> recv_packet_;
+    shared_ptr<AR60xSendPacket> send_packet_;
 
     bool is_connected_;
     bool is_connection_ok_;

@@ -18,23 +18,7 @@ AR60xHWDriver::AR60xHWDriver(std::string config_filename) : AR60xHWDriver()
 AR60xHWDriver::~AR60xHWDriver()
 {
     if(connection_)
-    {
         connection_->BreakConnection();
-        delete[] connection_;
-        connection_ = nullptr;
-    }
-
-    if(sendpacket_)
-    {
-        delete[] sendpacket_;
-        sendpacket_ = nullptr;
-    }
-
-    if(recv_packet_)
-    {
-        delete[] recv_packet_;
-        recv_packet_ = nullptr;
-    }
 }
 
 void AR60xHWDriver::LoadConfig(std::string fileName)
@@ -55,12 +39,21 @@ bool AR60xHWDriver::SaveConfig(std::string fileName)
     return serializer.serialize(fileName, &desc_, &connectionData);
 }
 
+
+
+ConnectionData AR60xHWDriver::GetConnectionData() const
+{
+    return connectionData;
+}
+
+
 void AR60xHWDriver::init_packets()
 {
-    sendpacket_ = new AR60xSendPacket(desc_);
-    recv_packet_ = new AR60xRecvPacket(desc_);
+    sendpacket_ =  std::make_shared<AR60xSendPacket>(desc_);
+    recv_packet_ = std::make_shared<AR60xRecvPacket>(desc_);
     recv_packet_->initFromByteArray(sendpacket_->getByteArray());
-    connection_ = new UDPConnection(*sendpacket_, *recv_packet_,
+
+    connection_ = std::make_unique<UDPConnection>(sendpacket_, recv_packet_,
                                     recv_mutex_, send_mutex_,
                                     connectionData.localPort,
                                     connectionData.sendDelay);
