@@ -82,6 +82,7 @@ private:
     // connection
     io_service io_service_;
     ip::udp::socket socket_;
+    ip::udp::endpoint robot_endpoint_;
     std::thread fucking_asio_thread;
 
     // packages

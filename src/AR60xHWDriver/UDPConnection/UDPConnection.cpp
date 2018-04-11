@@ -52,26 +52,7 @@ void UDPConnection::ConnectToHost(std::string robot_address, uint16_t  local_por
 
         ROS_INFO("Done");
 
-        // Connect to robot.
-        // Connection is used just to use send instead send_to later.
-        // It's bit faster
-        // TODO: Check endpoint is correct
-        // TODO: Return value or exception when error
-        try
-        {
-            ROS_INFO_STREAM("Connecting socket to robot " << robot_address <<":" << robot_port << "...");
-            auto robot_endpoint_ = ip::udp::endpoint(ip::address::from_string(robot_address), robot_port);
-            socket_.connect(robot_endpoint_);
-        }
-        catch(const std::runtime_error& er)
-        {
-            ROS_ERROR("Unable to connect to robot");
-            ROS_ERROR_STREAM(er.what());
-
-            throw std::runtime_error("Unable to connect to robot");
-        }
-
-        ROS_INFO("Done");
+        robot_endpoint_ = ip::udp::endpoint(ip::address::from_string(robot_address), robot_port);
         is_connected_ = true;
     }
     else
@@ -103,12 +84,11 @@ void UDPConnection::Send()
 
     try
     {
-        //TODO: Check error code
-        size_t sended = socket_.send(buffer(send_packet_.getByteArray(), send_packet_.getSize() * sizeof(char)));
-        if(sended != packetSize)
+        error_code code;
+        size_t sended = socket_.send_to(buffer(send_packet_.getByteArray(), send_packet_.getSize() * sizeof(char)), robot_endpoint_, 0, code);
+        if(code)
         {
-            ROS_ERROR("Sending error");
-            ROS_ERROR("Unknown error");
+            ROS_WARN_STREAM("Sending error: " << code.message());
             connection_failed();
         }
         else
@@ -150,7 +130,6 @@ void UDPConnection::Receive()
             else
             {
                 connection_established();
-                //ROS_INFO("OK");
             }
         }
 
