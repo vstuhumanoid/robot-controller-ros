@@ -2,6 +2,7 @@
 #define AR60XDESCRIPTION_H
 
 #include <map>
+#include <string>
 #include "JointData.h"
 #include "SensorsGroupData.h"
 
@@ -18,7 +19,7 @@ public:
     AR60xDescription(const AR60xDescription&) = delete;
 
     std::map<int, SensorsGroupData> sensorGroups;
-    std::map<int, JointData> joints;
+    std::map<std::string, JointData> joints;
 };
 
 #endif // AR60XDESCRIPTION_H

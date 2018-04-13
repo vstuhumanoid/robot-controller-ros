@@ -1,87 +1,87 @@
 <config>
     <connection host="192.169.1.10" robotPort="10001" sendDelay="5" localPort="10001"/>
     <joints>
-        <joint number="1" description="Стопа Y (R)" channel="1" offset="-1.1399999999999999" isReverse="0" isEnable="1">
+        <joint name="ankle_s_joint_right" number="1" description="Стопа Y (R)" channel="1" offset="-1.1399999999999999" isReverse="0" isEnable="1">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-15" upperLimit="15"/>
         </joint>
-        <joint number="2" description="Стопа X (R)" channel="2" offset="-53.609999999999999" isReverse="0" isEnable="1">
+        <joint name="ankle_f_joint_right" number="2" description="Стопа X (R)" channel="2" offset="-53.609999999999999" isReverse="0" isEnable="1">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-40" upperLimit="80"/>
         </joint>
-        <joint number="3" description="Колено (R)" channel="3" offset="-78.040000000000006" isReverse="0" isEnable="1">
+        <joint name="knee_joint_right" number="3" description="Колено (R)" channel="3" offset="-78.040000000000006" isReverse="0" isEnable="1">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-100" upperLimit="7"/>
         </joint>
-        <joint number="4" description="Бедро X (R)" channel="4" offset="48.950000000000003" isReverse="1" isEnable="1">
+        <joint name="hip_f_joint_right" number="4" description="Бедро X (R)" channel="4" offset="48.950000000000003" isReverse="1" isEnable="1">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-10" upperLimit="72"/>
         </joint>
-        <joint number="5" description="Бедро Y (R)" channel="5" offset="1.9299999999999999" isReverse="1" isEnable="1">
+        <joint name="hip_s_joint_right" number="5" description="Бедро Y (R)" channel="5" offset="1.9299999999999999" isReverse="1" isEnable="1">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-14" upperLimit="15"/>
         </joint>
-        <joint number="6" description="Бедро вращение (R)" channel="6" offset="82.079999999999998" isReverse="1" isEnable="1">
+        <joint name="hip_r_joint_right" number="6" description="Бедро вращение (R)" channel="6" offset="82.079999999999998" isReverse="1" isEnable="1">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-45" upperLimit="45"/>
         </joint>
-        <joint number="7" description="Стопа Y (L)" channel="7" offset="65.560000000000002" isReverse="1" isEnable="1">
+        <joint name="ankle_s_joint_left" number="7" description="Стопа Y (L)" channel="7" offset="65.560000000000002" isReverse="1" isEnable="1">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-15" upperLimit="15"/>
         </joint>
-        <joint number="8" description="Стопа X (L)" channel="8" offset="-8.6999999999999993" isReverse="1" isEnable="1">
+        <joint name="ankle_f_joint_left" number="8" description="Стопа X (L)" channel="8" offset="-8.6999999999999993" isReverse="1" isEnable="1">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-40" upperLimit="80"/>
         </joint>
-        <joint number="9" description="Колено (L)" channel="9" offset="-49.299999999999997" isReverse="1" isEnable="1">
+        <joint name="knee_joint_left" number="9" description="Колено (L)" channel="9" offset="-49.299999999999997" isReverse="1" isEnable="1">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-100" upperLimit="7"/>
         </joint>
-        <joint number="10" description="Бедро X (L)" channel="10" offset="-44.200000000000003" isReverse="0" isEnable="1">
+        <joint name="hip_f_joint_left" number="10" description="Бедро X (L)" channel="10" offset="-44.200000000000003" isReverse="0" isEnable="1">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-10" upperLimit="72"/>
         </joint>
-        <joint number="11" description="Бедро Y (L)" channel="11" offset="42.18" isReverse="0" isEnable="1">
+        <joint name="hip_s_joint_left"  number="11" description="Бедро Y (L)" channel="11" offset="42.18" isReverse="0" isEnable="1">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-14" upperLimit="15"/>
         </joint>
-        <joint number="12" description="Бедро вращение (L)" channel="12" offset="76.640000000000001" isReverse="0" isEnable="1">
+        <joint name="hip_r_joint_left" number="12" description="Бедро вращение (L)" channel="12" offset="76.640000000000001" isReverse="0" isEnable="1">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-45" upperLimit="45"/>
         </joint>
-        <joint number="19" description="Рука Y (R)" channel="26" offset="173.75999999999999" isReverse="1" isEnable="0">
+        <joint name="shoulder_s_joint_right" number="19" description="Рука Y (R)" channel="26" offset="173.75999999999999" isReverse="1" isEnable="0">
             <gains proportional="600" integral="2" derivative="1"/>
             <limits lowerLimit="-5" upperLimit="90"/>
         </joint>
-        <joint number="20" description="Рука X (R)" channel="27" offset="114.43000000000001" isReverse="1" isEnable="0">
+        <joint name="shoulder_f_joint_right" number="20" description="Рука X (R)" channel="27" offset="114.43000000000001" isReverse="1" isEnable="0">
             <gains proportional="600" integral="2" derivative="1"/>
             <limits lowerLimit="-5" upperLimit="95"/>
         </joint>
-        <joint number="35" description="Рука Y (L)" channel="36" offset="-163.72999999999999" isReverse="0" isEnable="0">
+        <joint name="shoulder_s_joint_left" number="35" description="Рука Y (L)" channel="36" offset="-163.72999999999999" isReverse="0" isEnable="0">
             <gains proportional="600" integral="2" derivative="1"/>
             <limits lowerLimit="-5" upperLimit="90"/>
         </joint>
-        <joint number="36" description="Рука X (L)" channel="37" offset="40.25" isReverse="0" isEnable="0">
+        <joint name="shoulder_f_joint_left" number="36" description="Рука X (L)" channel="37" offset="40.25" isReverse="0" isEnable="0">
             <gains proportional="600" integral="2" derivative="1"/>
             <limits lowerLimit="-5" upperLimit="95"/>
         </joint>
-        <joint number="43" description="Голова вращение" channel="18" offset="4.8700000000000001" isReverse="0" isEnable="0">
+        <joint name="head_r_joint" number="43" description="Голова вращение" channel="18" offset="4.8700000000000001" isReverse="0" isEnable="0">
             <gains proportional="1000" integral="2" derivative="1"/>
             <limits lowerLimit="-35" upperLimit="35"/>
         </joint>
-        <joint number="44" description="Голова наклон" channel="20" offset="90.969999999999999" isReverse="1" isEnable="0">
+        <joint name="head_f_joint" number="44" description="Голова наклон" channel="20" offset="90.969999999999999" isReverse="1" isEnable="0">
             <gains proportional="400" integral="1" derivative="1"/>
             <limits lowerLimit="-15" upperLimit="15"/>
         </joint>
-        <joint number="45" description="Голова качание" channel="21" offset="29.879999999999999" isReverse="0" isEnable="0">
+        <joint name="head_s_joint" number="45" description="Голова качание" channel="21" offset="29.879999999999999" isReverse="0" isEnable="0">
             <gains proportional="400" integral="1" derivative="1"/>
             <limits lowerLimit="-10" upperLimit="10"/>
         </joint>
-        <joint number="46" description="Шея" channel="22" offset="84.370000000000005" isReverse="0" isEnable="0">
+        <joint name="neck_f_joint" number="46" description="Шея" channel="22" offset="84.370000000000005" isReverse="0" isEnable="0">
             <gains proportional="500" integral="1" derivative="1"/>
             <limits lowerLimit="-5" upperLimit="15"/>
         </joint>
-        <joint number="49" description="Торс" channel="23" offset="-154.77000000000001" isReverse="0" isEnable="1">
+        <joint name="torso_r_joint" number="49" description="Торс" channel="23" offset="-154.77000000000001" isReverse="0" isEnable="1">
             <gains proportional="500" integral="1" derivative="1"/>
             <limits lowerLimit="-25" upperLimit="25"/>
         </joint>

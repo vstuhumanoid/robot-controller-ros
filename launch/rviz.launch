@@ -1,0 +1,9 @@
+<!-- Display real positions of robot joints in RViz -->
+<launch>
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find ar600_description)/xacro/ar600.xacro'"/>
+    <param name="use_gui" value="true"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
+        <remap from="joint_states" to="joints/state"/>
+    </node>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_controller_ros)/launch/robot_model.rviz" required="true" />
+</launch>

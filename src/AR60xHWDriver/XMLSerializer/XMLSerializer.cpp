@@ -27,7 +27,7 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
     XMLElement* joints = root->FirstChildElement("joints");
     XMLElement* jointData = joints->FirstChildElement("joint");
 
-    std::map <int, JointData> jointsMap;
+    std::map <std::string, JointData> jointsMap;
 
     while(jointData != nullptr)
     {
@@ -35,12 +35,11 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
 
         JointData joint;
 
+        joint.name = std::string(jointData->Attribute("name"));
+        joint.description = std::string(jointData->Attribute("description")); //TODO: Does it allocate string inside parser?
         int number;
         jointData->QueryAttribute("number", &number);
         joint.number = number;
-
-        joint.description = std::string(jointData->Attribute("description")); //TODO: Does it allocate string inside parser?
-
         int channel;
         jointData->QueryAttribute("channel", &channel);
         joint.channel = channel;
@@ -55,15 +54,13 @@ bool XMLSerializer::deserialize(std::string fileName, AR60xDescription * desc, C
         joint.pid_gains.d = gain;
 
         XMLElement *jointLimits = jointData->FirstChildElement("limits");
-
         jointLimits->QueryAttribute("lowerLimit", &joint.lower_limit);
         jointLimits->QueryAttribute("upperLimit", &joint.upper_limit);
-
         jointData->QueryAttribute("offset", &joint.offset);
         jointData->QueryAttribute("isReverse", &joint.is_reverse);
         jointData->QueryAttribute("isEnable", &joint.is_enable);
 
-        jointsMap[joint.number] = joint;
+        jointsMap[joint.name] = joint;
 
         jointData = jointData->NextSiblingElement("joint");
     }
@@ -127,8 +124,9 @@ bool XMLSerializer::serialize(std::string fileName, AR60xDescription * desc, Con
         JointData joint = j.second;
 
         XMLElement *jointData = document.NewElement("joint");
-        jointData->SetAttribute("number", joint.number);
+        jointData->SetAttribute("name", joint.name.c_str());
         jointData->SetAttribute("description", joint.description.c_str() );
+        jointData->SetAttribute("number", joint.number);
         jointData->SetAttribute("channel", joint.channel);
 
         XMLElement *jointGains = document.NewElement("gains");

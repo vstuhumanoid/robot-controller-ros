@@ -102,7 +102,7 @@ sensor_msgs::JointState AR60xHWDriver::JointsGetState()
     int i = 0;
     for(auto& joint: desc_.joints)
     {
-        msg.name[i] = std::to_string(joint.second.number);
+        msg.name[i] = joint.second.name;
         msg.position[i] = recv_packet_->JointGetPosition(joint.second);
         i++;
     }
@@ -152,7 +152,7 @@ robot_controller_ros::JointsParams AR60xHWDriver::JointsGetParams()
     int i = 0;
     for(auto& joint: desc_.joints)
     {
-        msg.names[i] = std::to_string(joint.second.number);
+        msg.names[i] = joint.second.name;
         msg.lower_limit[i]  = recv_packet_->JointGetLowerLimit(joint.second);
         msg.upper_limit[i]  = recv_packet_->JointGetUpperLimit(joint.second);
         msg.offset[i] = recv_packet_->JointGetOffset(joint.second);
@@ -327,28 +327,15 @@ bool AR60xHWDriver::equal_or_empty(int size, int orig_size) const
 
 JointData *AR60xHWDriver::find_joint(std::string name)
 {
-    int number;
 
-    try
+    auto it = desc_.joints.find(name);
+    if(it == desc_.joints.end())
     {
-        number = std::stoi(name);
-    }
-    catch(...)
-    {
-        ROS_ERROR_STREAM("Joint name \"" << name << "\" is not a number");
+        ROS_ERROR_STREAM("Joint \"" << name << "\" not exists");
         return nullptr;
     }
 
-    try
-    {
-        JointData& joint = desc_.joints.at(number);
-        return  &joint;
-    }
-    catch(...)
-    {
-        ROS_ERROR_STREAM("Joint \"" << number << "\" not exists");
-        return nullptr;
-    }
+    return &(it->second);
 }
 
 void AR60xHWDriver::set_timestamp(std_msgs::Header &header)

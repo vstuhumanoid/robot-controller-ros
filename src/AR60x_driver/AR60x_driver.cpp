@@ -26,7 +26,12 @@ int main(int argc, char** argv)
 
     // Load config and connect to robot
     string config_filename;
-    nh.getParam("driver_config", config_filename);
+    if(!nh.getParam("driver_config", config_filename))
+    {
+        ROS_ERROR("Parameter \"driver_config\" not set");
+        return -1;
+    }
+
     driver.LoadConfig(config_filename);
 
     PowerController power_controller(driver, nh, 5);
@@ -43,8 +48,8 @@ int main(int argc, char** argv)
 
     while(ros::ok())
     {
-        driver.Write();
-        driver.Read();
+        //driver.Write();
+        //driver.Read();
         jointsController.Update();
         sensorsController.Update();
         check_connection();
