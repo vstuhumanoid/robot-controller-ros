@@ -21,7 +21,7 @@ add_library(${PROJECT_NAME} STATIC
         RobotDescription/JointData.h
         RobotDescription/SensorData.h
         RobotDescription/SensorsGroupData.h
-        RobotDescription/AR60xDescription.h)
+        RobotDescription/AR60xDescription.h EasyLocker/EasyLocker.cpp EasyLocker/EasyLocker.h)
 
 
 target_link_libraries(${PROJECT_NAME}

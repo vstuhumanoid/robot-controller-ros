@@ -6,7 +6,8 @@ AR60xHWDriver::AR60xHWDriver():
     recv_packet_(nullptr),
     connection_(nullptr),
     send_mutex_(),
-    recv_mutex_()
+    recv_mutex_(),
+    recv_wait_locker_()
 {
 }
 
@@ -47,6 +48,7 @@ ConnectionData AR60xHWDriver::GetConnectionData() const
 }
 
 
+
 void AR60xHWDriver::init_packets()
 {
     sendpacket_ =  std::make_shared<AR60xSendPacket>(desc_);
@@ -78,6 +80,7 @@ void AR60xHWDriver::Read()
 {
     //TODO: Check that connection is established (and connection_ is not nullptr)
     connection_->Receive();
+    recv_wait_locker_.NotifyAll();
 }
 
 void AR60xHWDriver::Write()
@@ -86,8 +89,10 @@ void AR60xHWDriver::Write()
     connection_->Send();
 }
 
-
-
+void AR60xHWDriver::WaitForReceive()
+{
+    recv_wait_locker_.Wait();
+}
 
 ////////////////////////////////// JOINTS CONTROL //////////////////////////////////////////////////////////////////////
 
@@ -342,4 +347,5 @@ void AR60xHWDriver::set_timestamp(std_msgs::Header &header)
 {
     header.stamp = ros::Time::now();
 }
+
 

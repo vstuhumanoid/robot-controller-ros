@@ -42,6 +42,7 @@ void JointsController::loop()
 
 void JointsController::PublishJoints()
 {
+    driver_.WaitForReceive();
     joint_params_publisher_.publish(driver_.JointsGetParams());
 }
 
@@ -55,12 +56,12 @@ void JointsController::joint_params_cb(robot_controller_ros::JointsParams msg)
 {
     // We should re-publish joints params when something is changed
     driver_.JointsSetParams(msg);
-    joint_params_publisher_.publish(driver_.JointsGetParams());
+    PublishJoints();
 }
 
 void JointsController::joint_mode_cb(robot_controller_ros::JointsMode msg)
 {
     // We should re-publish joints params when something is changed
     driver_.JointsSetMode(msg);
-    joint_params_publisher_.publish(driver_.JointsGetParams());
+    PublishJoints();
 }

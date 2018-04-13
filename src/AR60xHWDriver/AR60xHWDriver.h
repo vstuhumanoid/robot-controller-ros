@@ -6,6 +6,7 @@
 #include "RobotPackets/AR60xSendPacket.h"
 #include "XMLSerializer/XMLSerializer.h"
 #include "UDPConnection/UDPConnection.h"
+#include "EasyLocker/EasyLocker.h"
 
 #include <string>
 #include <fstream>
@@ -93,6 +94,15 @@ public:
 
 
     ConnectionData GetConnectionData() const;
+
+    /**
+     * @brief Lock current thread until a next package will be received from robot
+     *
+     * This method can be used if you set something from another thread and want to get
+     * updated data from the robot, but you don't know, when real communication will be proceed.
+     * Use this method to wait for the updated data.
+     */
+    void WaitForReceive();
 
     /**
      * Set TRACE mode for all joints and set their
@@ -213,6 +223,7 @@ private:
     std::shared_ptr<AR60xSendPacket> sendpacket_;
 
     std::mutex send_mutex_, recv_mutex_;
+    EasyLocker recv_wait_locker_;
 };
 
 #endif // AR60XHWDRIVER_H
