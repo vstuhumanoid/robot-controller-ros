@@ -41,6 +41,7 @@ private:
     void sensorSetFootOffset(SensorFeetState::FootData data, uint8_t groupId);
     void write_int16(uint16_t address, int16_t value);
     short angle_to_uint16(double angle);
+    double rad2deg(double rad);
 
 };
 

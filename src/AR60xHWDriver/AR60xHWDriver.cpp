@@ -67,25 +67,27 @@ void AR60xHWDriver::init_packets()
 
 void AR60xHWDriver::RobotConnect()
 {
+    //TODO: Check that connection_ is not nullptr
     connection_->ConnectToHost(connectionData.host, connectionData.localPort,  connectionData.robotPort);
 }
 
 void AR60xHWDriver::RobotDisconnect()
 {
+    //TODO: Check that connection_ is not nullptr
     connection_->BreakConnection();
 }
 
 
 void AR60xHWDriver::Read()
 {
-    //TODO: Check that connection is established (and connection_ is not nullptr)
-    connection_->Receive();
-    recv_wait_locker_.NotifyAll();
+    //TODO: Check that connection_ is not nullptr
+    if(connection_->Receive())
+        recv_wait_locker_.NotifyAll();
 }
 
 void AR60xHWDriver::Write()
 {
-    //TODO: Check that connection is established (and connection_ is not nullptr)
+    //TODO: Check that connection_ is not nullptr
     connection_->Send();
 }
 
@@ -255,7 +257,7 @@ robot_controller_ros::JointsSupplyState AR60xHWDriver::PowerGetJointsSupplyState
     int i = 0;
     for(auto& joint: desc_.joints)
     {
-        msg.names[i] = std::to_string(joint.second.number);
+        msg.names[i] = joint.second.name;
         msg.states[i] = recv_packet_->PowerGetJointSupplyState(joint.second);
         i++;
     }

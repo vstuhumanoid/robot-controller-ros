@@ -78,9 +78,9 @@ void UDPConnection::BreakConnection()
 
 
 
-void UDPConnection::Send()
+bool UDPConnection::Send()
 {
-    send_locker_.lock();
+    std::lock_guard<std::mutex> guard(send_locker_);
 
     try
     {
@@ -91,24 +91,24 @@ void UDPConnection::Send()
             ROS_WARN_STREAM("Sending error: " << code.message());
             ROS_ERROR("Unknown error");
             connection_failed();
+            return false;
         }
-        else
-            connection_established();
+
+        connection_established();
+        return true;
     }
     catch(const std::runtime_error& er)
     {
         ROS_ERROR("Sending error");
         ROS_ERROR_STREAM(er.what());
         connection_failed();
+        return false;
     }
-
-
-    send_locker_.unlock();
 }
 
-void UDPConnection::Receive()
+bool UDPConnection::Receive()
 {
-    recv_locker_.lock();
+    std::lock_guard<std::mutex> guard(recv_locker_);
 
     try
     {
@@ -119,6 +119,7 @@ void UDPConnection::Receive()
             socket_.cancel();
             ROS_WARN("Receiving timeout");
             connection_failed();
+            return false;
         }
         else
         {
@@ -127,10 +128,12 @@ void UDPConnection::Receive()
             {
                 ROS_WARN_STREAM("Receiving error: " << sr.ErrorCode.message());
                 connection_failed();
+                return false;
             }
             else
             {
                 connection_established();
+                return true;
             }
         }
 
@@ -140,9 +143,8 @@ void UDPConnection::Receive()
         ROS_ERROR("Receiving error");
         ROS_ERROR_STREAM(er.what());
         connection_failed();
+        return false;
     }
-
-    recv_locker_.unlock();
 }
 
 std::future<UDPConnection::SocketResult>  UDPConnection::receive(ip::udp::socket& socket, uint8_t *buf, size_t buffer_size)

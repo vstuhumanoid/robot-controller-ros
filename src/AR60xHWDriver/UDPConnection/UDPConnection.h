@@ -52,8 +52,8 @@ public:
      */
     void BreakConnection();
 
-    void Send();
-    void Receive();
+    bool Send();
+    bool Receive();
     bool CheckConnection() { return is_connection_ok_; }
 
 private:

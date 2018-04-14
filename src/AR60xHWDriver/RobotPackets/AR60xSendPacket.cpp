@@ -37,6 +37,9 @@ AR60xSendPacket::AR60xSendPacket(AR60xDescription& robotDesc) : BasePacket(robot
 
 void AR60xSendPacket::JointSetPosition(JointData &joint, double value)
 {
+    value = rad2deg(value);
+    //WARNING: limits in degrees.
+
     if(value < joint.lower_limit)
         value = joint.lower_limit;
     else if(value > joint.upper_limit)
@@ -65,6 +68,7 @@ void AR60xSendPacket::JointSetReverse(JointData &joint, bool reverse)
 
 void AR60xSendPacket::JointSetLimits(JointData &joint, double lower, double upper)
 {
+    //TODO: rad2deg
     joint.lower_limit = lower;
     joint.upper_limit = upper;
 
@@ -84,6 +88,7 @@ void AR60xSendPacket::JointSetLimits(JointData &joint, double lower, double uppe
 
 void AR60xSendPacket::JointSetOffset(JointData &joint, double value)
 {
+    //TODO: rad2deg
     joint.offset = value;
     write_int16(joint.channel * 16 + JointOffsetAddress, angle_to_uint16(value));
 }
@@ -181,6 +186,8 @@ short AR60xSendPacket::angle_to_uint16(double angle)
     return (short)(angle * 100);
 }
 
-
-
+double AR60xSendPacket::rad2deg(double rad)
+{
+    return rad / M_PI * 180;
+}
 

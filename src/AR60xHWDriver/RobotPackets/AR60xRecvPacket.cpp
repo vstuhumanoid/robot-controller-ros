@@ -16,11 +16,13 @@ void AR60xRecvPacket::initFromByteArray(const uint8_t *bytes)
 
 double AR60xRecvPacket::JointGetPosition(const JointData &joint) const
 {
-    return int16_to_angle(read_int16(joint.channel * 16 + JointPositionAddress));
+    return  deg2rad(int16_to_angle(read_int16(joint.channel * 16 + JointPositionAddress)));
 }
 
 double AR60xRecvPacket::JointGetLowerLimit(const JointData &joint) const
 {
+    //TODO: deg2rad
+
     int16_t value;
     if(joint.is_reverse)
         value = -read_int16(joint.channel * 16 + JointUpperLimitAddress);
@@ -32,6 +34,8 @@ double AR60xRecvPacket::JointGetLowerLimit(const JointData &joint) const
 
 double AR60xRecvPacket::JointGetUpperLimit(const JointData &joint) const
 {
+    //TODO: deg2rad
+
     int16_t value;
 
     if(joint.is_reverse)
@@ -45,6 +49,7 @@ double AR60xRecvPacket::JointGetUpperLimit(const JointData &joint) const
 
 double AR60xRecvPacket::JointGetOffset(const JointData &joint) const
 {
+    //TODO: deg2rad
     return int16_to_angle(read_int16(joint.channel * 16 + JointOffsetAddress));
 }
 
@@ -173,5 +178,8 @@ double AR60xRecvPacket::int16_to_angle(const int16_t angle) const
     return angle / 100.0;
 }
 
-
+double AR60xRecvPacket::deg2rad(const double deg) const
+{
+    return deg / 180.0 * M_PI;
+}
 

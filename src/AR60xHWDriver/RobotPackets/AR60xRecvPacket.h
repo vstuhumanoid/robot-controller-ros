@@ -41,6 +41,7 @@ private:
     int16_t read_int16(const uint16_t address) const;
     float read_float(const uint16_t address) const;
     double int16_to_angle(const int16_t angle) const;
+    double deg2rad(const double deg) const;
 };
 
 #endif // AR60XRECVPACKET_H

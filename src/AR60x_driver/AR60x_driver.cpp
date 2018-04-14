@@ -53,6 +53,7 @@ int main(int argc, char** argv)
     ROS_INFO("Started");
 
     // Power on robot and publishing initial joints params
+    driver.WaitForReceive();
     power_controller.PowerOn();
     jointsController.PublishJoints();
 
