@@ -16,7 +16,10 @@ void AR60xRecvPacket::initFromByteArray(const uint8_t *bytes)
 
 double AR60xRecvPacket::JointGetPosition(const JointData &joint) const
 {
-    return  deg2rad(int16_to_angle(read_int16(joint.channel * 16 + JointPositionAddress)));
+    double position = deg2rad(int16_to_angle(read_int16(joint.channel * 16 + JointPositionAddress)));
+    if(joint.is_reverse)
+        position = -position;
+    return position;
 }
 
 double AR60xRecvPacket::JointGetLowerLimit(const JointData &joint) const
