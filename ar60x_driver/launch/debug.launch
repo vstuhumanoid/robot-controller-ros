@@ -1,0 +1,8 @@
+<launch>
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find ar600_description)/xacro/ar600.xacro'"/>
+    <param name="use_gui" value="true"/>
+    <include file="$(find ar60x_driver)/launch/driver.launch"/>
+    <node name="commands_loopback" pkg="ar60x_driver" type="commands_to_state" output="screen"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ar60x_driver)/launch/robot_model.rviz" required="true" />
+</launch>

@@ -1,0 +1,2 @@
+add_executable(commands_to_state commands_to_state.cpp)
+target_link_libraries(commands_to_state ${catkin_LIBRARIES})

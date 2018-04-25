@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 
     // Power on robot and publishing initial joints params
     jointsController.PublishJoints();
-    driver.WaitForReceive();
+    //driver.WaitForReceive();
     power_controller.PowerOn();
 
     ros::spin();

@@ -34,3 +34,4 @@ include_directories(
 
 add_subdirectory(src/AR60xHWDriver)
 add_subdirectory(src/ar60x_driver_node)
+add_subdirectory(src/topic_converters)
