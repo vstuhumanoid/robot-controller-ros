@@ -1,0 +1,4 @@
+<launch>
+    <param name="driver_config" value="$(find ar60x_driver)/config.xml"/>
+    <node name="ar60x_driver" pkg="ar60x_driver" type="ar60x_driver_node"  output="screen"/>
+</launch>

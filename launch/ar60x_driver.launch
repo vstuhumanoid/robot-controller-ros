@@ -1,4 +1,0 @@
-<launch>
-    <param name="driver_config" value="$(find robot_controller_ros)/config.xml"/>
-    <node name="ar60x_driver" pkg="robot_controller_ros" type="AR60x_driver"  output="screen"/>
-</launch>
