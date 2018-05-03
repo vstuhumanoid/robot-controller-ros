@@ -13,7 +13,8 @@ using namespace robot_msgs;
 
 
 void check_connection();
-void robot_thread_func(JointsController& jointsController, SensorsController& sensorsController);
+void robot_thread_func(JointsController &jointsController, SensorsController &sensorsController,
+                       PowerController &powerController);
 
 AR60xHWDriver driver;
 ros::Publisher connection_pub;
@@ -38,24 +39,24 @@ int main(int argc, char** argv)
     driver.LoadConfig(config_filename);
 
     // Create controllers
-    PowerController power_controller(driver, nh, 5);
+    PowerController powerController(driver, nh); //, 5);
     JointsController jointsController(driver, nh);
     SensorsController sensorsController(driver, nh);
 
     driver.RobotConnect();
-    power_controller.Start();
+    //powerController.Start();
 
     // Starting main communication thread
     ROS_INFO("Starting main thread...");
     is_running = true;
-    std::thread robot_thread(robot_thread_func, ref(jointsController), ref(sensorsController));
+    std::thread robot_thread(robot_thread_func, ref(jointsController), ref(sensorsController), ref(powerController));
     robot_thread.detach();
     ROS_INFO("Started");
 
     // Power on robot and publishing initial joints params
     jointsController.PublishJoints();
     //driver.WaitForReceive();
-    power_controller.PowerOn();
+    powerController.PowerOn();
 
     ros::spin();
 
@@ -69,7 +70,8 @@ int main(int argc, char** argv)
 }
 
 // Communication with robot and publishing topics
-void robot_thread_func(JointsController& jointsController, SensorsController& sensorsController)
+void robot_thread_func(JointsController &jointsController, SensorsController &sensorsController,
+                       PowerController &powerController)
 {
     ros::Rate rate(1e3 / driver.GetConnectionData().sendDelay); // sendDelay in ms
 
@@ -79,6 +81,7 @@ void robot_thread_func(JointsController& jointsController, SensorsController& se
         driver.Read();
         jointsController.Update();
         sensorsController.Update();
+        powerController.Update();
 
         check_connection();
         rate.sleep();
