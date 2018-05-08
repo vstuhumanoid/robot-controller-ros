@@ -1,2 +1,3 @@
 add_executable(commands_to_state commands_to_state.cpp)
+add_dependencies(commands_to_state robot_msgs_generate_messages_cpp)
 target_link_libraries(commands_to_state ${catkin_LIBRARIES})

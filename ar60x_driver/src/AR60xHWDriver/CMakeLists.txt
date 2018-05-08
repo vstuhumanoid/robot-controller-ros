@@ -25,6 +25,8 @@ add_library(${PROJECT_NAME} STATIC
         EasyLocker/EasyLocker.cpp)
 
 
+add_dependencies(AR60xHWDriver robot_msgs_generate_messages_cpp)
+
 target_link_libraries(${PROJECT_NAME}
         ${catkin_LIBRARIES}
         ${TinyXML2_LIBRARIES})
