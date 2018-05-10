@@ -11,7 +11,6 @@ Publisher state_publisher;
 robot_msgs::JointsParams params;
 
 void callback(const robot_msgs::JointsCommand& msg);
-bool get_reverse(string joint);
 
 sensor_msgs::JointState state_msg;
 
@@ -41,41 +40,10 @@ void callback(const robot_msgs::JointsCommand& msg)
     for(int i = 0; i<msg.positions.size(); i++)
     {
         double angle  = msg.positions[i];
-        if(get_reverse(state_msg.name[i]))
-            angle = -angle;
-
         state_msg.position[i] = angle;
     }
 
 
     state_msg.header.stamp = ros::Time::now();
     state_publisher.publish(state_msg);
-}
-
-bool get_reverse(string joint)
-{
-    /*for(int i = 0; i<params.names.size(); i++)
-    {
-        if(params.names[i] == joint)
-            return params.reverse[i];
-    }
-
-    ROS_WARN_STREAM("Topic not found");
-    return false;*/
-
-    if(joint == "hip_s_joint_right")
-        return true;
-    if(joint == "hip_r_joint_right")
-        return true;
-    if(joint == "shoulder_s_joint_right")
-        return true;
-    if(joint == "ankle_s_joint_right")
-        return true;
-    if(joint == "knee_joint_right")
-        return true;
-    if(joint == "knee_joint_left")
-        return true;
-
-
-    return false;
 }
