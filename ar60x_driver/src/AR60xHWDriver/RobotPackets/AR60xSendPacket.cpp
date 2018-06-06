@@ -100,6 +100,8 @@ void AR60xSendPacket::JointSetMode(JointData &joint, robot_msgs::TypeJointMode m
 {
     uint8_t* status = &byte_array_[joint.channel * 16 + 1];
 
+    if(!joint.is_enable)
+        return;
     switch (mode.mode)
     {
         case TypeJointMode::BREAK:

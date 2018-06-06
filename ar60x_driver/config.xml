@@ -1,11 +1,11 @@
 <config>
     <connection host="192.169.1.10" robotPort="10001" sendDelay="5" localPort="10001"/>
     <joints>
-        <joint name="ankle_s_joint_right" number="1" description="Стопа Y (R)" channel="1" offset="-1.1399999999999999" isReverse="0" isEnable="1">
+        <joint name="ankle_s_joint_right" number="1" description="Стопа Y (R)" channel="1" offset="-1.1399999999999999" isReverse="0" isEnable="0">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-15" upperLimit="15"/>
         </joint>
-        <joint name="ankle_f_joint_right" number="2" description="Стопа X (R)" channel="2" offset="-53.609999999999999" isReverse="0" isEnable="1">
+        <joint name="ankle_f_joint_right" number="2" description="Стопа X (R)" channel="2" offset="-53.609999999999999" isReverse="0" isEnable="0">
             <gains proportional="900" integral="2" derivative="1"/>
             <limits lowerLimit="-40" upperLimit="80"/>
         </joint>
